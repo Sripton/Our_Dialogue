@@ -1,8 +1,12 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "./Pages/Navbar";
 import { Route, Routes } from "react-router-dom";
-export default function App() {
+import Contentlist from "./Pages/Contentlist";
+export default function App({ directions }) {
   const [isMobileDevice, setIsMobileDevice] = useState(false);
+  const [isArrowActive, setIsArrowActive] = useState(false);
+  const [iconMenuActive, setIconMenuActive] = useState(false);
+
   const isMobile = () => {
     const userAgent = navigator.userAgent;
     return /Android|Blackberry|iPhone|iPad|iPod|Opera Mini|IEMobile/gi.test(
@@ -16,10 +20,24 @@ export default function App() {
     document.body.classList.toggle("_touch", mobileDevice);
     document.body.classList.toggle("_pc", !mobileDevice);
   }, []);
+
+  const handleArrowActive = () => {
+    setIsArrowActive(!isArrowActive);
+  };
+  const handleIconMenuActive = () => {
+    setIconMenuActive(!iconMenuActive);
+  };
+
   return (
     <>
+      <Navbar
+        isArrowActive={isArrowActive}
+        handleArrowActive={handleArrowActive}
+        iconMenuActive={iconMenuActive}
+        handleIconMenuActive={handleIconMenuActive}
+      />
       <Routes>
-        <Route path="/" element={<Navbar />} />
+        <Route path="/" element={<Contentlist directions={directions} />} />
       </Routes>
     </>
   );
