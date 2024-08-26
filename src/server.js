@@ -5,7 +5,7 @@ import jsxRender from "./Shablonizator/jsxRender";
 import indexRouter from "./IndexRouter/indexRouter";
 import path from "path";
 import apiDirection from "./API/apiDirection";
-import { Direction } from "./db/models";
+import { Direction, Thumbnail } from "./db/models";
 
 dotenv.config();
 const app = express();
@@ -23,7 +23,9 @@ app.use(express.static("public"));
 app.use(async (req, res, next) => {
   try {
     const getDirections = await Direction.findAll();
+    const getThumbnails = await Thumbnail.findAll();
     res.locals.directions = getDirections;
+    res.locals.thumbnails = getThumbnails;
   } catch (error) {
     console.log(error);
   }

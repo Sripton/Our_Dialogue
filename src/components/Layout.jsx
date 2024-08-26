@@ -12,6 +12,7 @@ export default function Layout({ initState }) {
         <link rel="stylesheet" href="/css/normalize.css" />
         <link rel="stylesheet" href="/css/reset.css" />
         <link rel="stylesheet" href="/css/style.css" />
+
         <script defer src="/app.js"></script>
         <script defer src="/vendor.js"></script>
         <script
