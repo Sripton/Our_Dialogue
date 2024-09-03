@@ -1,20 +1,22 @@
 import React, { useEffect, useState } from "react";
+import { NavLink } from "react-router-dom";
 
 export default function Contentlist({ directions, thumbnails }) {
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
   const handleClick = (index) => {
-    setSelectedItemIndex(index+=1);
-    console.log('index', index);
+    setSelectedItemIndex(index + 1);
+    console.log("index", index);
   };
   useEffect(() => {
     const caorusel__list = document.querySelector(".caorusel__list");
     const thumbnail__list = document.querySelector(".thumbnail__list");
-    const caorusel__item = document.querySelectorAll(".caorusel__item");
-    const thumbnail__item = document.querySelectorAll(".thumbnail__item");
-    thumbnail__item.forEach((elem, index) => {
+    const caorusel__items = document.querySelectorAll(".caorusel__item");
+    const thumbnail__items = document.querySelectorAll(".thumbnail__item");
+
+    thumbnail__items.forEach((elem, index) => {
       elem.addEventListener("click", () => {
-        caorusel__list.appendChild(caorusel__item[index]);
-        thumbnail__list.appendChild(thumbnail__item[index]);
+        caorusel__list.appendChild(caorusel__items[index]);
+        thumbnail__list.appendChild(thumbnail__items[index]);
       });
     });
   }, []);
@@ -31,7 +33,7 @@ export default function Contentlist({ directions, thumbnails }) {
                   {direction.description}
                 </div>
                 <div className="caorusel__button">
-                  <button>Перейти</button>
+                  <NavLink className="button" to={`/subjects/${direction.id}`}>Перейти</NavLink>
                 </div>
               </div>
             </div>

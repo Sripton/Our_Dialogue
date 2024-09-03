@@ -8,11 +8,18 @@ export default function Layout({ initState }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Responsive Message Box Usage</title>
+        <link rel="icon" href="/img/icon-48x48.png" />
         <link rel="stylesheet" href="/css/normalize.css" />
         <link rel="stylesheet" href="/css/reset.css" />
         <link rel="stylesheet" href="/css/style.css" />
-
+        <script
+          type="module"
+          src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"
+        ></script>
+        <script
+          noModule
+          src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"
+        ></script>
         <script defer src="/app.js"></script>
         <script defer src="/vendor.js"></script>
         <script
@@ -21,6 +28,7 @@ export default function Layout({ initState }) {
             __html: `window.initState=${JSON.stringify(initState)}`,
           }}
         ></script>
+        <title>Responsive Message Box Usage</title>
       </head>
       <body>
         <div id="root">

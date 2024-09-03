@@ -1,5 +1,5 @@
 import React from "react";
-
+import { NavLink } from "react-router-dom";
 export default function Navbar({
   isArrowActive,
   handleArrowActive,
@@ -47,7 +47,9 @@ export default function Navbar({
                   <a className="menu__link">Третий пункт</a>
                 </li>
                 <li>
-                  <a className="menu__link">Вход</a>
+                  <NavLink to={"/signin"} className="menu__link">
+                    Вход
+                  </NavLink>
                 </li>
               </ul>
             </nav>

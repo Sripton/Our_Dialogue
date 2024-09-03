@@ -5,7 +5,15 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   res.render("Layout");
 });
-router.get("/slider", async (req, res) => {
+router.get("/signup", async (req, res) => {
+  res.render("Layout");
+});
+router.get("/signin", async (req, res) => {
+  res.render("Layout");
+});
+
+
+router.get("/subjects/:id", async (req, res) => {
   res.render("Layout");
 });
 
