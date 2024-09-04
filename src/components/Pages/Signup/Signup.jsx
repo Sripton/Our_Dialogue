@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function Signup({ setUserNameSession, setUserIDSession }) {
   const [inputs, setInputs] = useState({
@@ -6,6 +7,7 @@ export default function Signup({ setUserNameSession, setUserIDSession }) {
     password: "",
     name: "",
   });
+  const navigate = useNavigate();
 
   const inputHandler = (e) => {
     setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -22,6 +24,7 @@ export default function Signup({ setUserNameSession, setUserIDSession }) {
       const data = await responce.json();
       setUserNameSession(data.userName);
       setUserIDSession(data.userID);
+      navigate('/')
     }
   };
 

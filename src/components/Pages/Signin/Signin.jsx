@@ -1,11 +1,12 @@
 import React, { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate } from "react-router-dom";
 
 export default function Signin({ setUserNameSession, setUserIDSession }) {
   const [inputs, setInputs] = useState({
     login: "",
     password: "",
   });
+  const navigate = useNavigate();
   const inputHandler = (e) => {
     setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
@@ -20,6 +21,7 @@ export default function Signin({ setUserNameSession, setUserIDSession }) {
       const data = await responce.json();
       setUserNameSession(data.userName);
       setUserIDSession(data.userID);
+      navigate('/')
     }
   };
 

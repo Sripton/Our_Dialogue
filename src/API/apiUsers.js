@@ -38,4 +38,14 @@ router.post("/signin", async (req, res) => {
   }
 });
 
+router.get("/logout", (req, res) => {
+  try {
+    req.session.destroy();
+    res.clearCookie("user_sid");
+    res.sendStatus(200);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 export default router;

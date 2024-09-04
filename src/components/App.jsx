@@ -1,23 +1,25 @@
 import React, { useEffect, useState } from "react";
 import Navbar from "./Pages/Navbar";
-import { Route, Routes } from "react-router-dom";
+import { Route, Routes, useNavigate } from "react-router-dom";
 import Contentlist from "./Pages/Contentlist/Contentlist";
 import Subjectlist from "./Pages/Subjectlist";
 import Signup from "./Pages/Signup";
 import Signin from "./Pages/Signin";
+
 export default function App({ directions, thumbnails, userID, userName }) {
   const [isMobileDevice, setIsMobileDevice] = useState(false);
   const [isArrowActive, setIsArrowActive] = useState(false);
   const [iconMenuActive, setIconMenuActive] = useState(false);
   const [userNameSession, setUserNameSession] = useState(userName || null);
   const [userIDsession, setUserIDSession] = useState(userID || null);
-
+const navigate = useNavigate();
   const isMobile = () => {
     const userAgent = navigator.userAgent;
     return /Android|Blackberry|iPhone|iPad|iPod|Opera Mini|IEMobile/gi.test(
       userAgent
     );
   };
+
 
   useEffect(() => {
     const mobileDevice = isMobile();
@@ -33,6 +35,15 @@ export default function App({ directions, thumbnails, userID, userName }) {
     setIconMenuActive(!iconMenuActive);
   };
 
+  const logoutHandler = async () => {
+    const responce = await fetch("/api/users/logout");
+    if (responce.ok) {
+      setUserNameSession(null);
+      setUserIDSession(null);
+      navigate('/')
+    }
+  };
+
   return (
     <>
       <Navbar
@@ -40,6 +51,9 @@ export default function App({ directions, thumbnails, userID, userName }) {
         handleArrowActive={handleArrowActive}
         iconMenuActive={iconMenuActive}
         handleIconMenuActive={handleIconMenuActive}
+        userNameSession={userNameSession}
+        userIDsession={userIDsession}
+        logoutHandler={logoutHandler}
       />
       <Routes>
         <Route
