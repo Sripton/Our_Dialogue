@@ -530,17 +530,13 @@ body._touch .menu__link {
   background: linear-gradient(to left, transparent, #2e2e41);
   border-top-left-radius: 30px;
   border-bottom-left-radius: 30px;
-  /* display: none; */
+  display: none;
 }
 .right-btn {
   right: 0;
   background: linear-gradient(to right, transparent, #2e2e41);
   border-top-right-radius: 30px;
   border-bottom-right-radius: 30px;
-}
-
-.left-btn._visible {
-  display: none;
 }
 
 .tab-content {

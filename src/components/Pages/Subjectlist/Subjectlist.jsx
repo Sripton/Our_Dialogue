@@ -1,41 +1,81 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef } from "react";
 
 export default function Subjectlist() {
-  const [leftBtnActive, setLeftBtnActive] = useState(false);
-  const [rightBtnActive, setRightBtnActive] = useState(false);
+  // useEffect(() => {
+  //   const tabNavList = document.querySelector(".tab-nav-list"),
+  //     leftBtn = document.querySelector(".left-btn"),
+  //     rightBtn = document.querySelector(".right-btn");
+  //   function iconVisibilit() {
+  //     const scrollLeft = Math.ceil(tabNavList.scrollLeft);
+  //     const scrollWidth = tabNavList.scrollWidth - tabNavList.clientWidth;
+  //     leftBtn.style.display = scrollLeft > 0 ? "block" : "none";
+  //     rightBtn.style.display = scrollWidth > scrollLeft ? "block" : "none";
+  //   }
+  //   const handleLeftClick = () => {
+  //     tabNavList.scrollLeft -= 150;
+  //     setTimeout(() => iconVisibilit(), 50);
+  //     // iconVisibilit()
+  //   };
+  //   const handleRightclick = () => {
+  //     tabNavList.scrollLeft += 150;
+  //      setTimeout(() => iconVisibilit(), 50);
+  //     // iconVisibilit()
+  //   };
+  //   leftBtn.addEventListener("click", handleLeftClick);
+  //   rightBtn.addEventListener("click", handleRightclick);
+
+  //   return () => {
+  //     leftBtn.removeEventListener("click", handleLeftClick);
+  //     rightBtn.removeEventListener("click", handleRightclick);
+  //   };
+  // }, []);
+
+  const tabNavListRef = useRef(null);
+  const leftBtnRef = useRef(null);
+  const rightBtnRef = useRef(null);
 
   useEffect(() => {
-    setLeftBtnActive(!leftBtnActive);
-    setRightBtnActive(!rightBtnActive);
-  },[]);
-  const handleLeftBtnActive = () => {
-    const tabNavList = document.querySelector(".tab-nav-list");
-    if (leftBtnActive) {
+    const tabNavList = tabNavListRef.current;
+    const leftBtn = leftBtnRef.current;
+    const rightBtn = rightBtnRef.current;
+
+    function iconVisibilit() {
+      const scrollLeft = Math.ceil(tabNavList.scrollLeft);
+      const scrollWidth = tabNavList.scrollWidth - tabNavList.clientWidth;
+      leftBtn.style.display = scrollLeft > 0 ? "block" : "none";
+      rightBtn.style.display = scrollWidth > scrollLeft ? "block" : "none";
+    }
+
+    const handleLeftClick = () => {
       tabNavList.scrollLeft -= 150;
-    } 
-  };
-  const handleRightBtnActive = () => {
-    const tabNavList = document.querySelector(".tab-nav-list");
-    if (rightBtnActive) {
+      setTimeout(() => iconVisibilit(), 50);
+      // iconVisibilit()
+    };
+    const handleRightclick = () => {
       tabNavList.scrollLeft += 150;
-    } 
-  };
+      setTimeout(() => iconVisibilit(), 50);
+      // iconVisibilit()
+    };
+    leftBtn.addEventListener("click", handleLeftClick);
+    rightBtn.addEventListener("click", handleRightclick);
+
+    return () => {
+      leftBtn.removeEventListener("click", handleLeftClick);
+      rightBtn.removeEventListener("click", handleRightclick);
+      tabNavList.addEventListener("scroll", iconVisibilit);
+    };
+  }, []);
+
   return (
     <>
       <div className="main-container">
         <div className="tab-nav-bar">
           <div className="tab-navigation">
-            <i
-              className="uil uil-angle-left left-btn"
-              onClick={handleLeftBtnActive}
-            ></i>
+            <i className="uil uil-angle-left left-btn" ref={leftBtnRef}></i>
 
-            <i
-              className="uil uil-angle-right right-btn"
-              onClick={handleRightBtnActive}
-            ></i>
+            <i className="uil uil-angle-right right-btn" ref={rightBtnRef}></i>
 
-            <ul className="tab-nav-list">
+            <ul className="tab-nav-list" ref={tabNavListRef}>
               <li className="tab-nav-item">History russia</li>
               <li className="tab-nav-item">History kavkaz</li>
               <li className="tab-nav-item">History west</li>
