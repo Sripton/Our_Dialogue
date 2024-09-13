@@ -1,57 +1,63 @@
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
 
 export default function Subjectlist() {
-  const [suebjectsApi, setSubjectsApi] = useState([]);
-  const { id } = useParams();
+  const [leftBtnActive, setLeftBtnActive] = useState(false);
+  const [rightBtnActive, setRightBtnActive] = useState(false);
 
   useEffect(() => {
-    fetch(`/api/subjects/${id}`, { method: "GET" })
-      .then((res) => res.json())
-      .then((data) => setSubjectsApi(data))
-      .catch((err) => console.log(err));
-  }, []);
-
-  useEffect(() => {
-    const boxs = document.querySelectorAll(".box");
-    const contents = document.querySelectorAll(".content");
-    boxs.forEach((box, indexBox) => {
-      box.addEventListener("click", () => {
-        contents.forEach((content, indexContent) => {
-          if (indexBox === indexContent) {
-            content.classList.add("_active");
-          } else {
-            content.classList.remove("_active");
-          }
-        });
-
-        box.remove();
-        document.querySelector(".container__subject").appendChild(box);
-      });
-      if (contents.length > 1) {
-        contents[1].classList.add("_active");
-      }
-    });
-  }, [suebjectsApi]);
-
+    setLeftBtnActive(!leftBtnActive);
+    setRightBtnActive(!rightBtnActive);
+  },[]);
+  const handleLeftBtnActive = () => {
+    const tabNavList = document.querySelector(".tab-nav-list");
+    if (leftBtnActive) {
+      tabNavList.scrollLeft -= 150;
+    } 
+  };
+  const handleRightBtnActive = () => {
+    const tabNavList = document.querySelector(".tab-nav-list");
+    if (rightBtnActive) {
+      tabNavList.scrollLeft += 150;
+    } 
+  };
   return (
     <>
-      <div className="container__subject">
-        {suebjectsApi?.map((subject) => (
-          <div key={subject.id} className="box">
-            {subject.subjectName}
+      <div className="main-container">
+        <div className="tab-nav-bar">
+          <div className="tab-navigation">
+            <i
+              className="uil uil-angle-left left-btn"
+              onClick={handleLeftBtnActive}
+            ></i>
+
+            <i
+              className="uil uil-angle-right right-btn"
+              onClick={handleRightBtnActive}
+            ></i>
+
+            <ul className="tab-nav-list">
+              <li className="tab-nav-item">History russia</li>
+              <li className="tab-nav-item">History kavkaz</li>
+              <li className="tab-nav-item">History west</li>
+              <li className="tab-nav-item">History azia</li>
+              <li className="tab-nav-item">History persia</li>
+              <li className="tab-nav-item">History egypt</li>
+            </ul>
           </div>
-        ))}
-      </div>
-      <div className="container__content">
-        {suebjectsApi?.map((subject) => (
-          <div className="content" key={subject.id}>
-            <div className="content__button">
-              <button>Добавить пост</button>
-              <button>Перейти</button>
+        </div>
+
+        <div className="tab-content">
+          <div className="tab">
+            <div className="row">
+              <div className="left-column">
+                <div className="img-card">
+                  <img src="#" />
+                </div>
+              </div>
+              <div className="right-column">right-column</div>
             </div>
           </div>
-        ))}
+        </div>
       </div>
     </>
   );

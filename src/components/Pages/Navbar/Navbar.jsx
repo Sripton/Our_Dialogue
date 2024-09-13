@@ -1,4 +1,4 @@
-import React, {  useState } from "react";
+import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 export default function Navbar({
   isArrowActive,
@@ -13,6 +13,22 @@ export default function Navbar({
   const handleDropClick = () => {
     setDropActive(!dropActive);
   };
+  useEffect(() => {
+    window.addEventListener("click", (e) => {
+      // (!document.querySelector('.profile__dropdown__btn').contains(e.target)){
+      //   document.querySelector('.profile__dropdown__list').classList.remove('_active-dropmenu')
+      // }
+      const profile__dropdown__btn = document.querySelector(
+        ".profile__dropdown__btn"
+      );
+      const profile__dropdown__list = document.querySelector(
+        ".profile__dropdown__list"
+      );
+      if (!profile__dropdown__btn.contains(e.target)) {
+        profile__dropdown__list.classList.remove("_active-dropmenu");
+      }
+    });
+  }, []);
   return (
     <>
       {!userIDsession ? (
@@ -146,7 +162,7 @@ export default function Navbar({
                             className="profile__dropdown__item"
                             onClick={logoutHandler}
                           >
-                            <NavLink  onClick={logoutHandler}>
+                            <NavLink onClick={logoutHandler}>
                               <i className="fa-solid fa-arrow-right-from-bracket">
                                 {" "}
                               </i>
