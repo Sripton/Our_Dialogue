@@ -6,20 +6,21 @@ import Subjectlist from "./Pages/Subjectlist";
 import Signup from "./Pages/Signup";
 import Signin from "./Pages/Signin";
 
+
+
 export default function App({ directions, thumbnails, userID, userName }) {
   const [isMobileDevice, setIsMobileDevice] = useState(false);
   const [isArrowActive, setIsArrowActive] = useState(false);
   const [iconMenuActive, setIconMenuActive] = useState(false);
   const [userNameSession, setUserNameSession] = useState(userName || null);
   const [userIDsession, setUserIDSession] = useState(userID || null);
-const navigate = useNavigate();
+  const navigate = useNavigate();
   const isMobile = () => {
     const userAgent = navigator.userAgent;
     return /Android|Blackberry|iPhone|iPad|iPod|Opera Mini|IEMobile/gi.test(
       userAgent
     );
   };
-
 
   useEffect(() => {
     const mobileDevice = isMobile();
@@ -40,7 +41,7 @@ const navigate = useNavigate();
     if (responce.ok) {
       setUserNameSession(null);
       setUserIDSession(null);
-      navigate('/')
+      navigate("/");
     }
   };
 
@@ -81,6 +82,7 @@ const navigate = useNavigate();
           }
         />
         <Route path="/subjects/:id" element={<Subjectlist />} />
+
       </Routes>
     </>
   );

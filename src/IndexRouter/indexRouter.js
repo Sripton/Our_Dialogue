@@ -12,7 +12,6 @@ router.get("/signin", async (req, res) => {
   res.render("Layout");
 });
 
-
 router.get("/subjects/:id", async (req, res) => {
   res.render("Layout");
 });
