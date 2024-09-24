@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { NavLink } from "react-router-dom";
 export default function Navbar({
   isArrowActive,
@@ -10,25 +10,24 @@ export default function Navbar({
   logoutHandler,
 }) {
   const [dropActive, setDropActive] = useState(false);
+  const profileDropdownBtnRef = useRef(null);
+  const profileDropdownListRef = useRef(null);
   const handleDropClick = () => {
-    setDropActive(!dropActive);
+    setDropActive(true);
   };
   useEffect(() => {
-    window.addEventListener("click", (e) => {
-      // (!document.querySelector('.profile__dropdown__btn').contains(e.target)){
-      //   document.querySelector('.profile__dropdown__list').classList.remove('_active-dropmenu')
-      // }
-      const profile__dropdown__btn = document.querySelector(
-        ".profile__dropdown__btn"
-      );
-      const profile__dropdown__list = document.querySelector(
-        ".profile__dropdown__list"
-      );
-      if (!profile__dropdown__btn.contains(e.target)) {
-        profile__dropdown__list.classList.remove("_active-dropmenu");
+    const handleClickOutside = (e) => {
+      if (!profileDropdownBtnRef.current.contains(e.target)) {
+        setDropActive(false);
       }
-    });
+    };
+    window.addEventListener("click", handleClickOutside);
+
+    return () => {
+      window.removeEventListener("click", handleClickOutside);
+    };
   }, []);
+
   return (
     <>
       {!userIDsession ? (
@@ -125,6 +124,7 @@ export default function Navbar({
                         <div
                           className="profile__dropdown__btn"
                           onClick={handleDropClick}
+                          ref={profileDropdownBtnRef}
                         >
                           <div className="profile__img">
                             <i className="fa-solid fa-circle"></i>
@@ -139,6 +139,7 @@ export default function Navbar({
                           className={`profile__dropdown__list ${
                             dropActive ? "_active-dropmenu" : ""
                           }`}
+                          ref={profileDropdownListRef}
                         >
                           <li className="profile__dropdown__item">
                             <a href="#">
