@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, NavLink } from "react-router-dom";
 
 export default function Subjectlist() {
   const [subjects, setSubjects] = useState([]);
@@ -139,10 +139,17 @@ export default function Subjectlist() {
                       class="info-icon"
                       name="arrow-redo-outline"
                     ></ion-icon>
-                    <ion-icon
-                      class="info-icon"
-                      name="chatbubble-ellipses-outline"
-                    ></ion-icon>
+
+                    <NavLink to={`/addposts/${subject.id}`}>
+                      {" "}
+                      <ion-icon
+                        class="info-icon"
+                        name="chatbubble-ellipses-outline"
+                      >
+                        {" "}
+                      </ion-icon>
+                    </NavLink>
+
                     <ion-icon class="info-icon" name="heart-outline"></ion-icon>
                   </div>
                 </div>

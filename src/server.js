@@ -4,11 +4,12 @@ import morgan from "morgan";
 import jsxRender from "./Shablonizator/jsxRender";
 import indexRouter from "./IndexRouter/indexRouter";
 import path from "path";
-import apiSubjects from "./API/apiSubjects";
-import { Direction, Thumbnail } from "./db/models";
+import apiSubjectsRouter from "./API/apiSubjectsRouter";
+import { Direction, Thumbnail, Post } from "./db/models";
 import session from "express-session";
 import session__file__store from "session-file-store";
-import apiUsers from "./API/apiUsers";
+import apiUsersRouter from "./API/apiUsersRouter";
+import apiPostRouter from "./API/apiPostsRouter";
 
 dotenv.config();
 const app = express();
@@ -40,10 +41,13 @@ app.use(async (req, res, next) => {
   try {
     const getDirections = await Direction.findAll();
     const getThumbnails = await Thumbnail.findAll();
+    const allPosts = await Post.findAll();
     res.locals.directions = getDirections;
     res.locals.thumbnails = getThumbnails;
+    res.locals.allPosts = allPosts;
     res.locals.userID = req.session?.userID;
     res.locals.userName = req.session?.userName;
+
   } catch (error) {
     console.log(error);
   }
@@ -52,7 +56,8 @@ app.use(async (req, res, next) => {
 });
 
 app.use("/", indexRouter);
-app.use("/api/subjects", apiSubjects);
-app.use("/api/users", apiUsers);
+app.use("/api/subjects", apiSubjectsRouter);
+app.use("/api/users", apiUsersRouter);
+app.use("/api/posts", apiPostRouter);
 
 app.listen(PORT, () => console.log(`***** Server start on ${PORT} port`));

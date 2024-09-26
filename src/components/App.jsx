@@ -5,15 +5,21 @@ import Contentlist from "./Pages/Contentlist/Contentlist";
 import Subjectlist from "./Pages/Subjectlist";
 import Signup from "./Pages/Signup";
 import Signin from "./Pages/Signin";
+import Addposts from "./Pages/Addposts";
 
-
-
-export default function App({ directions, thumbnails, userID, userName }) {
+export default function App({
+  directions,
+  thumbnails,
+  userID,
+  userName,
+  allPosts,
+}) {
   const [isMobileDevice, setIsMobileDevice] = useState(false);
   const [isArrowActive, setIsArrowActive] = useState(false);
   const [iconMenuActive, setIconMenuActive] = useState(false);
   const [userNameSession, setUserNameSession] = useState(userName || null);
   const [userIDsession, setUserIDSession] = useState(userID || null);
+  const [posts, setPosts] = useState(allPosts);
   const navigate = useNavigate();
   const isMobile = () => {
     const userAgent = navigator.userAgent;
@@ -82,7 +88,10 @@ export default function App({ directions, thumbnails, userID, userName }) {
           }
         />
         <Route path="/subjects/:id" element={<Subjectlist />} />
-
+        <Route
+          path="/addposts/:id"
+          element={<Addposts setPosts={setPosts} />}
+        />
       </Routes>
     </>
   );

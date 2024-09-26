@@ -233,7 +233,7 @@ body._touch .menu__link {
 }
 .profile__dropdown__btn {
   width: 150px;
-  border: 1px solid#fff;
+  border: 1px solid #fff;
   border-radius: 50px;
   display: flex;
   justify-content: space-between;
@@ -291,7 +291,7 @@ body._touch .menu__link {
   display: flex;
   text-decoration: none;
   align-items: center;
-  font-size: 1rem;
+  font-size: 1.3rem;
   font-weight: 500;
   color: #fff;
   letter-spacing: 2px;
@@ -303,7 +303,7 @@ body._touch .menu__link {
   height: 1.5rem;
 }
 /* dropdown button */
-/*  style header  */
+
 
 /* style contentlist*/
 .caorusel {
@@ -822,3 +822,147 @@ section {
     height: 200px;
   }
 }
+
+/* style for addpost pages */
+.post-container {
+  font-family: "Roboto", sans-serif; /* Изменен шрифт на более современный */
+  background: linear-gradient(135deg, #f06, #ff9); /* Плавный градиент */
+  margin: 0;
+  padding: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+}
+
+.post-content {
+  background-color: rgba(255, 255, 255, 0.95); /* Легкая прозрачность */
+  border-radius: 15px; /* Более сглаженные углы */
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); /* Более глубокая тень */
+  padding: 40px; /* Увеличены отступы */
+  max-width: 600px;
+  width: 100%;
+  text-align: center;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.post-container:hover {
+  transform: translateY(-10px); /* Эффект приподнимания при наведении */
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.post-title {
+  font-size: 2.5rem; /* Увеличен размер заголовка */
+  margin-bottom: 25px;
+  color: #333;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+.post-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+textarea {
+  width: 100%;
+  padding: 15px; /* Увеличены отступы */
+  border-radius: 10px; /* Сильнее округлены углы */
+  border: 2px solid #ccc;
+  margin-bottom: 20px;
+  font-size: 1.1rem; /* Чуть увеличен шрифт */
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Добавлена тень */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+textarea:focus {
+  border-color: #007bff;
+  box-shadow: 0 6px 12px rgba(0, 123, 255, 0.2); /* Подсвечивается при фокусе */
+  outline: none;
+}
+.form-post {
+  width: 100%;
+}
+
+#submit-post {
+  padding: 12px 24px; /* Увеличены отступы */
+  border: none;
+  border-radius: 25px; /* Сильнее закруглены углы */
+  background-color: #ff4081; /* Яркий градиентный цвет */
+  color: white;
+  font-size: 1.1rem;
+  cursor: pointer;
+  box-shadow: 0 4px 10px rgba(255, 64, 129, 0.3); /* Яркая тень */
+  transition: background-color 0.3s ease, box-shadow 0.3s ease,
+    transform 0.2s ease;
+}
+
+#submit-post:hover {
+  background-color: #e91e63;
+  box-shadow: 0 6px 12px rgba(233, 30, 99, 0.4);
+  transform: translateY(-2px); /* Легкий эффект приподнимания */
+}
+
+#submit-post:active {
+  transform: translateY(1px); /* Эффект нажатия */
+}
+
+.post-info {
+  margin-top: 30px;
+  color: #333;
+}
+
+.view-comments {
+  display: block;
+  color: #007bff;
+  font-size: 1rem;
+  text-decoration: none;
+  margin-top: 15px;
+  transition: color 0.3s ease, transform 0.3s ease;
+}
+
+.view-comments:hover {
+  color: #0056b3;
+  transform: scale(1.05); /* Легкое увеличение при наведении */
+}
+
+/* Адаптивные стили */
+@media (max-width: 768px) {
+  .post-container {
+    padding: 30px;
+  }
+
+  h1 {
+    font-size: 2rem;
+  }
+
+  textarea {
+    font-size: 1rem;
+  }
+
+  button {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .post-container {
+    padding: 20px;
+    max-width: 100%;
+  }
+
+  h1 {
+    font-size: 1.8rem;
+  }
+
+  textarea {
+    font-size: 0.9rem;
+  }
+
+  button {
+    font-size: 0.9rem;
+    padding: 10px 20px;
+  }
+}
+/* style for addpost pages */
