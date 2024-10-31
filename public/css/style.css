@@ -11,7 +11,6 @@
 body {
   font-family: Heebo;
 }
-
 /*  style header  */
 .wrapper {
   min-width: 100%;
@@ -38,11 +37,11 @@ body {
   height: 70px;
   z-index: 100;
 }
-
 .header__logo {
   width: 40px;
   height: 40px;
-  background-color: #9d9797;
+
+  background-color: #d3caca;
   border-radius: 50%;
   z-index: 5;
   position: relative;
@@ -65,7 +64,6 @@ body {
   letter-spacing: 2px;
   font-family: Arial, Helvetica, sans-serif;
 }
-
 .menu__arrow {
   display: none;
 }
@@ -304,7 +302,6 @@ body._touch .menu__link {
 }
 /* dropdown button */
 
-
 /* style contentlist*/
 .caorusel {
   max-width: 100vw;
@@ -321,7 +318,6 @@ body._touch .menu__link {
   height: 100%;
   object-fit: cover;
 }
-
 .caorusel .caorusel__content {
   position: absolute;
   top: 20%;
@@ -392,7 +388,6 @@ body._touch .menu__link {
 .caorusel__item:nth-child(1) .caorusel__button .button {
   animation-delay: 0.8s;
 }
-
 @media (max-width: 767px) {
   .caorusel__content {
     padding-right: 0;
@@ -431,7 +426,6 @@ body._touch .menu__link {
 .thumbnail__item:nth-of-type(4) {
   opacity: 0.4;
 }
-
 .caorusel._next .caorusel__item:nth-child(1) img {
   width: 180px;
   height: 250px;
@@ -497,7 +491,6 @@ section {
   user-select: none;
   scroll-behavior: smooth;
 }
-
 .tab-nav-list::-webkit-scrollbar {
   display: none; /* скрываем scroll bar */
 }
@@ -519,7 +512,6 @@ section {
 .tab-nav-item-active {
   background-color: #5b85ff;
 }
-
 .left-btn,
 .right-btn {
   position: absolute;
@@ -541,7 +533,6 @@ section {
   border-top-right-radius: 30px;
   border-bottom-right-radius: 30px;
 }
-
 .tabcontent-description {
   position: absolute;
   left: 0;
@@ -561,7 +552,6 @@ section {
     rgba(0, 0, 0, 0.3) 0px 30px 60px -30px,
     rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
 }
-
 .tab-content {
   position: relative;
   width: 100%;
@@ -658,7 +648,6 @@ section {
     padding-bottom: 50px;
   }
 }
-
 /* Subjects list   */
 
 /* Registration   */
@@ -697,7 +686,6 @@ section {
     right: 60px;
   }
 }
-
 .login__title {
   font-size: 2em;
   color: #fff;
@@ -822,7 +810,6 @@ section {
     height: 200px;
   }
 }
-
 /* style for addpost pages */
 .post-container {
   font-family: "Roboto", sans-serif; /* Изменен шрифт на более современный */
@@ -834,7 +821,6 @@ section {
   align-items: center;
   min-height: 100vh;
 }
-
 .post-content {
   background-color: rgba(255, 255, 255, 0.95); /* Легкая прозрачность */
   border-radius: 15px; /* Более сглаженные углы */
@@ -845,12 +831,10 @@ section {
   text-align: center;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
-
 .post-container:hover {
   transform: translateY(-10px); /* Эффект приподнимания при наведении */
   box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
 }
-
 .post-title {
   font-size: 2.5rem; /* Увеличен размер заголовка */
   margin-bottom: 25px;
@@ -858,13 +842,11 @@ section {
   letter-spacing: 1px;
   text-transform: uppercase;
 }
-
 .post-box {
   display: flex;
   flex-direction: column;
   align-items: center;
 }
-
 textarea {
   width: 100%;
   padding: 15px; /* Увеличены отступы */
@@ -875,7 +857,6 @@ textarea {
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1); /* Добавлена тень */
   transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
-
 textarea:focus {
   border-color: #007bff;
   box-shadow: 0 6px 12px rgba(0, 123, 255, 0.2); /* Подсвечивается при фокусе */
@@ -951,18 +932,230 @@ textarea:focus {
     padding: 20px;
     max-width: 100%;
   }
-
   h1 {
     font-size: 1.8rem;
   }
-
   textarea {
     font-size: 0.9rem;
   }
-
   button {
     font-size: 0.9rem;
     padding: 10px 20px;
   }
 }
 /* style for addpost pages */
+
+/* Comments list */
+.comments-container {
+  background-color: #6e83ca;
+  height: 100vh;
+  padding: 20px;
+  color: #333;
+  font-family: Arial, Helvetica, sans-serif;
+  overflow-y: auto;
+}
+.comment-section {
+  max-width: 700px;
+  background-color: #fff;
+  position: relative;
+  top: 135px;
+  margin: 20px auto;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+}
+.toggle-comments-btn {
+  padding: 4px 4px;
+  background-color: #f0f0f0;
+  border: none;
+  border-radius: 5px;
+  font-size: 12px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  color: #333;
+  transition: background-color 0.3s ease;
+  cursor: pointer;
+  margin-bottom: 5px;
+}
+.toggle-comments-btn:hover {
+  background-color: #e0e0e0;
+}
+.comment {
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  background-color: #fafafa;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
+  padding: 20px;
+}
+.comment-text {
+  font-size: 1.5rem;
+  margin-bottom: 10px;
+  color: #333;
+}
+.comment-actions {
+  display: flex;
+  gap: 15px;
+}
+.comment-actions button {
+  padding: 3px 8px;
+  border: none;
+  border-radius: 5px;
+  font-size: 0.7rem;
+  cursor: pointer;
+  background-color: #f0f0f0;
+  display: flex;
+  align-items: center;
+  font-weight: bold;
+  color: #333;
+  transition: background-color 0.3s ease box-shadow 0.3s ease;
+}
+.comment-actions button:hover {
+  background-color: #e0e0e0;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+.comment-actions .like-btn:hover {
+  background-color: blue;
+  color: #fff;
+}
+.comment-actions .dislike-btn:hover {
+  background-color: red;
+  color: #fff;
+}
+.comment-note {
+  font-size: 0.8rem;
+  color: #777;
+  font-weight: bold;
+}
+.comment-note span {
+  font-size: 0.7rem;
+  font-weight: normal;
+}
+.dots {
+  display: none;
+}
+/* .close-btn {
+  cursor: pointer;
+  color: red;
+  margin-top: 10px;
+  display: none;
+} */
+.close-btn {
+  cursor: pointer;
+  color: red;
+  display: none;
+  margin-top: 5px;
+}
+
+/* 
+.add-comment textarea {
+  width: 100%;
+  height: 100px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+} */
+.add-comment {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 20px;
+}
+.add-comment textarea {
+  width: 100%;
+  height: 100px;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  font-size: 16px;
+  transition: border-color 0.3s ease;
+}
+.add-comment textarea:focus {
+  border-color: #007bff;
+  outline: none;
+}
+/* .add-comment button {
+  align-self: flex-end;
+  padding: 12px 24px;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 16px;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+} */
+.add-comment button {
+  align-self: flex-end;
+  border: none;
+  padding: 10px 20px;
+  background-color: #007bff;
+  border-radius: 8px;
+  font-size: 16px;
+  color: white;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+.add-comment button:hover {
+  background-color: #0056b3;
+  transform: translateY(-2px);
+}
+.add-comment button:active {
+  transform: translateY(0);
+}
+
+.replies {
+  margin-top: 10px;
+  margin-left: 30px;
+  border-left: 3px solid #ddd;
+  padding-left: 15px;
+}
+
+.hidden {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .comment-section {
+    padding: 15px;
+  }
+  .comment {
+    padding: 10px;
+  }
+  .comment .comment-text {
+    font-size: 1.2rem;
+  }
+  .comment-actions button {
+    padding: 4px 8px;
+  }
+}
+@media (max-width: 480px) {
+  .comment-section {
+    padding: 10px;
+  }
+  .comment-actions {
+    display: none;
+    gap: 10px;
+  }
+  .comment-actions button {
+    padding: 3px 7px;
+  }
+  .dots {
+    display: inline-block;
+  }
+
+  .show-actions .dots {
+    display: none;
+  }
+  .show-actions .comment-actions {
+    display: flex;
+  }
+  .show-actions .close-btn {
+    display: inline-block;
+  }
+}
+
+/* Comments list */

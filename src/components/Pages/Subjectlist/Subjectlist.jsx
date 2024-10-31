@@ -135,10 +135,12 @@ export default function Subjectlist() {
 
                 <div className="right-column">
                   <div className="info">
-                    <ion-icon
-                      class="info-icon"
-                      name="arrow-redo-outline"
-                    ></ion-icon>
+                    <NavLink to={`/comments/${subject.id}`}>
+                      <ion-icon
+                        class="info-icon"
+                        name="arrow-redo-outline"
+                      ></ion-icon>
+                    </NavLink>
 
                     <NavLink to={`/addposts/${subject.id}`}>
                       {" "}
@@ -149,7 +151,6 @@ export default function Subjectlist() {
                         {" "}
                       </ion-icon>
                     </NavLink>
-
                     <ion-icon class="info-icon" name="heart-outline"></ion-icon>
                   </div>
                 </div>

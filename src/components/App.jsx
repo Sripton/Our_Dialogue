@@ -6,6 +6,8 @@ import Subjectlist from "./Pages/Subjectlist";
 import Signup from "./Pages/Signup";
 import Signin from "./Pages/Signin";
 import Addposts from "./Pages/Addposts";
+// import Comments from "./Pages/Comments";
+import Postlist from "./Pages/Postlist";
 
 export default function App({
   directions,
@@ -91,6 +93,10 @@ export default function App({
         <Route
           path="/addposts/:id"
           element={<Addposts setPosts={setPosts} />}
+        />
+        <Route
+          path="/comments/:id"
+          element={<Postlist posts={posts} setPosts={setPosts} />}
         />
       </Routes>
     </>

@@ -25,4 +25,8 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+router.get('/', async (req, res) => {
+  const allSubject = await Subject.findAll();
+  res.send(allSubject)
+})
 export default router;

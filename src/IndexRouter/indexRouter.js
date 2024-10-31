@@ -5,9 +5,11 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   res.render("Layout");
 });
+
 router.get("/signup", async (req, res) => {
   res.render("Layout");
 });
+
 router.get("/signin", async (req, res) => {
   res.render("Layout");
 });
@@ -17,6 +19,10 @@ router.get("/subjects/:id", async (req, res) => {
 });
 
 router.get("/addposts/:id", async (req, res) => {
+  res.render("Layout");
+});
+
+router.get("/comments/:id", async (req, res) => {
   res.render("Layout");
 });
 
