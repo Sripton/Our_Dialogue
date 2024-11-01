@@ -21,7 +21,8 @@ export default function App({
   const [iconMenuActive, setIconMenuActive] = useState(false);
   const [userNameSession, setUserNameSession] = useState(userName || null);
   const [userIDsession, setUserIDSession] = useState(userID || null);
-  const [posts, setPosts] = useState(allPosts);
+  const [posts, setPosts] = useState(allPosts || null);
+
   const navigate = useNavigate();
   const isMobile = () => {
     const userAgent = navigator.userAgent;

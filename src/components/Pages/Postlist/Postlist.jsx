@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Postcard from "../Postcard";
-export default function Postlist({ posts, setPosts }) {
+export default function Postlist({ posts, setPosts, setComments, comments }) {
   const { id } = useParams();
   useEffect(() => {
     fetch(`/api/posts/${id}`, { method: "GET" })
@@ -13,11 +13,15 @@ export default function Postlist({ posts, setPosts }) {
   console.log(posts);
   return (
     <div className="comments-container">
-      
-        {posts?.map((post) => (
-          <Postcard key={post.id} id={post.id} post={post} />
-        ))}{" "}
-      </div>
- 
+      {posts?.map((post) => (
+        <Postcard
+          key={post.id}
+          id={post.id}
+          post={post}
+          setComments={setComments}
+          comments={comments}
+        />
+      ))}{" "}
+    </div>
   );
 }
