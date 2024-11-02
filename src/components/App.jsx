@@ -6,7 +6,6 @@ import Subjectlist from "./Pages/Subjectlist";
 import Signup from "./Pages/Signup";
 import Signin from "./Pages/Signin";
 import Addposts from "./Pages/Addposts";
-// import Comments from "./Pages/Comments";
 import Postlist from "./Pages/Postlist";
 
 export default function App({
@@ -53,6 +52,8 @@ export default function App({
       navigate("/");
     }
   };
+  console.log('userID', userID);
+  console.log('userIDsession', userIDsession);
 
   return (
     <>
@@ -97,7 +98,13 @@ export default function App({
         />
         <Route
           path="/comments/:id"
-          element={<Postlist posts={posts} setPosts={setPosts} />}
+          element={
+            <Postlist
+              posts={posts}
+              setPosts={setPosts}
+              userIDsession={userIDsession}
+            />
+          }
         />
       </Routes>
     </>

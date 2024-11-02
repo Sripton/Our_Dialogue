@@ -1,5 +1,5 @@
 import express from "express";
-import { Post, Comment } from "../db/models";
+import { Post, Comment, User } from "../db/models";
 
 const router = express.Router();
 
@@ -25,6 +25,7 @@ router.get("/:id", async (req, res) => {
     const findPostID = await Post.findOne({ where: { id } });
     const findAllCommentForPostID = await Comment.findAll({
       where: { post_id: findPostID.id },
+      include: { model: User },
     });
     res.send(findAllCommentForPostID);
   } catch (error) {

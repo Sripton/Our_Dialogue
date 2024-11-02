@@ -24,6 +24,7 @@ export default function Addposts({ setPosts }) {
     if (responce.ok) {
       const data = await responce.json();
       setPosts(data);
+      setInputs({ posttitle: "" });
     }
   };
   console.log("inputs", inputs);

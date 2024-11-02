@@ -1,7 +1,13 @@
 import React, { useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Postcard from "../Postcard";
-export default function Postlist({ posts, setPosts, setComments, comments }) {
+export default function Postlist({
+  posts,
+  setPosts,
+  setComments,
+  comments,
+  userIDsession,
+}) {
   const { id } = useParams();
   useEffect(() => {
     fetch(`/api/posts/${id}`, { method: "GET" })
@@ -20,6 +26,7 @@ export default function Postlist({ posts, setPosts, setComments, comments }) {
           post={post}
           setComments={setComments}
           comments={comments}
+          userIDsession={userIDsession}
         />
       ))}{" "}
     </div>
