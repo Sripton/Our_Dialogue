@@ -32,4 +32,18 @@ router.get("/:id", async (req, res) => {
     console.log(error);
   }
 });
+
+router.put("/:id", async (req, res) => {
+  const { id } = req.params;
+  const { commenttitle } = req.body;
+  try {
+    const editCommentsID = await Comment.update(
+      { commenttitle },
+      { where: { id } }
+    );
+    res.json(editCommentsID);
+  } catch (error) {
+    console.log(error);
+  }
+});
 export default router;

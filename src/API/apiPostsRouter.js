@@ -33,4 +33,15 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+router.put("/:id", async (req, res) => {
+  const { id } = req.params;
+  const { posttitle } = req.body;
+  try {
+    const editPostID = await Post.update({ posttitle }, { where: { id } });
+    res.json(editPostID);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
 export default router;

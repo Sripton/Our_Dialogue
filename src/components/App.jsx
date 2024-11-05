@@ -52,8 +52,8 @@ export default function App({
       navigate("/");
     }
   };
-  console.log('userID', userID);
-  console.log('userIDsession', userIDsession);
+  // console.log('userID', userID);
+  // console.log('userIDsession', userIDsession);
 
   return (
     <>

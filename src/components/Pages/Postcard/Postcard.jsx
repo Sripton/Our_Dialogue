@@ -8,7 +8,10 @@ export default function Postcard({ post, id, userIDsession }) {
   });
   const [comments, setComments] = useState([]);
   const [showComments, setShowComments] = useState(false);
-
+  const [isEditPostActive, setIsEditPostActive] = useState(false);
+  const [editPostText, setEditPostText] = useState({
+    posttitle: "",
+  });
   const handleDots = () => {
     setIsDotsActive(!isDotsActive);
   };
@@ -20,6 +23,14 @@ export default function Postcard({ post, id, userIDsession }) {
   };
   const handleShowComments = () => {
     setShowComments(!showComments);
+  };
+  const handleEditActive = () => {
+    setIsEditPostActive(!isEditPostActive);
+    setEditPostText(post.posttitle);
+  };
+
+  const handleEditPostText = (e) => {
+    setEditPostText(e.target.value);
   };
 
   const submitCommentsHandler = async (e) => {
@@ -47,8 +58,19 @@ export default function Postcard({ post, id, userIDsession }) {
       setShowReplies(false);
     }
   };
-  console.log();
-  console.log("comments", comments);
+
+  const submitEditPostHandler = async (e) => {
+    e.preventDefault();
+    const responce = await fetch(`/api/posts/${post.id}`, {
+      method: "PUT",
+      headers: { "Content-type": "application/json" },
+      body: JSON.stringify({ posttitle: editPostText }),
+    });
+    if (responce.ok) {
+      setIsEditPostActive(false);
+      post.posttitle = editPostText;
+    }
+  };
 
   useEffect(() => {
     fetch(`/api/comments/${id}`, { method: "GET" })
@@ -56,200 +78,119 @@ export default function Postcard({ post, id, userIDsession }) {
       .then((data) => setComments(data))
       .catch((err) => console.log(err));
   }, [id]);
-  console.log("comments", comments);
-  console.log("post.user_id", post.user_id);
-  console.log("userIDsession", userIDsession);
 
   return (
     <>
-      {userIDsession !== post.user_id ? (
-        <div
-          className={`comment-section ${isDotsActive ? "show-actions" : ""}`}
-        >
-          <button className="toggle-comments-btn" onClick={handleShowComments}>
-            {`${showComments ? "Скрыть" : "Комментарии"} ${comments.length}`}
-          </button>
-          <div className="comment-list">
-            <div className="comment">
+      <div className={`comment-section ${isDotsActive ? "show-actions" : ""}`}>
+        <button className="toggle-comments-btn" onClick={handleShowComments}>
+          {`${showComments ? "Скрыть" : "Комментарии"} ${comments.length}`}
+        </button>
+        <div className="comment-list">
+          <div className="comment">
+            {isEditPostActive ? (
+              <form onSubmit={submitEditPostHandler}>
+                <textarea
+                  name="posttitle"
+                  value={editPostText}
+                  onChange={handleEditPostText}
+                  placeholder="Edit your post..."
+                />
+                <button className="edit-post-btn" type="submit">
+                  Измененить
+                </button>
+              </form>
+            ) : (
               <p className="comment-text">{`${post.posttitle}`}</p>
-              <div className="comment-actions">
-                <button className="like-btn">
-                  <ion-icon class="thumbs" name="thumbs-up-outline"></ion-icon>{" "}
-                  0
-                </button>
-                <button className="dislike-btn">
-                  <ion-icon
-                    class="thumbs"
-                    name="thumbs-down-outline"
-                  ></ion-icon>{" "}
-                  0
-                </button>
-                <button className="reply-btn" onClick={handleShowReplies}>
-                  reply
-                </button>
-                <small className="comment-note">
-                  {post?.User?.name}, ({post?.Subject?.subjectName})
-                </small>
-              </div>
-              <div className="dots" onClick={handleDots}>
-                &#x2022;&#x2022;&#x2022;
-              </div>
-              <div className="close-btn hidden" onClick={handleDots}>
-                &#10006;
-              </div>
-              <div className="replies">
-                {isShowReplies && (
-                  <form onSubmit={submitCommentsHandler}>
-                    <div id="reply-form-template" className="add-comment">
-                      <textarea
-                        name="commenttitle"
-                        placeholder="Write a reply..."
-                        value={textArea.commenttitle}
-                        onChange={handleComments}
-                      ></textarea>
-                      <button type="submit">Post Reply</button>
-                    </div>
-                  </form>
-                )}
-                {comments.map((comment) => (
-                  <div
-                    className={`comment-for-comment ${
-                      showComments ? "" : "hidden"
-                    }`}
-                    key={comment.id}
-                  >
-                    <p className="comment-text">{comment.commenttitle}</p>
-                    <div className="comment-actions">
-                      <button className="like-btn">
-                        <ion-icon
-                          class="thumbs"
-                          name="thumbs-up-outline"
-                        ></ion-icon>{" "}
-                        0
-                      </button>
-                      <button className="dislike-btn">
-                        <ion-icon
-                          class="thumbs"
-                          name="thumbs-down-outline"
-                        ></ion-icon>{" "}
-                        0
-                      </button>
-                      <button className="reply-btn" onClick={handleShowReplies}>
-                        reply
-                      </button>
-                      {userIDsession !== comment.user_id ? (
-                        ""
-                      ) : (
-                        <>
-                          <button className="edit-btn">Edit</button>
-                          <button className="delete-btn">Delete</button>
-                        </>
-                      )}
-                      <small className="comment-note">{`${comment?.User?.name}, ответил ${post?.User?.name}`}</small>
-                    </div>
+            )}
+
+            <div className="comment-actions">
+              <button className="like-btn">
+                <ion-icon class="thumbs" name="thumbs-up-outline"></ion-icon> 0
+              </button>
+              <button className="dislike-btn">
+                <ion-icon class="thumbs" name="thumbs-down-outline"></ion-icon>{" "}
+                0
+              </button>
+              <button className="reply-btn" onClick={handleShowReplies}>
+                reply
+              </button>
+              {userIDsession !== post.user_id ? (
+                ""
+              ) : (
+                <>
+                  <button className="edit-btn" onClick={handleEditActive}>
+                    Edit
+                  </button>
+                  <button className="delete-btn">Delete</button>
+                </>
+              )}
+              <small className="comment-note">
+                {post?.User?.name}, ({post?.Subject?.subjectName})
+              </small>
+            </div>
+            <div className="dots" onClick={handleDots}>
+              &#x2022;&#x2022;&#x2022;
+            </div>
+            <div className="close-btn hidden" onClick={handleDots}>
+              &#10006;
+            </div>
+            <div className="replies">
+              {isShowReplies && (
+                <form onSubmit={submitCommentsHandler}>
+                  <div id="reply-form-template" className="add-comment">
+                    <textarea
+                      name="commenttitle"
+                      placeholder="Write a reply..."
+                      value={textArea.commenttitle}
+                      onChange={handleComments}
+                    ></textarea>
+                    <button type="submit">Post Reply</button>
                   </div>
-                ))}
-              </div>
+                </form>
+              )}
+              {comments.map((comment) => (
+                <div
+                  className={`comment-for-comment ${
+                    showComments ? "" : "hidden"
+                  }`}
+                  key={comment.id}
+                >
+                  <p className="comment-text">{comment.commenttitle}</p>
+                  <div className="comment-actions">
+                    <button className="like-btn">
+                      <ion-icon
+                        class="thumbs"
+                        name="thumbs-up-outline"
+                      ></ion-icon>{" "}
+                      0
+                    </button>
+                    <button className="dislike-btn">
+                      <ion-icon
+                        class="thumbs"
+                        name="thumbs-down-outline"
+                      ></ion-icon>{" "}
+                      0
+                    </button>
+                    <button className="reply-btn" onClick={handleShowReplies}>
+                      reply
+                    </button>
+
+                    {userIDsession !== comment.user_id ? (
+                      ""
+                    ) : (
+                      <>
+                        <button className="edit-btn">Edit</button>
+                        <button className="delete-btn">Delete</button>
+                      </>
+                    )}
+                    <small className="comment-note">{`${comment?.User?.name}, ответил ${post?.User?.name}`}</small>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         </div>
-      ) : (
-        <div
-          className={`comment-section ${isDotsActive ? "show-actions" : ""}`}
-        >
-          <button className="toggle-comments-btn" onClick={handleShowComments}>
-            {`${showComments ? "Скрыть" : "Комментарии"} ${comments.length}`}
-          </button>
-          <div className="comment-list">
-            <div className="comment">
-              <p className="comment-text">{`${post.posttitle}`}</p>
-              <div className="comment-actions">
-                <button className="like-btn">
-                  <ion-icon class="thumbs" name="thumbs-up-outline"></ion-icon>{" "}
-                  0
-                </button>
-                <button className="dislike-btn">
-                  <ion-icon
-                    class="thumbs"
-                    name="thumbs-down-outline"
-                  ></ion-icon>{" "}
-                  0
-                </button>
-                <button className="reply-btn" onClick={handleShowReplies}>
-                  reply
-                </button>
-                <button className="edit-btn">Edit</button>
-                <button className="delete-btn">Delete</button>
-                <small className="comment-note">
-                  {post?.User?.name}, ({post?.Subject?.subjectName})
-                </small>
-              </div>
-
-              <div className="dots" onClick={handleDots}>
-                &#x2022;&#x2022;&#x2022;
-              </div>
-              <div className="close-btn hidden" onClick={handleDots}>
-                &#10006;
-              </div>
-              <div className="replies">
-                {isShowReplies && (
-                  <form onSubmit={submitCommentsHandler}>
-                    <div id="reply-form-template" className="add-comment">
-                      <textarea
-                        name="commenttitle"
-                        placeholder="Write a reply..."
-                        value={textArea.commenttitle}
-                        onChange={handleComments}
-                      ></textarea>
-                      <button type="submit">Post Reply</button>
-                    </div>
-                  </form>
-                )}
-                {comments.map((comment) => (
-                  <div
-                    className={`comment-for-comment ${
-                      showComments ? "" : "hidden"
-                    }`}
-                    key={comment.id}
-                  >
-                    <p className="comment-text">{comment.commenttitle}</p>
-                    <div className="comment-actions">
-                      <button className="like-btn">
-                        <ion-icon
-                          class="thumbs"
-                          name="thumbs-up-outline"
-                        ></ion-icon>{" "}
-                        0
-                      </button>
-                      <button className="dislike-btn">
-                        <ion-icon
-                          class="thumbs"
-                          name="thumbs-down-outline"
-                        ></ion-icon>{" "}
-                        0
-                      </button>
-                      <button className="reply-btn" onClick={handleShowReplies}>
-                        reply
-                      </button>
-                      {userIDsession !== comment.user_id ? (
-                        ""
-                      ) : (
-                        <>
-                          <button className="edit-btn">Edit</button>
-                          <button className="delete-btn">Delete</button>
-                        </>
-                      )}
-
-                      <small className="comment-note">{`${comment?.User?.name}, ответил ${post?.User?.name}`}</small>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      </div>
     </>
   );
 }
-
