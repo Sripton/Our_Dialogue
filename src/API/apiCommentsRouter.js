@@ -32,6 +32,15 @@ router.get("/:id", async (req, res) => {
     console.log(error);
   }
 });
+router.get("/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const findPost = await Comment.findAll({ where: { post_id: id } });
+    res.send(findPost);
+  } catch (error) {
+    console.log(error);
+  }
+});
 
 router.put("/:id", async (req, res) => {
   const { id } = req.params;
