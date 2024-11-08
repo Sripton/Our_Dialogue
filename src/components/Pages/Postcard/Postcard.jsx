@@ -1,6 +1,12 @@
 import React, { useState, useEffect } from "react";
 
-export default function Postcard({ post, id, userIDsession }) {
+export default function Postcard({
+  post,
+  id,
+  userIDsession,
+  deletePostHandler,
+  userNameSession,
+}) {
   const [isDotsActive, setIsDotsActive] = useState(false);
   const [isShowReplies, setShowReplies] = useState(false);
   const [textArea, setTextArea] = useState({
@@ -43,6 +49,7 @@ export default function Postcard({ post, id, userIDsession }) {
   const handlerEditCommentTextChange = (e) => {
     setEditCommentText(e.target.value);
   };
+
   const submitCommentsHandler = async (e) => {
     e.preventDefault();
     // Ошибка Cannot read properties of undefined (reading 'trim') возникает,
@@ -63,7 +70,15 @@ export default function Postcard({ post, id, userIDsession }) {
     if (responce.ok) {
       const data = await responce.json();
       // setComments(Array.isArray(data) ? data : []);
-      setComments((prevComments) => [...prevComments, data]);
+
+      // Добавить объект User в комментарий, если он не возвращается с сервера
+      const newComment = {
+        ...data,
+        User: {
+          name: userNameSession,
+        },
+      };
+      setComments((prevComments) => [...prevComments, newComment]);
       setTextArea({ commenttitle: "" });
       setShowReplies(false);
     }
@@ -92,7 +107,7 @@ export default function Postcard({ post, id, userIDsession }) {
     if (responce.ok) {
       // При таком раскладе измененный комменатрий обновляется после презагрузки
 
-      //  В текущей версии кода setComments использует метод map внутри, 
+      //  В текущей версии кода setComments использует метод map внутри,
       // но результат функции map не возвращается, поэтому изменения не применяются корректно.
       // setComments((prevComments) => {
       //   prevComments.map((comment) =>
@@ -130,7 +145,7 @@ export default function Postcard({ post, id, userIDsession }) {
       .then((data) => setComments(data))
       .catch((err) => console.log(err));
   }, [id]);
-
+  console.log("userNameSession", userNameSession);
   return (
     <>
       <div className={`comment-section ${isDotsActive ? "show-actions" : ""}`}>
@@ -173,11 +188,16 @@ export default function Postcard({ post, id, userIDsession }) {
                   <button className="edit-btn" onClick={handleEditActive}>
                     Edit
                   </button>
-                  <button className="delete-btn">Delete</button>
+                  <button
+                    className="delete-btn"
+                    onClick={() => deletePostHandler(post.id)}
+                  >
+                    Delete
+                  </button>
                 </>
               )}
               <small className="comment-note">
-                {post?.User?.name}, ({post?.Subject?.subjectName})
+                {post?.User?.name}, {"к теме"} ({post?.Subject?.subjectName})
               </small>
             </div>
             <div className="dots" onClick={handleDots}>
@@ -225,6 +245,11 @@ export default function Postcard({ post, id, userIDsession }) {
                         0
                       </button>
                       <button className="reply-btn">reply</button>
+                      <small className="comment-note">
+                        {comment?.User?.name
+                          ? `${comment?.User?.name}, ответил ${post?.User?.name}`
+                          : "Анонимный пользователь"}
+                      </small>{" "}
                     </div>
                   </div>
                 ) : (
@@ -273,7 +298,11 @@ export default function Postcard({ post, id, userIDsession }) {
                         Edit
                       </button>
                       <button className="delete-btn">Delete</button>
-                      <small className="comment-note">{`${comment?.User?.name}, ответил ${post?.User?.name}`}</small>
+                      <small className="comment-note">
+                        {comment?.User?.name
+                          ? `${comment?.User?.name}, ответил ${post?.User?.name}`
+                          :`Аноним, ответил ${post?.User?.name}` }
+                      </small>
                     </div>
                   </div>
                 )

@@ -1,9 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 
 export default function Addposts({ setPosts }) {
   // 1 -> const [inputs, setInputs] = useState("");
-  // 2 ->c onst [inputs, setInputs] = useState({posttitle: "",});
+  // 2 ->const [inputs, setInputs] = useState({posttitle: ""});
   const [inputs, setInputs] = useState({
     posttitle: "",
   });
@@ -18,7 +18,6 @@ export default function Addposts({ setPosts }) {
       method: "POST",
       headers: { "Content-type": "application/json" },
       // 1 -> body: JSON.stringify(inputs),
-      // 2 ->  headers: { "Content-type": "application/json" },
       body: JSON.stringify({ posttitle: inputs.posttitle }),
     });
     if (responce.ok) {
@@ -27,7 +26,8 @@ export default function Addposts({ setPosts }) {
       setInputs({ posttitle: "" });
     }
   };
-  console.log("inputs", inputs);
+  // При мобильном режиме работает лучше 
+  const commentsLink = useMemo(() => `/comments/${id}`);
   return (
     <>
       <div className="post-container">
@@ -53,7 +53,9 @@ export default function Addposts({ setPosts }) {
               Количество ответов на ваш пост:
               <span id="reply-count">0</span>
             </p>
-            <a href="#" className="view-comments">
+            {/* Использовать <a /> вместо <NavLink/>. При 
+            использовании <a/> производительность лучше */}
+            <a href={commentsLink} className="view-comments">
               Посмотреть ответы на пост
             </a>
           </div>

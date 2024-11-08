@@ -1,5 +1,5 @@
 import express from "express";
-import { Subject, Post, User } from "../db/models";
+import { Subject, Post, User, Comment } from "../db/models";
 
 const router = express.Router();
 
@@ -39,6 +39,19 @@ router.put("/:id", async (req, res) => {
   try {
     const editPostID = await Post.update({ posttitle }, { where: { id } });
     res.json(editPostID);
+  } catch (error) {
+    console.log(error);
+  }
+});
+
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    // Удаляем связанные комментарии
+    await Comment.destroy({ where: { post_id: id } });
+    // Удаляем сам пост
+    await Post.destroy({ where: { id } });
+    res.sendStatus(200);
   } catch (error) {
     console.log(error);
   }

@@ -7,6 +7,7 @@ export default function Postlist({
   setComments,
   comments,
   userIDsession,
+  userNameSession
 }) {
   const { id } = useParams();
   useEffect(() => {
@@ -16,7 +17,11 @@ export default function Postlist({
       .catch((err) => console.log(err));
   }, []);
 
-  console.log(posts);
+  const deletePostHandler = async (id) => {
+    await fetch(`/api/posts/${id}`, { method: "delete" }).then(() =>
+      setPosts((prev) => prev.filter((data) => data.id !== id))
+    );
+  };
   return (
     <div className="comments-container">
       {posts?.map((post) => (
@@ -27,6 +32,8 @@ export default function Postlist({
           setComments={setComments}
           comments={comments}
           userIDsession={userIDsession}
+          deletePostHandler={deletePostHandler}
+          userNameSession={userNameSession}
         />
       ))}{" "}
     </div>

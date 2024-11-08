@@ -52,8 +52,7 @@ export default function App({
       navigate("/");
     }
   };
-  // console.log('userID', userID);
-  // console.log('userIDsession', userIDsession);
+
 
   return (
     <>
@@ -103,6 +102,7 @@ export default function App({
               posts={posts}
               setPosts={setPosts}
               userIDsession={userIDsession}
+              userNameSession={userNameSession}
             />
           }
         />
