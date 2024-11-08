@@ -55,4 +55,15 @@ router.put("/:id", async (req, res) => {
     console.log(error);
   }
 });
+
+router.delete('/:id', async (req, res) => {
+  const {id} = req.params;
+  try {
+    await Comment.destroy({where: {id}});
+    res.sendStatus(200);
+  } catch (error) {
+    res.sendStatus(401)
+    console.log(`${error} Не получилось удалить комментарий` );
+  }
+})
 export default router;

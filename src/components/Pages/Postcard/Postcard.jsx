@@ -139,6 +139,14 @@ export default function Postcard({
     }
   };
 
+  const deleteCommentHandler = async (id) => {
+    await fetch(`/api/comments/${id}`, { method: "DELETE" })
+      .then(() =>
+        setComments((prev) => prev.filter((comment) => comment.id !== id))
+      )
+      .catch((err) => console.log(err));
+  };
+  
   useEffect(() => {
     fetch(`/api/comments/${id}`, { method: "GET" })
       .then((res) => res.json())
@@ -246,9 +254,7 @@ export default function Postcard({
                       </button>
                       <button className="reply-btn">reply</button>
                       <small className="comment-note">
-                        {comment?.User?.name
-                          ? `${comment?.User?.name}, ответил ${post?.User?.name}`
-                          : "Анонимный пользователь"}
+                        {`${comment?.User?.name}, ответил ${post?.User?.name}`}
                       </small>{" "}
                     </div>
                   </div>
@@ -297,11 +303,14 @@ export default function Postcard({
                       >
                         Edit
                       </button>
-                      <button className="delete-btn">Delete</button>
+                      <button
+                        className="delete-btn"
+                        onClick={() => deleteCommentHandler(comment.id)}
+                      >
+                        Delete
+                      </button>
                       <small className="comment-note">
-                        {comment?.User?.name
-                          ? `${comment?.User?.name}, ответил ${post?.User?.name}`
-                          :`Аноним, ответил ${post?.User?.name}` }
+                        {`${comment?.User?.name}, ответил ${post?.User?.name}`}
                       </small>
                     </div>
                   </div>
