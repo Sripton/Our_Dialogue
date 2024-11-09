@@ -1,12 +1,8 @@
 import React, { useEffect, useState } from "react";
+import {useNavigate} from 'react-router-dom';
 import Navbar from "./Pages/Navbar";
-import { Route, Routes, useNavigate } from "react-router-dom";
-import Contentlist from "./Pages/Contentlist/Contentlist";
-import Subjectlist from "./Pages/Subjectlist";
-import Signup from "./Pages/Signup";
-import Signin from "./Pages/Signin";
-import Addposts from "./Pages/Addposts";
-import Postlist from "./Pages/Postlist";
+import All_Routes from "./Pages/Routes/All_Routes";
+import Private_Routes from "./Pages/Routes/Private_Routes/Private_Routes";
 
 export default function App({
   directions,
@@ -53,7 +49,6 @@ export default function App({
     }
   };
 
-
   return (
     <>
       <Navbar
@@ -65,48 +60,24 @@ export default function App({
         userIDsession={userIDsession}
         logoutHandler={logoutHandler}
       />
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <Contentlist directions={directions} thumbnails={thumbnails} />
-          }
+      {!userIDsession ? (
+        <All_Routes
+          userIDsession={userIDsession}
+          directions={directions}
+          thumbnails={thumbnails}
+          setUserNameSession={setUserNameSession}
+          setUserIDSession={setUserIDSession}
         />
-        <Route
-          path="/signup"
-          element={
-            <Signup
-              setUserNameSession={setUserNameSession}
-              setUserIDSession={setUserIDSession}
-            />
-          }
+      ) : (
+        <Private_Routes
+          directions={directions}
+          thumbnails={thumbnails}
+          setPosts={setPosts}
+          posts={posts}
+          userIDsession={userIDsession}
+          userNameSession={userNameSession}
         />
-        <Route
-          path="/signin"
-          element={
-            <Signin
-              setUserNameSession={setUserNameSession}
-              setUserIDSession={setUserIDSession}
-            />
-          }
-        />
-        <Route path="/subjects/:id" element={<Subjectlist />} />
-        <Route
-          path="/addposts/:id"
-          element={<Addposts setPosts={setPosts} />}
-        />
-        <Route
-          path="/comments/:id"
-          element={
-            <Postlist
-              posts={posts}
-              setPosts={setPosts}
-              userIDsession={userIDsession}
-              userNameSession={userNameSession}
-            />
-          }
-        />
-      </Routes>
+      )}
     </>
   );
 }

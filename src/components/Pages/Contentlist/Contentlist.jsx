@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { NavLink } from "react-router-dom";
 
-export default function Contentlist({ directions, thumbnails }) {
+export default function Contentlist({ directions, thumbnails, userIDsession }) {
   const [selectedItemIndex, setSelectedItemIndex] = useState(0);
   const handleClick = (index) => {
     setSelectedItemIndex(index + 1);
@@ -32,9 +32,22 @@ export default function Contentlist({ directions, thumbnails }) {
                 <div className="caorusel__description">
                   {direction.description}
                 </div>
-                <div className="caorusel__button">
-                  <NavLink className="button" to={`/subjects/${direction.id}`}>Перейти</NavLink>
-                </div>
+                {!userIDsession ? (
+                  <div className="caorusel__button">
+                    <NavLink className="button" to={`/signin`}>
+                      Перейти
+                    </NavLink>
+                  </div>
+                ) : (
+                  <div className="caorusel__button">
+                    <NavLink
+                      className="button"
+                      to={`/subjects/${direction.id}`}
+                    >
+                      Перейти
+                    </NavLink>
+                  </div>
+                )}
               </div>
             </div>
           ))}
