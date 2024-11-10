@@ -1,5 +1,5 @@
 import { Comment } from "../db/models";
-async function checkUsersForEditingComments(req, res, next) {
+async function checkUsersForComments(req, res, next) {
   const { id } = req.params;
   const userID = req.session.userID;
   try {
@@ -20,4 +20,4 @@ async function checkUsersForEditingComments(req, res, next) {
   }
 }
 
-export default checkUsersForEditingComments;
+export default checkUsersForComments;

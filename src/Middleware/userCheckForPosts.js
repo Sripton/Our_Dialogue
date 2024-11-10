@@ -1,5 +1,5 @@
 import { Post } from "../db/models";
-async function checkUsersForEditingPost(req, res, next) {
+async function checkUsersForPost(req, res, next) {
   const { id } = req.params;
   const userID = req.session.userID;
   try {
@@ -16,4 +16,4 @@ async function checkUsersForEditingPost(req, res, next) {
   }
 }
 
-export default checkUsersForEditingPost;
+export default checkUsersForPost;

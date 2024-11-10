@@ -1,6 +1,6 @@
 import express from "express";
 import { Subject, Post, User, Comment } from "../db/models";
-import checkUsersForEditingPost from "../Middleware/userCheckForPosts";
+import checkUsersForPost from "../Middleware/userCheckForPosts";
 const router = express.Router();
 
 router.post("/:id", async (req, res) => {
@@ -36,7 +36,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.put("/:id", checkUsersForEditingPost, async (req, res) => {
+router.put("/:id", checkUsersForPost, async (req, res) => {
   const { id } = req.params;
   const { posttitle } = req.body;
   try {
@@ -47,7 +47,7 @@ router.put("/:id", checkUsersForEditingPost, async (req, res) => {
   }
 });
 
-router.delete("/:id", checkUsersForEditingPost, async (req, res) => {
+router.delete("/:id", checkUsersForPost, async (req, res) => {
   const { id } = req.params;
   try {
     // Удаляем связанные комментарии
