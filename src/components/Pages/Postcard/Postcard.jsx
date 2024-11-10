@@ -154,7 +154,7 @@ export default function Postcard({
       .catch((err) => console.log(err));
   }, [id]);
 
-console.log('post', post);
+
   return (
     <>
       <div className={`comment-section ${isDotsActive ? "show-actions" : ""}`}>

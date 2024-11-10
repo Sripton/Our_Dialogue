@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {useNavigate} from 'react-router-dom';
+import { useNavigate } from "react-router-dom";
 import Navbar from "./Pages/Navbar";
 import All_Routes from "./Pages/Routes/All_Routes";
 import Private_Routes from "./Pages/Routes/Private_Routes/Private_Routes";
@@ -11,34 +11,29 @@ export default function App({
   userName,
   allPosts,
 }) {
-  const [isMobileDevice, setIsMobileDevice] = useState(false);
-  const [isArrowActive, setIsArrowActive] = useState(false);
-  const [iconMenuActive, setIconMenuActive] = useState(false);
   const [userNameSession, setUserNameSession] = useState(userName || null);
   const [userIDsession, setUserIDSession] = useState(userID || null);
   const [posts, setPosts] = useState(allPosts || null);
 
   const navigate = useNavigate();
-  const isMobile = () => {
-    const userAgent = navigator.userAgent;
-    return /Android|Blackberry|iPhone|iPad|iPod|Opera Mini|IEMobile/gi.test(
-      userAgent
-    );
-  };
 
+  // Функция isMobile  используется для определения того, осуществляется ли доступ к приложению с мобильного устройства.
   useEffect(() => {
+    const isMobile = () => {
+      // Функция всегда true
+      const userAgent = navigator.userAgent;
+      return /Android|Blackberry|iPhone|iPad|iPod|Opera Mini|IEMobile/gi.test(
+        userAgent
+      );
+    };
     const mobileDevice = isMobile();
-    setIsMobileDevice(mobileDevice);
     document.body.classList.toggle("_touch", mobileDevice);
     document.body.classList.toggle("_pc", !mobileDevice);
+    // Очистка эффекта при размонтировании
+    return () => {
+      document.body.classList.remove("_touch", "_pc");
+    };
   }, []);
-
-  const handleArrowActive = () => {
-    setIsArrowActive(!isArrowActive);
-  };
-  const handleIconMenuActive = () => {
-    setIconMenuActive(!iconMenuActive);
-  };
 
   const logoutHandler = async () => {
     const responce = await fetch("/api/users/logout");
@@ -52,10 +47,6 @@ export default function App({
   return (
     <>
       <Navbar
-        isArrowActive={isArrowActive}
-        handleArrowActive={handleArrowActive}
-        iconMenuActive={iconMenuActive}
-        handleIconMenuActive={handleIconMenuActive}
         userNameSession={userNameSession}
         userIDsession={userIDsession}
         logoutHandler={logoutHandler}

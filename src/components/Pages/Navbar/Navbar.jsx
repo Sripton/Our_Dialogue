@@ -1,32 +1,42 @@
 import React, { useEffect, useState, useRef } from "react";
 import { NavLink } from "react-router-dom";
 export default function Navbar({
-  isArrowActive,
-  handleArrowActive,
-  iconMenuActive,
-  handleIconMenuActive,
   userNameSession,
   userIDsession,
   logoutHandler,
 }) {
+  const [iconMenuActive, setIconMenuActive] = useState(false);
+  const [isArrowActive, setIsArrowActive] = useState(false);
   const [dropActive, setDropActive] = useState(false);
   const profileDropdownBtnRef = useRef(null);
   const profileDropdownListRef = useRef(null);
-  const handleDropClick = () => {
-    setDropActive(true);
+
+  const handleIconMenuActive = () => {
+    setIconMenuActive(!iconMenuActive);
   };
+  const handleArrowActive = () => {
+    setIsArrowActive(!isArrowActive);
+  };
+  const handleDropClick = () => {
+    setDropActive((prev) => !prev);
+  };
+
+
   useEffect(() => {
     const handleClickOutside = (e) => {
-      if (!profileDropdownBtnRef.current.contains(e.target)) {
-        setDropActive(false);
+      if (
+        !profileDropdownBtnRef.current ||
+        profileDropdownBtnRef.current.contains(e.target)
+      ) {
+        return;
       }
+      setDropActive(false);
     };
-    window.addEventListener("click", handleClickOutside);
-
+    window.addEventListener("mousedown", handleClickOutside);
     return () => {
-      window.removeEventListener("click", handleClickOutside);
+      window.removeEventListener("mousedown", handleClickOutside);
     };
-  }, []);
+  });
 
   return (
     <>
