@@ -56,7 +56,7 @@ router.put("/:id", checkUsersForEditingComments, async (req, res) => {
   }
 });
 
-router.delete("/:id", async (req, res) => {
+router.delete("/:id", checkUsersForEditingComments, async (req, res) => {
   const { id } = req.params;
   try {
     await Comment.destroy({ where: { id } });
