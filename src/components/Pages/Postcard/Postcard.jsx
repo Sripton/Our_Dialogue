@@ -146,14 +146,15 @@ export default function Postcard({
       )
       .catch((err) => console.log(err));
   };
-  
+
   useEffect(() => {
     fetch(`/api/comments/${id}`, { method: "GET" })
       .then((res) => res.json())
       .then((data) => setComments(data))
       .catch((err) => console.log(err));
   }, [id]);
-  console.log("userNameSession", userNameSession);
+
+console.log('post', post);
   return (
     <>
       <div className={`comment-section ${isDotsActive ? "show-actions" : ""}`}>

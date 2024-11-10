@@ -1,6 +1,6 @@
 import express from "express";
 import { Post, Comment, User } from "../db/models";
-
+import checkUsersForEditingComments from "../Middleware/userCheckForComments";
 const router = express.Router();
 
 router.post("/:id", async (req, res) => {
@@ -25,7 +25,7 @@ router.get("/:id", async (req, res) => {
     const findPostID = await Post.findOne({ where: { id } });
     const findAllCommentForPostID = await Comment.findAll({
       where: { post_id: findPostID.id },
-      include: { model: User },
+      include: { model: User, attributes: ["name"] },
     });
     res.send(findAllCommentForPostID);
   } catch (error) {
@@ -42,7 +42,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", checkUsersForEditingComments, async (req, res) => {
   const { id } = req.params;
   const { commenttitle } = req.body;
   try {
@@ -56,14 +56,14 @@ router.put("/:id", async (req, res) => {
   }
 });
 
-router.delete('/:id', async (req, res) => {
-  const {id} = req.params;
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params;
   try {
-    await Comment.destroy({where: {id}});
+    await Comment.destroy({ where: { id } });
     res.sendStatus(200);
   } catch (error) {
-    res.sendStatus(401)
-    console.log(`${error} Не получилось удалить комментарий` );
+    res.sendStatus(401);
+    console.log(`${error} Не получилось удалить комментарий`);
   }
-})
+});
 export default router;

@@ -22,6 +22,7 @@ export default function Postlist({
       setPosts((prev) => prev.filter((data) => data.id !== id))
     );
   };
+
   return (
     <div className="comments-container">
       {posts?.map((post) => (

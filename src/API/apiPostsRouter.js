@@ -1,6 +1,6 @@
 import express from "express";
 import { Subject, Post, User, Comment } from "../db/models";
-
+import checkUsersForEditingPost from "../Middleware/userCheckForPosts";
 const router = express.Router();
 
 router.post("/:id", async (req, res) => {
@@ -25,7 +25,10 @@ router.get("/:id", async (req, res) => {
     const findSubjectID = await Subject.findOne({ where: { id } });
     const findAllPosts = await Post.findAll({
       where: { subject_id: findSubjectID.id },
-      include: [{ model: User }, { model: Subject }],
+      include: [
+        { model: User, attributes: ["name"] },
+        { model: Subject, attributes: ["subjectName"] },
+      ],
     });
     res.send(findAllPosts);
   } catch (error) {
@@ -33,7 +36,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.put("/:id", async (req, res) => {
+router.put("/:id", checkUsersForEditingPost, async (req, res) => {
   const { id } = req.params;
   const { posttitle } = req.body;
   try {
