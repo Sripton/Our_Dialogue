@@ -437,7 +437,7 @@ body._touch .menu__link {
 }
 .caorusel._next .thumbnail__list {
   transform: translateX(180px);
-  animation: transformThumbnail 0.5s linear 1 forwards;
+  animation: transformThumbnail 0.5 s linear 1 forwards;
 }
 @keyframes transformThumbnail {
   to {
@@ -1034,12 +1034,7 @@ textarea:focus {
 .dots {
   display: none;
 }
-/* .close-btn {
-  cursor: pointer;
-  color: red;
-  margin-top: 10px;
-  display: none;
-} */
+
 .close-btn {
   cursor: pointer;
   color: red;

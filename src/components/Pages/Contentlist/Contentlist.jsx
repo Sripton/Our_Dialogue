@@ -1,30 +1,36 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { NavLink } from "react-router-dom";
 
 export default function Contentlist({ directions, thumbnails, userIDsession }) {
-  const [selectedItemIndex, setSelectedItemIndex] = useState(0);
+  const [selectedItemIndex, setSelectedItemIndex] = useState(1);
+  const [caoruselItems, setCarouselItems] = useState(directions);
+  const [thumbnailItems, setThumbnailItems] = useState(thumbnails);
   const handleClick = (index) => {
-    setSelectedItemIndex(index + 1);
-    console.log("index", index);
-  };
-  useEffect(() => {
-    const caorusel__list = document.querySelector(".caorusel__list");
-    const thumbnail__list = document.querySelector(".thumbnail__list");
-    const caorusel__items = document.querySelectorAll(".caorusel__item");
-    const thumbnail__items = document.querySelectorAll(".thumbnail__item");
+    setSelectedItemIndex(index+1);
+    // Перемещение выбранного элемента в конец списка
+    const updatedCarouselItems = [
+      ...caoruselItems.slice(0, index),
+      ...caoruselItems.slice(index + 1),
+      caoruselItems[index],
+    ];
+    setCarouselItems(updatedCarouselItems);
 
-    thumbnail__items.forEach((elem, index) => {
-      elem.addEventListener("click", () => {
-        caorusel__list.appendChild(caorusel__items[index]);
-        thumbnail__list.appendChild(thumbnail__items[index]);
-      });
-    });
-  }, []);
+
+    const selectedThumbnailItem = thumbnailItems[index]; // 0
+    // Создание нового массива без выбранного элемента
+    const newThumbnailItems = [...thumbnailItems];
+    // Удаление выбранного элемента
+    newThumbnailItems.splice(index, 1);
+    // Добавление выбранного элемента в конец
+    newThumbnailItems.push(selectedThumbnailItem);
+    setThumbnailItems(newThumbnailItems);
+  };
+
   return (
     <>
       <div className={`caorusel ${selectedItemIndex ? "_next" : ""}`}>
         <div className="caorusel__list">
-          {directions?.map((direction) => (
+          {caoruselItems?.map((direction) => (
             <div className="caorusel__item" key={direction.id}>
               <img src={`${direction.img}`} />
               <div className="caorusel__content">
@@ -53,7 +59,7 @@ export default function Contentlist({ directions, thumbnails, userIDsession }) {
           ))}
         </div>
         <div className="thumbnail__list">
-          {thumbnails?.map((thumbnail, index) => (
+          {thumbnailItems?.map((thumbnail, index) => (
             <div className="thumbnail__item" key={thumbnail.id}>
               <img
                 src={`${thumbnail.img}`}

@@ -354,3 +354,32 @@ export default Postcard;
 
 
 
+
+
+
+import React, { useState } from "react";
+import { NavLink } from "react-router-dom";
+
+export default function Contentlist({ directions, thumbnails, userIDsession }) {
+  const [selectedItemIndex, setSelectedItemIndex] = useState(0);
+  const [carouselItems, setCarouselItems] = useState(directions);
+  const [thumbnailItems, setThumbnailItems] = useState(thumbnails);
+
+  const handleClick = (index) => {
+    setSelectedItemIndex(index + 1);
+
+    // Перемещение выбранного элемента в конец списка
+    const updatedCarouselItems = [
+      ...carouselItems.slice(0, index),
+      ...carouselItems.slice(index + 1),
+      carouselItems[index],
+    ];
+    setCarouselItems(updatedCarouselItems);
+
+    const updatedThumbnailItems = [
+      ...thumbnailItems.slice(0, index),
+      ...thumbnailItems.slice(index + 1),
+      thumbnailItems[index],
+    ];
+    setThumbnailItems(updatedThumbnailItems);
+  };
