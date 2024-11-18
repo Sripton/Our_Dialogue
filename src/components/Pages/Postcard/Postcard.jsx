@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 export default function Postcard({
   post,
   id,
-  setPosts,
   userIDsession,
   deletePostHandler,
   userNameSession,
@@ -21,7 +20,10 @@ export default function Postcard({
   });
   const [editCommentID, setEditCommentID] = useState("");
   const [editCommentText, setEditCommentText] = useState("");
- 
+  const [reactionPost, setReactionPost] = useState({
+    likes: 0,
+    dislikes: 0,
+  });
 
   const handleDots = () => {
     setIsDotsActive(!isDotsActive);
@@ -50,26 +52,6 @@ export default function Postcard({
 
   const handlerEditCommentTextChange = (e) => {
     setEditCommentText(e.target.value);
-  };
-
-  const submitLikeOrDislikePost = async (reactionType) => {
-    const response = await fetch(`/api/likeordislikepost/${post.id}`, {
-      method: "POST",
-      headers: { "Content-type": "application/json" },
-      body: JSON.stringify({ reaction_type: reactionType }),
-    });
-    if (response.ok) {
-      if (response.ok) {
-        const updatedReaction = await response.json();
-        // Update UI or show a success message if necessary
-        console.log("Reaction submitted successfully", updatedReaction);
-        // Optionally, update the post reactions in your component state if required
-      } else {
-        const errorData = await response.json();
-        console.error("Error submitting reaction:", errorData.message);
-        alert(errorData.message || "Failed to submit the reaction");
-      }
-    }
   };
 
   const submitCommentsHandler = async (e) => {
@@ -159,6 +141,35 @@ export default function Postcard({
       setEditCommentText("");
     }
   };
+  const submitLikeOrDislikePost = async (reactionType) => {
+    const response = await fetch(`/api/likeordislikepost/${post.id}`, {
+      method: "POST",
+      headers: { "Content-type": "application/json" },
+      body: JSON.stringify({ reaction_type: reactionType }),
+    });
+    if (response.ok) {
+      if (response.ok) {
+        const data = await response.json();
+        if (Array.isArray(data)) {
+          const likeCount = data.filter(
+            (reaction) => reaction.reaction_type === "like"
+          ).length;
+          const dislikeCount = data.filter(
+            (reaction) => reaction.reaction_type === "dislike"
+          ).length;
+          setReactionPost({ likes: likeCount, dislikes: dislikeCount });
+        }
+
+        // Update UI or show a success message if necessary
+        console.log("Reaction submitted successfully", data);
+        // Optionally, update the post reactions in your component state if required
+      } else {
+        const errorData = await response.json();
+        console.error("Error submitting reaction:", errorData.message);
+        alert(errorData.message || "Failed to submit the reaction");
+      }
+    }
+  };
 
   const deleteCommentHandler = async (id) => {
     await fetch(`/api/comments/${id}`, { method: "DELETE" })
@@ -174,6 +185,21 @@ export default function Postcard({
       .then((data) => setComments(data))
       .catch((err) => console.log(err));
   }, [id]);
+
+  useEffect(() => {
+    fetch(`/api/likeordislikepost/${post.id}`, { method: "GET" })
+      .then((res) => res.json())
+      .then((data) => {
+        const likeCount = data.filter(
+          (reaction) => reaction.reaction_type === "like"
+        ).length;
+        const dislikeCount = data.filter(
+          (reaction) => reaction.reaction_type === "dislike"
+        ).length;
+        setReactionPost({ likes: likeCount, dislikes: dislikeCount });
+      })
+      .catch((err) => console.log(err));
+  }, []);
 
   return (
     <>
@@ -204,13 +230,17 @@ export default function Postcard({
                 className="like-btn"
                 onClick={() => submitLikeOrDislikePost("like")}
               >
-                <ion-icon class="thumbs"></ion-icon> 0
+                <ion-icon class="thumbs" name="thumbs-up-outline"></ion-icon>{" "}
+                {reactionPost.likes !== undefined ? reactionPost.likes : ""}
               </button>
               <button
                 className="dislike-btn"
                 onClick={() => submitLikeOrDislikePost("dislike")}
               >
-                <ion-icon class="thumbs"></ion-icon> 0
+                <ion-icon class="thumbs" name="thumbs-down-outline"></ion-icon>{" "}
+                {reactionPost.dislikes !== undefined
+                  ? reactionPost.dislikes
+                  : ""}
               </button>
               <button className="reply-btn" onClick={handleShowReplies}>
                 reply
