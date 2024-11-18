@@ -7,7 +7,7 @@ export default function Postlist({
   setComments,
   comments,
   userIDsession,
-  userNameSession
+  userNameSession,
 }) {
   const { id } = useParams();
   useEffect(() => {
@@ -35,6 +35,7 @@ export default function Postlist({
           userIDsession={userIDsession}
           deletePostHandler={deletePostHandler}
           userNameSession={userNameSession}
+          setPosts={setPosts}
         />
       ))}{" "}
     </div>

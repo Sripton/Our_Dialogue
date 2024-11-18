@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 export default function Postcard({
   post,
   id,
+  setPosts,
   userIDsession,
   deletePostHandler,
   userNameSession,
@@ -20,6 +21,7 @@ export default function Postcard({
   });
   const [editCommentID, setEditCommentID] = useState("");
   const [editCommentText, setEditCommentText] = useState("");
+ 
 
   const handleDots = () => {
     setIsDotsActive(!isDotsActive);
@@ -48,6 +50,26 @@ export default function Postcard({
 
   const handlerEditCommentTextChange = (e) => {
     setEditCommentText(e.target.value);
+  };
+
+  const submitLikeOrDislikePost = async (reactionType) => {
+    const response = await fetch(`/api/likeordislikepost/${post.id}`, {
+      method: "POST",
+      headers: { "Content-type": "application/json" },
+      body: JSON.stringify({ reaction_type: reactionType }),
+    });
+    if (response.ok) {
+      if (response.ok) {
+        const updatedReaction = await response.json();
+        // Update UI or show a success message if necessary
+        console.log("Reaction submitted successfully", updatedReaction);
+        // Optionally, update the post reactions in your component state if required
+      } else {
+        const errorData = await response.json();
+        console.error("Error submitting reaction:", errorData.message);
+        alert(errorData.message || "Failed to submit the reaction");
+      }
+    }
   };
 
   const submitCommentsHandler = async (e) => {
@@ -106,7 +128,6 @@ export default function Postcard({
     });
     if (responce.ok) {
       // При таком раскладе измененный комменатрий обновляется после презагрузки
-
       //  В текущей версии кода setComments использует метод map внутри,
       // но результат функции map не возвращается, поэтому изменения не применяются корректно.
       // setComments((prevComments) => {
@@ -154,7 +175,6 @@ export default function Postcard({
       .catch((err) => console.log(err));
   }, [id]);
 
-
   return (
     <>
       <div className={`comment-section ${isDotsActive ? "show-actions" : ""}`}>
@@ -180,12 +200,17 @@ export default function Postcard({
             )}
 
             <div className="comment-actions">
-              <button className="like-btn">
-                <ion-icon class="thumbs" name="thumbs-up-outline"></ion-icon> 0
+              <button
+                className="like-btn"
+                onClick={() => submitLikeOrDislikePost("like")}
+              >
+                <ion-icon class="thumbs"></ion-icon> 0
               </button>
-              <button className="dislike-btn">
-                <ion-icon class="thumbs" name="thumbs-down-outline"></ion-icon>{" "}
-                0
+              <button
+                className="dislike-btn"
+                onClick={() => submitLikeOrDislikePost("dislike")}
+              >
+                <ion-icon class="thumbs"></ion-icon> 0
               </button>
               <button className="reply-btn" onClick={handleShowReplies}>
                 reply
@@ -240,18 +265,10 @@ export default function Postcard({
                     <p className="comment-text">{comment.commenttitle}</p>
                     <div className="comment-actions">
                       <button className="like-btn">
-                        <ion-icon
-                          class="thumbs"
-                          name="thumbs-up-outline"
-                        ></ion-icon>{" "}
-                        0
+                        <ion-icon class="thumbs"></ion-icon> 0
                       </button>
                       <button className="dislike-btn">
-                        <ion-icon
-                          class="thumbs"
-                          name="thumbs-down-outline"
-                        ></ion-icon>{" "}
-                        0
+                        <ion-icon class="thumbs"></ion-icon> 0
                       </button>
                       <button className="reply-btn">reply</button>
                       <small className="comment-note">
@@ -284,18 +301,10 @@ export default function Postcard({
 
                     <div className="comment-actions">
                       <button className="like-btn">
-                        <ion-icon
-                          class="thumbs"
-                          name="thumbs-up-outline"
-                        ></ion-icon>{" "}
-                        0
+                        <ion-icon class="thumbs"></ion-icon> 0
                       </button>
                       <button className="dislike-btn">
-                        <ion-icon
-                          class="thumbs"
-                          name="thumbs-down-outline"
-                        ></ion-icon>{" "}
-                        0
+                        <ion-icon class="thumbs"></ion-icon> 0
                       </button>
                       <button className="reply-btn">reply</button>
                       <button

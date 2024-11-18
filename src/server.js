@@ -5,12 +5,13 @@ import jsxRender from "./Shablonizator/jsxRender";
 import indexRouter from "./IndexRouter/indexRouter";
 import path from "path";
 import apiSubjectsRouter from "./API/apiSubjectsRouter";
-import { Direction, Thumbnail, Post, Comment } from "./db/models";
+import { Direction, Thumbnail, Post } from "./db/models";
 import session from "express-session";
 import session__file__store from "session-file-store";
 import apiUsersRouter from "./API/apiUsersRouter";
 import apiPostRouter from "./API/apiPostsRouter";
 import apiCommentsRouter from "./API/apiCommentsRouter";
+import apiLikeOrDislikePostRouter from "./API/apiLikeOrDislikePost";
 
 dotenv.config();
 const app = express();
@@ -60,5 +61,6 @@ app.use("/api/subjects", apiSubjectsRouter);
 app.use("/api/users", apiUsersRouter);
 app.use("/api/posts", apiPostRouter);
 app.use("/api/comments", apiCommentsRouter);
+app.use("/api/likeordislikepost", apiLikeOrDislikePostRouter);
 
 app.listen(PORT, () => console.log(`***** Server start on ${PORT} port`));

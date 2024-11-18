@@ -23,9 +23,7 @@ body {
   z-index: 100;
   box-shadow: rgba(50, 50, 93, 0.25) 0px 30px 60px -12px inset,
     rgba(0, 0, 0, 0.3) 0px 18px 36px -18px inset;
-  /* background: linear-gradient(#8ec5fc, #e0c3fc); */
   background: linear-gradient(#9fa3a6, #9c9cc3);
-  /* background: linear-gradient(#21d4fd, #b721ff); */
 }
 .header__container {
   max-width: 1200px;
@@ -156,7 +154,6 @@ body._touch .menu__link {
     position: absolute;
     width: 100%;
     height: 10%;
-    background-color: #9d9797;
     background-color: #000;
     left: 0;
     transition: all 0.3s ease 0s;
@@ -209,7 +206,17 @@ body._touch .menu__link {
   }
   .menu__link {
     font-size: 24px;
+    color: #292828;
   }
+  body._touch .menu__arrow {
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 10px solid #292828;
+    margin: 0px 0px 0px 5px;
+    display: block;
+    transition: transform 0.3s ease 0s;
+  }
+
   .menu__list > li._active .menu__sub-list {
     display: block;
   }
@@ -222,11 +229,12 @@ body._touch .menu__link {
   }
   .menu__sub-link {
     font-size: 20px;
+    color: #292828;
   }
 }
 
 /* dropdown button */
-.profile__dropdownv {
+.profile__dropdown {
   position: relative;
 }
 .profile__dropdown__btn {
@@ -299,6 +307,15 @@ body._touch .menu__link {
   font-size: 1.1rem;
   width: 2.3rem;
   height: 1.5rem;
+}
+@media (max-width: 767px) {
+  .profile__dropdown span {
+    color: #000;
+  }
+
+  .profile__dropdown__item a {
+    color: #000;
+  }
 }
 /* dropdown button */
 
@@ -865,7 +882,6 @@ textarea:focus {
 .form-post {
   width: 100%;
 }
-
 #submit-post {
   padding: 12px 24px; /* Увеличены отступы */
   border: none;
@@ -878,7 +894,6 @@ textarea:focus {
   transition: background-color 0.3s ease, box-shadow 0.3s ease,
     transform 0.2s ease;
 }
-
 #submit-post:hover {
   background-color: #e91e63;
   box-shadow: 0 6px 12px rgba(233, 30, 99, 0.4);
@@ -1113,12 +1128,10 @@ textarea:focus {
   box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.2); /* Тень при нажатии */
   transform: translateY(1px); /* Легкий эффект нажатия */
 }
-
 .edit-post-btn:focus {
   outline: none; /* Убираем стандартный контур */
   box-shadow: 0px 0px 4px rgba(72, 187, 120, 0.8); /* Подсвечиваем контур фокусом */
 }
-
 @media (max-width: 768px) {
   .comment-section {
     padding: 15px;
