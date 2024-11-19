@@ -20,10 +20,9 @@ export default function Postcard({
   });
   const [editCommentID, setEditCommentID] = useState("");
   const [editCommentText, setEditCommentText] = useState("");
-  const [reactionPost, setReactionPost] = useState({
-    likes: 0,
-    dislikes: 0,
-  });
+
+  const [likes, setLikes] = useState([]);
+  const [dislikes, setDislikes] = useState([]);
 
   const handleDots = () => {
     setIsDotsActive(!isDotsActive);
@@ -148,25 +147,12 @@ export default function Postcard({
       body: JSON.stringify({ reaction_type: reactionType }),
     });
     if (response.ok) {
-      if (response.ok) {
-        const data = await response.json();
-        if (Array.isArray(data)) {
-          const likeCount = data.filter(
-            (reaction) => reaction.reaction_type === "like"
-          ).length;
-          const dislikeCount = data.filter(
-            (reaction) => reaction.reaction_type === "dislike"
-          ).length;
-          setReactionPost({ likes: likeCount, dislikes: dislikeCount });
-        }
+      const data = await response.json();
 
-        // Update UI or show a success message if necessary
-        console.log("Reaction submitted successfully", data);
-        // Optionally, update the post reactions in your component state if required
-      } else {
-        const errorData = await response.json();
-        console.error("Error submitting reaction:", errorData.message);
-        alert(errorData.message || "Failed to submit the reaction");
+      if (reactionType === "like") {
+        setLikes((prevLikes) => [...prevLikes, data]);
+      } else if (reactionType === "dislike") {
+        setDislikes((prevDislikes) => [...prevDislikes, data]);
       }
     }
   };
@@ -187,19 +173,19 @@ export default function Postcard({
   }, [id]);
 
   useEffect(() => {
-    fetch(`/api/likeordislikepost/${post.id}`, { method: "GET" })
+    fetch(`/api/likeordislikepost/getLikes/${post.id}`, { method: "GET" })
       .then((res) => res.json())
-      .then((data) => {
-        const likeCount = data.filter(
-          (reaction) => reaction.reaction_type === "like"
-        ).length;
-        const dislikeCount = data.filter(
-          (reaction) => reaction.reaction_type === "dislike"
-        ).length;
-        setReactionPost({ likes: likeCount, dislikes: dislikeCount });
-      })
+      .then((data) => setLikes(data))
       .catch((err) => console.log(err));
   }, []);
+
+  useEffect(() => {
+    fetch(`/api/likeordislikepost/getDislikes/${post.id}`, { method: "GET" })
+      .then((res) => res.json())
+      .then((data) => setDislikes(data))
+      .catch((err) => console.log(err));
+  }, []);
+
 
   return (
     <>
@@ -231,16 +217,18 @@ export default function Postcard({
                 onClick={() => submitLikeOrDislikePost("like")}
               >
                 <ion-icon class="thumbs" name="thumbs-up-outline"></ion-icon>{" "}
-                {reactionPost.likes !== undefined ? reactionPost.likes : ""}
+                {/* {reactionPost.likes !== undefined ? reactionPost.likes : ""} */}
+                {likes.length}
               </button>
               <button
                 className="dislike-btn"
                 onClick={() => submitLikeOrDislikePost("dislike")}
               >
                 <ion-icon class="thumbs" name="thumbs-down-outline"></ion-icon>{" "}
-                {reactionPost.dislikes !== undefined
+                {/* {reactionPost.dislikes !== undefined
                   ? reactionPost.dislikes
-                  : ""}
+                  : ""} */}
+                {dislikes.length}
               </button>
               <button className="reply-btn" onClick={handleShowReplies}>
                 reply

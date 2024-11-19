@@ -44,14 +44,30 @@ router.post("/:id", async (req, res) => {
     res.status(500).json({ error: "Произошла ошибка при создании реакции" });
   }
 });
-router.get("/:id", async (req, res) => {
+router.get("/getLikes/:id", async (req, res) => {
   const { id } = req.params;
   try {
     const findPostID = await Post.findOne({ where: { id } });
-    const allPostReaction = await Postreaction.findAll({
-      where: { post_id: findPostID.id },
+    const allPostLikeReaction = await Postreaction.findAll({
+      where: { post_id: findPostID.id, reaction_type: "like" },
     });
-    res.status(200).json(allPostReaction);
+    res.status(200).json(allPostLikeReaction);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Произошла ошибка при отправке реакций" });
+  }
+});
+router.get("/getDislikes/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const findPostID = await Post.findOne({ where: { id } });
+    if (!findPostID) {
+      return res.status(404).json({ message: "Пост не найден" });
+    }
+    const allPostDislikeReaction = await Postreaction.findAll({
+      where: { post_id: findPostID.id, reaction_type: "dislike" },
+    });
+    res.status(201).json(allPostDislikeReaction);
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Произошла ошибка при отправке реакций" });
