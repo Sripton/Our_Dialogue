@@ -1018,7 +1018,7 @@ textarea:focus {
   border-radius: 5px;
   font-size: 0.7rem;
   cursor: pointer;
-  background-color: #f0f0f0;
+  /* background-color: #f0f0f0; */
   display: flex;
   align-items: center;
   font-weight: bold;
@@ -1132,6 +1132,7 @@ textarea:focus {
   outline: none; /* Убираем стандартный контур */
   box-shadow: 0px 0px 4px rgba(72, 187, 120, 0.8); /* Подсвечиваем контур фокусом */
 }
+
 @media (max-width: 768px) {
   .comment-section {
     padding: 15px;

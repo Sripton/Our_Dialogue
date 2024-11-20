@@ -73,4 +73,14 @@ router.get("/getDislikes/:id", async (req, res) => {
     res.status(500).json({ message: "Произошла ошибка при отправке реакций" });
   }
 });
+
+router.delete("/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    await Postreaction.destroy({ where: { post_id: id } });
+    res.sendStatus(200);
+  } catch (error) {
+    console.log(error);
+  }
+});
 export default router;

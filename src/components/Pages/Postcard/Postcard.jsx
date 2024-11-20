@@ -140,19 +140,77 @@ export default function Postcard({
       setEditCommentText("");
     }
   };
-  const submitLikeOrDislikePost = async (reactionType) => {
-    const response = await fetch(`/api/likeordislikepost/${post.id}`, {
-      method: "POST",
-      headers: { "Content-type": "application/json" },
-      body: JSON.stringify({ reaction_type: reactionType }),
-    });
-    if (response.ok) {
-      const data = await response.json();
+  // const submitLikeOrDislikePost = async (reactionType) => {
+  //   const response = await fetch(`/api/likeordislikepost/${post.id}`, {
+  //     method: "POST",
+  //     headers: { "Content-type": "application/json" },
+  //     body: JSON.stringify({ reaction_type: reactionType }),
+  //   });
+  //   if (response.ok) {
+  //     const data = await response.json();
 
-      if (reactionType === "like") {
-        setLikes((prevLikes) => [...prevLikes, data]);
-      } else if (reactionType === "dislike") {
-        setDislikes((prevDislikes) => [...prevDislikes, data]);
+  //     if (reactionType === "like") {
+  //       setLikes((prevLikes) => [...prevLikes, data]);
+  //     } else if (reactionType === "dislike") {
+  //       setDislikes((prevDislikes) => [...prevDislikes, data]);
+  //     }
+  //   }
+  // };
+
+  const submitLikeOrDislikePost = async (reactionType) => {
+    // Проверяем, поставил ли пользователь лайк или дизлайк
+    const isLiked = likes.some((like) => like.user_id === userIDsession);
+    const isDisliked = dislikes.some(
+      (dislike) => dislike.user_id === userIDsession
+    );
+
+    if (reactionType === "like" && isLiked) {
+      // Если уже лайкнуто, то снимаем лайк
+      const response = await fetch(`/api/likeordislikepost/${post.id}`, {
+        method: "DELETE",
+        headers: { "Content-type": "application/json" },
+        body: JSON.stringify({ user_id: userIDsession }),
+      });
+      if (response.ok) {
+        setLikes((prevLikes) =>
+          prevLikes.filter((like) => like.user_id !== userIDsession)
+        );
+      }
+    } else if (reactionType === "dislike" && isDisliked) {
+      // Если уже дизлайкнуто, то снимаем лайк
+      const response = await fetch(`/api/likeordislikepost/${post.id}`, {
+        method: "DELETE",
+        headers: { "Content-type": "application/json" },
+        body: JSON.stringify({ user_id: userIDsession }),
+      });
+      if (response.ok) {
+        setDislikes((prevDislikes) =>
+          prevDislikes.filter((dislike) => dislike.user_id !== userIDsession)
+        );
+      }
+    } else {
+      // Если лайк или дизлайк еще не поставлен
+      const response = await fetch(`/api/likeordislikepost/${post.id}`, {
+        method: "POST",
+        headers: { "Content-type": "application/json" },
+        body: JSON.stringify({
+          reaction_type: reactionType,
+          user_id: userIDsession,
+        }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (reactionType === "like") {
+          setLikes((prevLike) => [...prevLike, data]);
+          setDislikes((prevDislikes) =>
+            prevDislikes.filter((dislike) => dislike.user_id !== userIDsession)
+          );
+        } else if (reactionType === "dislike") {
+          setDislikes((prevDislikes) => [...prevDislikes, data]);
+          setLikes((prevLikes) =>
+            prevLikes.filter((like) => like.user_id !== userIDsession)
+          );
+        }
       }
     }
   };
@@ -185,7 +243,6 @@ export default function Postcard({
       .then((data) => setDislikes(data))
       .catch((err) => console.log(err));
   }, []);
-
 
   return (
     <>
@@ -228,7 +285,7 @@ export default function Postcard({
                 {/* {reactionPost.dislikes !== undefined
                   ? reactionPost.dislikes
                   : ""} */}
-                {dislikes.length}
+                <span>{dislikes.length}</span>
               </button>
               <button className="reply-btn" onClick={handleShowReplies}>
                 reply
