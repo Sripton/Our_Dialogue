@@ -12,7 +12,7 @@ import apiUsersRouter from "./API/apiUsersRouter";
 import apiPostRouter from "./API/apiPostsRouter";
 import apiCommentsRouter from "./API/apiCommentsRouter";
 import apiLikeOrDislikePostRouter from "./API/apiLikeOrDislikePost";
-
+import apiReplyCommentsRouter from "./API/apiReplyComment";
 dotenv.config();
 const app = express();
 const PORT = process.env.PORT;
@@ -62,5 +62,5 @@ app.use("/api/users", apiUsersRouter);
 app.use("/api/posts", apiPostRouter);
 app.use("/api/comments", apiCommentsRouter);
 app.use("/api/likeordislikepost", apiLikeOrDislikePostRouter);
-
+app.use("/api/replycomments", apiReplyCommentsRouter);
 app.listen(PORT, () => console.log(`***** Server start on ${PORT} port`));

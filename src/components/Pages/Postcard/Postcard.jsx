@@ -21,6 +21,12 @@ export default function Postcard({
   const [editCommentID, setEditCommentID] = useState("");
   const [editCommentText, setEditCommentText] = useState("");
 
+  const [repliesVisibility, setRepliesVisibility] = useState({});
+  const [replyTextareaComments, setReplyTextareaComments] = useState({
+    replytitle: "",
+  });
+  const [replyComment, setReplyComment] = useState([]);
+
   const [likes, setLikes] = useState([]);
   const [dislikes, setDislikes] = useState([]);
 
@@ -30,6 +36,7 @@ export default function Postcard({
   const handleShowReplies = () => {
     setShowReplies(!isShowReplies);
   };
+
   const handleComments = (e) => {
     setTextArea((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
@@ -51,6 +58,34 @@ export default function Postcard({
 
   const handlerEditCommentTextChange = (e) => {
     setEditCommentText(e.target.value);
+  };
+
+  // //Ручка для  Добавления комменатриев к комменатриям 1 Вариант
+  // const handlerReplyComment = (e) => {
+  //   setReplyTextareaComments((prev) => ({
+  //     ...prev,
+  //     [e.target.name]: e.target.value,
+  //   }));
+  // };
+
+  // //Ручка для  Добавления комменатриев к комменатриям 2 Вариант
+  // const handlerReplyComment = (e) => {
+  //   setReplyTextareaComments((prev) => ({
+  //     ...prev,
+  //     replytitle: e.target.value,
+  //   }));
+  // };
+
+  //Ручка для  Добавления комменатриев к комменатриям 3 Вариант
+  const handlerReplyComment = (e) => {
+    setReplyTextareaComments(e.target.value);
+  };
+
+  const toggleRepliesVisibility = (commentID) => {
+    setRepliesVisibility((prev) => ({
+      ...prev,
+      [commentID]: !prev[commentID],
+    }));
   };
 
   const submitCommentsHandler = async (e) => {
@@ -87,6 +122,47 @@ export default function Postcard({
     }
   };
 
+  // // Функция  для  Добавления комменатриев к комменатриям 1 Вариант
+  // const submitReplyCommentHandler = async (commentID, e) => {
+  //   e.preventDefault();
+  //   const response = await fetch(`/api/replycomments/${commentID}`, {
+  //     method: "POST",
+  //     headers: { "Content-type": "application/json" },
+  //     body: JSON.stringify({ replytitle: replyTextareaComments.replytitle }),
+  //   });
+  //   if (response.ok) {
+  //     const data = await response.json();
+  //     setReplyComment((prevComment) => [...prevComment, data]);
+  //   }
+  // };
+
+  // // Функция  для  Добавления комменатриев к комменатриям 2 Вариант
+  // const submitReplyCommentHandler = async (commentID, e) => {
+  //   e.preventDefault();
+  //   const response = await fetch(`/api/replycomments/${commentID}`, {
+  //     method: "POST",
+  //     headers: { "Content-type": "application/json" },
+  //     body: JSON.stringify({ replytitle: replyTextareaComments.replytitle }),
+  //   });
+  //   if (response.ok) {
+  //     const data = await response.json();
+  //     setReplyComment((prevComment) => [...prevComment, data]);
+  //   }
+  // };
+
+  // Функция  для  Добавления комменатриев к комменатриям 3 Вариант
+  const submitReplyCommentHandler = async (commentID, e) => {
+    e.preventDefault();
+    const response = await fetch(`/api/replycomments/${commentID}`, {
+      method: "POST",
+      headers: { "Content-type": "application/json" },
+      body: JSON.stringify({ replytitle: replyTextareaComments }),
+    });
+    if (response.ok) {
+      const data = await response.json();
+      setReplyComment((prevComment) => [...prevComment, data]);
+    }
+  };
   const submitEditPostHandler = async (e) => {
     e.preventDefault();
     const responce = await fetch(`/api/posts/${post.id}`, {
@@ -140,23 +216,6 @@ export default function Postcard({
       setEditCommentText("");
     }
   };
-  // const submitLikeOrDislikePost = async (reactionType) => {
-  //   const response = await fetch(`/api/likeordislikepost/${post.id}`, {
-  //     method: "POST",
-  //     headers: { "Content-type": "application/json" },
-  //     body: JSON.stringify({ reaction_type: reactionType }),
-  //   });
-  //   if (response.ok) {
-  //     const data = await response.json();
-
-  //     if (reactionType === "like") {
-  //       setLikes((prevLikes) => [...prevLikes, data]);
-  //     } else if (reactionType === "dislike") {
-  //       setDislikes((prevDislikes) => [...prevDislikes, data]);
-  //     }
-  //   }
-  // };
-
   const submitLikeOrDislikePost = async (reactionType) => {
     // Проверяем, поставил ли пользователь лайк или дизлайк
     const isLiked = likes.some((like) => like.user_id === userIDsession);
@@ -165,7 +224,7 @@ export default function Postcard({
     );
 
     if (reactionType === "like" && isLiked) {
-      // Если уже лайкнуто, то снимаем лайк
+      // Если уже есть лайк, то снимаем лайк
       const response = await fetch(`/api/likeordislikepost/${post.id}`, {
         method: "DELETE",
         headers: { "Content-type": "application/json" },
@@ -177,7 +236,7 @@ export default function Postcard({
         );
       }
     } else if (reactionType === "dislike" && isDisliked) {
-      // Если уже дизлайкнуто, то снимаем лайк
+      // Если уже есть дизлайк, то снимаем  дизлайк
       const response = await fetch(`/api/likeordislikepost/${post.id}`, {
         method: "DELETE",
         headers: { "Content-type": "application/json" },
@@ -285,7 +344,7 @@ export default function Postcard({
                 {/* {reactionPost.dislikes !== undefined
                   ? reactionPost.dislikes
                   : ""} */}
-                <span>{dislikes.length}</span>
+                {dislikes.length}
               </button>
               <button className="reply-btn" onClick={handleShowReplies}>
                 reply
@@ -345,11 +404,35 @@ export default function Postcard({
                       <button className="dislike-btn">
                         <ion-icon class="thumbs"></ion-icon> 0
                       </button>
-                      <button className="reply-btn">reply</button>
+                      <button
+                        className="reply-btn"
+                        onClick={() => toggleRepliesVisibility(comment.id)}
+                      >
+                        reply
+                      </button>
                       <small className="comment-note">
                         {`${comment?.User?.name}, ответил ${post?.User?.name}`}
                       </small>{" "}
                     </div>
+                    {repliesVisibility[comment.id] && (
+                      <div className="replies">
+                        <form
+                          onSubmit={(e) =>
+                            submitReplyCommentHandler(comment.id, e)
+                          }
+                        >
+                          <div id="reply-form-template" className="add-reply">
+                            <textarea
+                              name="replytitle"
+                              value={replyTextareaComments.replytitle}
+                              onChange={handlerReplyComment}
+                              placeholder="Write a reply for comment..."
+                            ></textarea>
+                            <button type="submit">Post Reply</button>
+                          </div>
+                        </form>
+                      </div>
+                    )}
                   </div>
                 ) : (
                   <div
@@ -381,7 +464,12 @@ export default function Postcard({
                       <button className="dislike-btn">
                         <ion-icon class="thumbs"></ion-icon> 0
                       </button>
-                      <button className="reply-btn">reply</button>
+                      <button
+                        className="reply-btn"
+                        onClick={() => toggleRepliesVisibility(comment.id)}
+                      >
+                        reply
+                      </button>
                       <button
                         className="edit-btn"
                         onClick={() => handlerEditComments(comment)}
@@ -398,6 +486,19 @@ export default function Postcard({
                         {`${comment?.User?.name}, ответил ${post?.User?.name}`}
                       </small>
                     </div>
+                    {repliesVisibility[comment.id] && (
+                      <form onSubmit={submitEditCommentHandler}>
+                        <div id="reply-form-template" className="add-comment">
+                          <textarea
+                            name="commenttitle"
+                            placeholder="Edit your comment..."
+                            value={editCommentText}
+                            onChange={handlerEditCommentTextChange}
+                          ></textarea>
+                          <button type="submit">Post Comment</button>
+                        </div>
+                      </form>
+                    )}
                   </div>
                 )
               )}
