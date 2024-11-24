@@ -5,13 +5,17 @@ const router = express.Router();
 
 router.post("/:id", async (req, res) => {
   const { id } = req.params;
-  const { commenttitle } = req.body;
+  const { commenttitle, parent_id } = req.body;
   try {
     const findPostID = await Post.findOne({ where: { id } });
+    if (!findPostID) {
+      return res.status(404).json({ error: "Пост не найден" });
+    }
     const createCommentsForPostID = await Comment.create({
       commenttitle,
       user_id: req.session.userID,
       post_id: findPostID.id,
+      parent_id: parent_id || null, // ID родительского комментария или null
     });
     res.json(createCommentsForPostID);
   } catch (error) {

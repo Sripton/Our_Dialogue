@@ -24,6 +24,8 @@ export default function Postcard({
   const [likes, setLikes] = useState([]);
   const [dislikes, setDislikes] = useState([]);
 
+  const [replyToCommentID, setReplyToCommentID] = useState(null); // Для отслеживания, на какой комментарий отвечают
+
   const handleDots = () => {
     setIsDotsActive(!isDotsActive);
   };
@@ -54,39 +56,113 @@ export default function Postcard({
     setEditCommentText(e.target.value);
   };
 
-  const submitCommentsHandler = async (e) => {
-    e.preventDefault();
-    // Ошибка Cannot read properties of undefined (reading 'trim') возникает,
-    // потому что свойство commenttitle в объекте textArea может быть неопределено в момент выполнения кода.
-    // Это может произойти, если textArea не инициализирован должным образом или изменяется в процессе работы.
-    // одно из решений if(!textArea.commenttitle || !textArea.commenttitle.trim())
+  const handleReplyComment = (commentID) => {
+    setReplyToCommentID(commentID === replyToCommentID ? null : commentID);
+  };
 
-    if (!textArea.commenttitle.trim()) {
-      setTextArea({ commenttitle: "" });
-      setShowReplies(false);
-      return; // Завершаем функцию, не отправляя запрос
-    }
-    const responce = await fetch(`/api/comments/${id}`, {
-      method: "POST",
-      headers: { "Content-type": "application/json" },
-      body: JSON.stringify({ commenttitle: textArea.commenttitle }),
-    });
-    if (responce.ok) {
-      const data = await responce.json();
-      // setComments(Array.isArray(data) ? data : []);
+  // const submitCommentsHandler = async (e) => {
+  //   e.preventDefault();
+  //   // Ошибка Cannot read properties of undefined (reading 'trim') возникает,
+  //   // потому что свойство commenttitle в объекте textArea может быть неопределено в момент выполнения кода.
+  //   // Это может произойти, если textArea не инициализирован должным образом или изменяется в процессе работы.
+  //   // одно из решений if(!textArea.commenttitle || !textArea.commenttitle.trim())
 
-      // Добавить объект User в комментарий, если он не возвращается с сервера
-      const newComment = {
-        ...data,
-        User: {
-          name: userNameSession,
-        },
-      };
-      setComments((prevComments) => [...prevComments, newComment]);
-      setTextArea({ commenttitle: "" });
-      setShowReplies(false);
+  //   if (!textArea.commenttitle.trim()) {
+  //     setTextArea({ commenttitle: "" });
+  //     setShowReplies(false);
+  //     return; // Завершаем функцию, не отправляя запрос
+  //   }
+  //   const responce = await fetch(`/api/comments/${id}`, {
+  //     method: "POST",
+  //     headers: { "Content-type": "application/json" },
+  //     body: JSON.stringify({ commenttitle: textArea.commenttitle }),
+  //   });
+  //   if (responce.ok) {
+  //     const data = await responce.json();
+  //     // setComments(Array.isArray(data) ? data : []);
+
+  //     // Добавить объект User в комментарий, если он не возвращается с сервера
+  //     const newComment = {
+  //       ...data,
+  //       User: {
+  //         name: userNameSession,
+  //       },
+  //     };
+  //     setComments((prevComments) => [...prevComments, newComment]);
+  //     setTextArea({ commenttitle: "" });
+  //     setShowReplies(false);
+  //   }
+  // };
+
+  //Синхронизация с сервером после отправки
+  // После добавления нового комментария можно выполнить дополнительный
+  // запрос к серверу, чтобы получить актуальный список комментариев и обновить
+  //состояние comments:
+  const fetchComments = async () => {
+    try {
+      const response = await fetch(`/api/comments/${id}`, { method: "GET" });
+      if (response.ok) {
+        const data = await response.json();
+        setComments(data); // Устанавливаем полную структуру комментариев из сервера
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
+
+  // Обновленная версия функции submitCommentsHandler
+  const submitCommentsHandler = async (e, parentId = null) => {
+    e.preventDefault();
+    if (!textArea.commenttitle.trim()) {
+      setTextArea({ commenttitle: "" });
+      setReplyToCommentID(null);
+      return; // Завершаем функцию, не отправляя запро
+    }
+
+    try {
+      const response = await fetch(`/api/comments/${id}`, {
+        method: "POST",
+        headers: { "Content-type": "application/json" },
+        body: JSON.stringify({
+          commenttitle: textArea.commenttitle,
+          parent_id: parentId,
+        }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        // Добавляем объект User, если он не возвращается с сервера
+        const formattedComment = {
+          ...data,
+          User: {
+            name: userNameSession,
+          },
+        };
+        // Если это ответ, добавляем его в соответствующий комментарий
+        if (parentId) {
+          setComments((prevComments) =>
+            prevComments.map((comment) =>
+              comment.id === parentId
+                ? {
+                    ...comment,
+                    Replies: [...(comment.Replies || []), formattedComment],
+                  }
+                : comment
+            )
+          );
+        } else {
+          // Если это корневой комментарий, добавляем его в список
+          setComments((prevComments) => [...prevComments, formattedComment]);
+        }
+        await fetchComments(); // // Обновляем комментарии из сервера
+        setTextArea({ commenttitle: "" }); 
+        setReplyToCommentID(null); // Закрываем форму
+        setShowReplies(false);
+      }
+    } catch (error) {
+      console.error("Error submitting comment:", error);
+    }
+  };
+  console.log("comments", comments);
 
   const submitEditPostHandler = async (e) => {
     e.preventDefault();
@@ -305,7 +381,7 @@ export default function Postcard({
                       value={textArea.commenttitle}
                       onChange={handleComments}
                     ></textarea>
-                    <button type="submit">Post Reply</button>
+                    <button type="submit">Post Comment</button>
                   </div>
                 </form>
               )}
@@ -325,11 +401,29 @@ export default function Postcard({
                       <button className="dislike-btn">
                         <ion-icon class="thumbs"></ion-icon> 0
                       </button>
-                      <button className="reply-btn">reply</button>
+                      <button
+                        className="reply-btn"
+                        onClick={() => handleReplyComment(comment.id)}
+                      >
+                        reply
+                      </button>
                       <small className="comment-note">
                         {`${comment?.User?.name}, ответил ${post?.User?.name}`}
                       </small>{" "}
                     </div>
+                    {replyToCommentID === comment.id && (
+                      <form
+                        onSubmit={(e) => submitCommentsHandler(e, comment.id)}
+                      >
+                        <textarea
+                          name="commenttitle"
+                          value={textArea.commenttitle}
+                          onChange={handleComments}
+                          placeholder="Write your reply..."
+                        ></textarea>
+                        <button type="submit">Post Reply</button>
+                      </form>
+                    )}
                   </div>
                 ) : (
                   <div
