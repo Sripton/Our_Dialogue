@@ -21,13 +21,6 @@ export default function Postcard({
   const [editCommentID, setEditCommentID] = useState("");
   const [editCommentText, setEditCommentText] = useState("");
 
-  const [repliesVisibility, setRepliesVisibility] = useState({});
-  const [replyTextareaComments, setReplyTextareaComments] = useState({
-    replytitle: "",
-  });
-  const [repliesComment, setRepliesComment] = useState({}); // // Состояние для хранения ответов
-  const [loading, setLoading] = useState(false); // Состояние загрузки
-
   const [likes, setLikes] = useState([]);
   const [dislikes, setDislikes] = useState([]);
 
@@ -59,71 +52,6 @@ export default function Postcard({
 
   const handlerEditCommentTextChange = (e) => {
     setEditCommentText(e.target.value);
-  };
-
-  // Функция для получения ответов для конкретного комментария
-  const fetchRepliesForComment = async (commentID) => {
-    try {
-      const response = await fetch(`/api/replycomments/${commentID}`, {
-        method: "GET",
-      });
-      if (response.ok) {
-        const data = await response.json();
-        return data || []; // Возвращаем ответы для одного комментария
-      } else {
-        console.log(
-          `Не удалось получить ответы на комментарий с идентификатором ${commentID}`
-        );
-      }
-    } catch (error) {
-      console.log(error);
-      return [];
-    }
-  };
-
-  // Загружаем ответы для всех комментариев при их отображении
-  useEffect(() => {
-    const fetchAllReplies = async () => {
-      setLoading(true);
-      const repliesData = {};
-      for (const comment of comments) {
-        const repliesForComment = await fetchRepliesForComment(comment.id);
-        repliesData[comment.id] = repliesForComment; // Сохраняем ответы в объект
-      }
-      setRepliesComment(repliesData); // // Обновляем состояние с ответами
-      setLoading(false);
-    };
-    if (comments.length > 0) {
-      fetchAllReplies(); // Загружаем ответы
-    }
-  }, [comments]);
-
-  // //Ручка для  Добавления комменатриев к комменатриям 1 Вариант
-  // const handlerReplyComment = (e) => {
-  //   setReplyTextareaComments((prev) => ({
-  //     ...prev,
-  //     [e.target.name]: e.target.value,
-  //   }));
-  // };
-
-  // //Ручка для  Добавления комменатриев к комменатриям 2 Вариант
-  // const handlerReplyComment = (e) => {
-  //   setReplyTextareaComments((prev) => ({
-  //     ...prev,
-  //     replytitle: e.target.value,
-  //   }));
-  // };
-
-  //Ручка для  Добавления комменатриев к комменатриям 3 Вариант
-  const handlerReplyComment = (e) => {
-    setReplyTextareaComments(e.target.value);
-  };
-
-  const toggleRepliesVisibility = (commentID) => {
-    setRepliesVisibility((prev) => ({
-      ...prev,
-      [commentID]: !prev[commentID],
-    }));
   };
 
   const submitCommentsHandler = async (e) => {
@@ -160,55 +88,6 @@ export default function Postcard({
     }
   };
 
-  // // Функция  для  Добавления комменатриев к комменатриям 1 Вариант
-  // const submitReplyCommentHandler = async (commentID, e) => {
-  //   e.preventDefault();
-  //   const response = await fetch(`/api/replycomments/${commentID}`, {
-  //     method: "POST",
-  //     headers: { "Content-type": "application/json" },
-  //     body: JSON.stringify({ replytitle: replyTextareaComments.replytitle }),
-  //   });
-  //   if (response.ok) {
-  //     const data = await response.json();
-  //     setReplyComment((prevComment) => [...prevComment, data]);
-  //   }
-  // };
-
-  // // Функция  для  Добавления комменатриев к комменатриям 2 Вариант
-  // const submitReplyCommentHandler = async (commentID, e) => {
-  //   e.preventDefault();
-  //   const response = await fetch(`/api/replycomments/${commentID}`, {
-  //     method: "POST",
-  //     headers: { "Content-type": "application/json" },
-  //     body: JSON.stringify({ replytitle: replyTextareaComments.replytitle }),
-  //   });
-  //   if (response.ok) {
-  //     const data = await response.json();
-  //     setReplyComment((prevComment) => [...prevComment, data]);
-  //   }
-  // };
-
-  // Функция  для  Добавления комменатриев к комменатриям 3 Вариант
-  const submitReplyCommentHandler = async (commentID, e) => {
-    e.preventDefault();
-    const response = await fetch(`/api/replycomments/${commentID}`, {
-      method: "POST",
-      headers: { "Content-type": "application/json" },
-      body: JSON.stringify({ replytitle: replyTextareaComments }),
-    });
-    if (response.ok) {
-      const data = await response.json();
-      setReplyComment((prevComment) => [...prevComment, data]);
-
-      // Очищаем поле для ввода
-      setReplyTextareaComments({ replytitle: "" });
-      // Закрываем форму ответа
-      setRepliesVisibility((prevComment) => ({
-        ...prevComment,
-        [commentID]: false,
-      }));
-    }
-  };
   const submitEditPostHandler = async (e) => {
     e.preventDefault();
     const responce = await fetch(`/api/posts/${post.id}`, {
@@ -349,15 +228,6 @@ export default function Postcard({
       .catch((err) => console.log(err));
   }, []);
 
-  // if (Object.keys(repliesComment).length > 0 && repliesComment["1"]) {
-  //   Object.values(repliesComment).map((elem) => console.log(elem[0].replytitle));
-  // }
-  // if (Object.keys(repliesComment).length > 0 && repliesComment["1"]) {
-  //   Object.entries(repliesComment).map(([commentID, replies]) => {
-  //     console.log(`commentID => ${commentID}`);
-  //     replies.map((elem) => console.log(elem));
-  //   });
-  // }
   return (
     <>
       <div className={`comment-section ${isDotsActive ? "show-actions" : ""}`}>
@@ -455,55 +325,11 @@ export default function Postcard({
                       <button className="dislike-btn">
                         <ion-icon class="thumbs"></ion-icon> 0
                       </button>
-                      <button
-                        className="reply-btn"
-                        onClick={() => toggleRepliesVisibility(comment.id)}
-                      >
-                        reply
-                      </button>
+                      <button className="reply-btn">reply</button>
                       <small className="comment-note">
                         {`${comment?.User?.name}, ответил ${post?.User?.name}`}
                       </small>{" "}
                     </div>
-                    {repliesVisibility[comment.id] && (
-                      <div className="replies">
-                        <form
-                          onSubmit={(e) =>
-                            submitReplyCommentHandler(comment.id, e)
-                          }
-                        >
-                          <div id="reply-form-template" className="add-reply">
-                            <textarea
-                              name="replytitle"
-                              value={replyTextareaComments.replytitle}
-                              onChange={handlerReplyComment}
-                              placeholder="Write a reply for comment..."
-                            ></textarea>
-                            <button type="submit">Post Reply</button>
-                          </div>
-                        </form>
-                      </div>
-                    )}
-                    {repliesComment[comment.id] &&
-                      Object.entries(repliesComment[comment.id]).map(
-                        ([commentID, reply]) => (
-                          <div key={commentID}>
-                            <p className="comment-text">{reply.replytitle}</p>
-                            <div className="comment-actions">
-                              <button className="like-btn">
-                                <ion-icon class="thumbs"></ion-icon> 0
-                              </button>
-                              <button className="dislike-btn">
-                                <ion-icon class="thumbs"></ion-icon> 0
-                              </button>
-                              <button className="reply-btn">reply</button>
-                              <small className="comment-note">
-                                {`${comment?.User?.name}, ответил ${post?.User?.name}`}
-                              </small>{" "}
-                            </div>
-                          </div>
-                        )
-                      )}
                   </div>
                 ) : (
                   <div
@@ -535,12 +361,7 @@ export default function Postcard({
                       <button className="dislike-btn">
                         <ion-icon class="thumbs"></ion-icon> 0
                       </button>
-                      <button
-                        className="reply-btn"
-                        onClick={() => toggleRepliesVisibility(comment.id)}
-                      >
-                        reply
-                      </button>
+                      <button className="reply-btn">reply</button>
                       <button
                         className="edit-btn"
                         onClick={() => handlerEditComments(comment)}
@@ -557,35 +378,6 @@ export default function Postcard({
                         {`${comment?.User?.name}, ответил ${post?.User?.name}`}
                       </small>
                     </div>
-                    {repliesVisibility[comment.id] && (
-                      <div className="replies">
-                        <form
-                          onSubmit={(e) =>
-                            submitReplyCommentHandler(comment.id, e)
-                          }
-                        >
-                          <div id="reply-form-template" className="add-reply">
-                            <textarea
-                              name="replytitle"
-                              value={replyTextareaComments.replytitle}
-                              onChange={handlerReplyComment}
-                              placeholder="Write a reply for comment..."
-                            ></textarea>
-                            <button type="submit">Post Reply</button>
-                          </div>
-                        </form>
-                      </div>
-                    )}
-                    {/* {repliesComment[comment.id] &&
-                      repliesComment[comment.id].length > 0 &&
-                      repliesComment[comment.id].map((reply) => (
-                        <div key={reply.id} className="reply">
-                          <p className="reply-text">{reply.replytitle}</p>
-                          <small className="reply-note">
-                            By {reply?.User?.name}
-                          </small>
-                        </div>
-                      ))} */}
                   </div>
                 )
               )}
