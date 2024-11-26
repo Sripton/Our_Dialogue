@@ -23,28 +23,72 @@ router.post("/:id", async (req, res) => {
   }
 });
 
+//  Находим все комментарии и делаем include пользователей
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
   try {
     const findPostID = await Post.findOne({ where: { id } });
+    if (!findPostID) {
+      res.status(404).json({ message: "Пост не найден" });
+    }
     const findAllCommentForPostID = await Comment.findAll({
       where: { post_id: findPostID.id },
-      include: [{ model: User, attributes: ["name"] }, { model: Post }],
+      // include: [{ model: User, attributes: ["name"] }, { model: Post }],\
+      include: [
+        {
+          model: User,
+          attributes: ["name"],
+        },
+        {
+          model: Comment,
+          as: "ParentComment",
+          include: [
+            {
+              model: User,
+              attributes: ["name"],
+            },
+          ],
+        },
+      ],
     });
     res.send(findAllCommentForPostID);
   } catch (error) {
     console.log(error);
   }
 });
-router.get("/:id", async (req, res) => {
-  const { id } = req.params;
-  try {
-    const findPost = await Comment.findAll({ where: { post_id: id } });
-    res.send(findPost);
-  } catch (error) {
-    console.log(error);
-  }
-});
+
+// router.get("/getreplies/:id", async (req, res) => {
+//   const { id } = req.params;
+//   try {
+//     const findCommentID = await Comment.findOne({ where: { id } });
+//     if (!findCommentID) {
+//       res.status(404).json({ message: "Комментарий не найден" });
+//     }
+
+//     const repliesForComment = await Comment.findAll({
+//       where: { parent_id: id },
+//       include: [
+//         {
+//           model: User,
+//           attributes: ["name"], // Пользователь, написавший ответ
+//         },
+//         {
+//           model: Comment,
+//           as: "ParentComment", // Родительский комментарий
+//           include: [
+//             {
+//               model: User,
+//               attributes: ["name"], // Пользователь, написавший родительский комментарий
+//             },
+//           ],
+//         },
+//       ],
+//     });
+//     res.json(repliesForComment);
+//   } catch (error) {
+//     console.log(error);
+//   }
+// });
 
 router.put("/:id", checkUsersForComments, async (req, res) => {
   const { id } = req.params;

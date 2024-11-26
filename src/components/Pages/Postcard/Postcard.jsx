@@ -136,12 +136,13 @@ export default function Postcard({
           User: {
             name: userNameSession,
           },
+          parent_id: replyToCommentID,
         };
         // Если это ответ, добавляем его в соответствующий комментарий
         if (parentId) {
           setComments((prevComments) =>
             prevComments.map((comment) =>
-              comment.id === parentId
+              comment.id === replyToCommentID
                 ? {
                     ...comment,
                     Replies: [...(comment.Replies || []), formattedComment],
@@ -154,7 +155,7 @@ export default function Postcard({
           setComments((prevComments) => [...prevComments, formattedComment]);
         }
         await fetchComments(); // // Обновляем комментарии из сервера
-        setTextArea({ commenttitle: "" }); 
+        setTextArea({ commenttitle: "" });
         setReplyToCommentID(null); // Закрываем форму
         setShowReplies(false);
       }
@@ -162,7 +163,6 @@ export default function Postcard({
       console.error("Error submitting comment:", error);
     }
   };
-  console.log("comments", comments);
 
   const submitEditPostHandler = async (e) => {
     e.preventDefault();
@@ -284,7 +284,7 @@ export default function Postcard({
   };
 
   useEffect(() => {
-    fetch(`/api/comments/${id}`, { method: "GET" })
+    fetch(`/api/comments/${post.id}`, { method: "GET" })
       .then((res) => res.json())
       .then((data) => setComments(data))
       .catch((err) => console.log(err));
@@ -303,6 +303,13 @@ export default function Postcard({
       .then((data) => setDislikes(data))
       .catch((err) => console.log(err));
   }, []);
+
+  // comments.map((comment) => {
+  //   if (Array.isArray(comment.Replies)) {
+  //     const userNames = comment.Replies.map((reply) => reply?.User?.name); // Собираем имена пользователей
+  //   console.log(userNames); // Выводи
+  //   }
+  // });
 
   return (
     <>
@@ -407,9 +414,15 @@ export default function Postcard({
                       >
                         reply
                       </button>
-                      <small className="comment-note">
-                        {`${comment?.User?.name}, ответил ${post?.User?.name}`}
-                      </small>{" "}
+                      {comment.ParentComment === null ? (
+                        <small className="comment-note">
+                          {`${comment?.User?.name}, ответил ${post?.User?.name}`}
+                        </small>
+                      ) : (
+                        <small className="comment-note">
+                          {`${comment?.User?.name}, ответил ${comment.ParentComment?.User?.name}`}
+                        </small>
+                      )}
                     </div>
                     {replyToCommentID === comment.id && (
                       <form
@@ -468,9 +481,18 @@ export default function Postcard({
                       >
                         Delete
                       </button>
-                      <small className="comment-note">
+                      {/* <small className="comment-note">
                         {`${comment?.User?.name}, ответил ${post?.User?.name}`}
-                      </small>
+                      </small> */}
+                      {comment.ParentComment === null ? (
+                        <small className="comment-note">
+                          {`${comment?.User?.name}, ответил ${post?.User?.name}`}
+                        </small>
+                      ) : (
+                        <small className="comment-note">
+                          {`${comment?.User?.name}, ответил ${comment.ParentComment?.User?.name}`}
+                        </small>
+                      )}
                     </div>
                   </div>
                 )
