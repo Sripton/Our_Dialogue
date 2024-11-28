@@ -20,10 +20,10 @@ export default function Postcard({
   });
   const [editCommentID, setEditCommentID] = useState("");
   const [editCommentText, setEditCommentText] = useState("");
-
   const [likes, setLikes] = useState([]);
   const [dislikes, setDislikes] = useState([]);
-
+  const [likesComment, setLikesComment] = useState([]);
+  const [dislikesComment, setDislikesComment] = useState([]);
   const [replyToCommentID, setReplyToCommentID] = useState(null); // Для отслеживания, на какой комментарий отвечают
 
   const handleDots = () => {
@@ -116,7 +116,7 @@ export default function Postcard({
     if (!textArea.commenttitle.trim()) {
       setTextArea({ commenttitle: "" });
       setReplyToCommentID(null);
-      return; // Завершаем функцию, не отправляя запро
+      return; // Завершаем функцию, не отправляя запроc
     }
 
     try {
@@ -185,27 +185,6 @@ export default function Postcard({
       body: JSON.stringify({ commenttitle: editCommentText }),
     });
     if (responce.ok) {
-      // При таком раскладе измененный комменатрий обновляется после презагрузки
-      //  В текущей версии кода setComments использует метод map внутри,
-      // но результат функции map не возвращается, поэтому изменения не применяются корректно.
-      // setComments((prevComments) => {
-      //   prevComments.map((comment) =>
-      //     comment.id === editCommentID
-      //       ? { ...comment, commenttitle: editCommentText }
-      //       : comment
-      //   );
-      // });
-
-      // При таком раскладе измененный комменатрий обновляется сразу
-      // setComments((prevComments) =>
-      //   prevComments.map((comment) =>
-      //     comment.id === editCommentID
-      //       ? { ...comment, commenttitle: editCommentText }
-      //       : comment
-      //   )
-      // );
-
-      // При таком раскладе измененный комменатрий обновляется сразу
       setComments((prevComments) => {
         return prevComments.map((comment) => {
           return comment.id === editCommentID
@@ -275,6 +254,66 @@ export default function Postcard({
     }
   };
 
+  const submitLikeOrDislikeComments = async (commentID, reactionType) => {
+    // Проверяем, поставил ли пользователь лайк или дизлайк
+    const isLiked = likesComment.some((like) => like.user_id === userIDsession);
+    const isDisliked = dislikesComment.some(
+      (dislike) => dislike.user_id === userIDsession
+    );
+
+    if (reactionType === "like" && isLiked) {
+      // Если уже есть лайк, то снимаем лайк
+      const response = await fetch(`/api/likeordislikecomment/${commentID}`, {
+        method: "DELETE",
+        headers: { "Content-type": "application/json" },
+        body: JSON.stringify({ user_id: userIDsession }),
+      });
+      if (response.ok) {
+        setLikesComment((prevLikes) =>
+          prevLikes.filter((like) => like.user_id !== userIDsession)
+        );
+      }
+    } else if (reactionType === "dislike" && isDisliked) {
+      // Если уже есть дизлайк, то снимаем  дизлайк
+      const response = await fetch(`/api/likeordislikecomment/${commentID}`, {
+        method: "DELETE",
+        headers: { "Content-type": "application/json" },
+        body: JSON.stringify({ user_id: userIDsession }),
+      });
+      if (response.ok) {
+        setDislikesComment((prevDislikes) =>
+          prevDislikes.filter((dislike) => dislike.user_id !== userIDsession)
+        );
+      }
+    } else {
+      // Если лайк или дизлайк еще не поставлен
+      const response = await fetch(`/api/likeordislikecomment/${commentID}`, {
+        method: "POST",
+        headers: { "Content-type": "application/json" },
+        body: JSON.stringify({
+          reaction_type: reactionType,
+          user_id: userIDsession,
+        }),
+      });
+      if (response.ok) {
+        const data = await response.json();
+        if (reactionType === "like") {
+          setLikesComment((prevLikes) => [...prevLikes, data]);
+          setDislikesComment((prevDislikes) =>
+            prevDislikes.filter(
+              (dislikes) => dislikes.user_id !== userIDsession
+            )
+          );
+        } else if (reactionType === "dislike") {
+          setDislikesComment((prevDislikes) => [...prevDislikes, data]);
+          setLikesComment((prevLikes) =>
+            prevLikes.filter((like) => like.user_id !== userIDsession)
+          );
+        }
+      }
+    }
+  };
+
   const deleteCommentHandler = async (id) => {
     await fetch(`/api/comments/${id}`, { method: "DELETE" })
       .then(() =>
@@ -304,12 +343,37 @@ export default function Postcard({
       .catch((err) => console.log(err));
   }, []);
 
-  // comments.map((comment) => {
-  //   if (Array.isArray(comment.Replies)) {
-  //     const userNames = comment.Replies.map((reply) => reply?.User?.name); // Собираем имена пользователей
-  //   console.log(userNames); // Выводи
-  //   }
-  // });
+
+  // Проблема бесконечной перегрузки вызвана тем, 
+  //что useEffect зависит от массива comments ([comments]) в своей зависимости. 
+  //При каждом обновлении состояния comments, useEffect снова вызывается, 
+  //что в свою очередь снова вызывает обновление comments, создавая бесконечный цикл.
+  // useEffect(() => {
+  //   const fetchLikesForComments = async () => {
+  //     try {
+  //       const updatedComments = await Promise.all(
+  //         comments.map(async (comment) => {
+  //           const response = await fetch(
+  //             `/api/likeordislikecomment/getlikecomment/${comment.id}`
+  //           );
+  //           if (response.ok) {
+  //             const likesData = await response.json();
+  //             return { ...comment, likes: likesData.length };
+  //           } else {
+  //             console.error(
+  //               `Ошибка при загрузке лайков для комментария ${comment.id}`
+  //             );
+  //             return { ...comment, likes: 0 };
+  //           }
+  //         })
+  //       );
+  //       setComments(updatedComments);
+  //     } catch (error) {
+  //       console.error("Ошибка при загрузке лайков для комментариев:", error);
+  //     }
+  //   };
+  //   fetchLikesForComments();
+  // }, [comments]);
 
   return (
     <>
@@ -402,10 +466,21 @@ export default function Postcard({
                   >
                     <p className="comment-text">{comment.commenttitle}</p>
                     <div className="comment-actions">
-                      <button className="like-btn">
-                        <ion-icon class="thumbs"></ion-icon> 0
+                      <button
+                        className="like-btn"
+                        onClick={() =>
+                          submitLikeOrDislikeComments(comment.id, "like")
+                        }
+                      >
+                        <ion-icon class="thumbs"></ion-icon>{" "}
+                        {comment.likes || 0}
                       </button>
-                      <button className="dislike-btn">
+                      <button
+                        className="dislike-btn"
+                        onClick={() =>
+                          submitLikeOrDislikeComments(comment.id, "dislike")
+                        }
+                      >
                         <ion-icon class="thumbs"></ion-icon> 0
                       </button>
                       <button
@@ -462,10 +537,21 @@ export default function Postcard({
                     )}
 
                     <div className="comment-actions">
-                      <button className="like-btn">
-                        <ion-icon class="thumbs"></ion-icon> 0
+                      <button
+                        className="like-btn"
+                        onClick={() =>
+                          submitLikeOrDislikeComments(comment.id, "like")
+                        }
+                      >
+                        <ion-icon class="thumbs"></ion-icon>{" "}
+                        {comment.likes || 0}
                       </button>
-                      <button className="dislike-btn">
+                      <button
+                        className="dislike-btn"
+                        onClick={() =>
+                          submitLikeOrDislikeComments(comment.id, "dislike")
+                        }
+                      >
                         <ion-icon class="thumbs"></ion-icon> 0
                       </button>
                       <button className="reply-btn">reply</button>
@@ -481,9 +567,6 @@ export default function Postcard({
                       >
                         Delete
                       </button>
-                      {/* <small className="comment-note">
-                        {`${comment?.User?.name}, ответил ${post?.User?.name}`}
-                      </small> */}
                       {comment.ParentComment === null ? (
                         <small className="comment-note">
                           {`${comment?.User?.name}, ответил ${post?.User?.name}`}
