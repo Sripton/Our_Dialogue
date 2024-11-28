@@ -344,36 +344,33 @@ export default function Postcard({
   }, []);
 
 
-  // Проблема бесконечной перегрузки вызвана тем, 
-  //что useEffect зависит от массива comments ([comments]) в своей зависимости. 
-  //При каждом обновлении состояния comments, useEffect снова вызывается, 
-  //что в свою очередь снова вызывает обновление comments, создавая бесконечный цикл.
-  // useEffect(() => {
-  //   const fetchLikesForComments = async () => {
-  //     try {
-  //       const updatedComments = await Promise.all(
-  //         comments.map(async (comment) => {
-  //           const response = await fetch(
-  //             `/api/likeordislikecomment/getlikecomment/${comment.id}`
-  //           );
-  //           if (response.ok) {
-  //             const likesData = await response.json();
-  //             return { ...comment, likes: likesData.length };
-  //           } else {
-  //             console.error(
-  //               `Ошибка при загрузке лайков для комментария ${comment.id}`
-  //             );
-  //             return { ...comment, likes: 0 };
-  //           }
-  //         })
-  //       );
-  //       setComments(updatedComments);
-  //     } catch (error) {
-  //       console.error("Ошибка при загрузке лайков для комментариев:", error);
-  //     }
-  //   };
-  //   fetchLikesForComments();
-  // }, [comments]);
+
+  useEffect(() => {
+    const fetchLikesForComments = async () => {
+      try {
+        const updatedComments = await Promise.all(
+          comments.map(async (comment) => {
+            const response = await fetch(
+              `/api/likeordislikecomment/getlikecomment/${comment.id}`
+            );
+            if (response.ok) {
+              const likesData = await response.json();
+              return { ...comment, likes: likesData.length };
+            } else {
+              console.error(
+                `Ошибка при загрузке лайков для комментария ${comment.id}`
+              );
+              return { ...comment, likes: 0 };
+            }
+          })
+        );
+        setComments(updatedComments);
+      } catch (error) {
+        console.error("Ошибка при загрузке лайков для комментариев:", error);
+      }
+    };
+    fetchLikesForComments();
+  }, [comments]);
 
   return (
     <>
