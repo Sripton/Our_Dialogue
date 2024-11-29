@@ -44,15 +44,21 @@ router.post("/:id", async (req, res) => {
 router.get("/getlikecomment/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    const findAllCommentReaction = await Commentreacion.findAll({
+    const findCommentID = await Comment.findByPk(id);
+    if (!findCommentID) {
+      res.status(404).json({ message: "Комментaрий не найден" });
+    }
+    const findReactionLike = await Commentreacion.findAll({
       where: {
-        comment_id: id,
+        comment_id: findCommentID.id,
         reaction_type: "like",
       },
     });
-    res.json(findAllCommentReaction);
+    // Возвращаем количество лайков
+    res.json({ count: findReactionLike.length });
   } catch (error) {
-    console.log(error);
+    console.error("Ошибка при получении лайков:", error);
+    res.status(500).json({ message: "Внутренняя ошибка сервера" });
   }
 });
 
