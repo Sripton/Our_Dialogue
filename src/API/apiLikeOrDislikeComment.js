@@ -55,7 +55,8 @@ router.get("/getlikecomment/:id", async (req, res) => {
       },
     });
     // Возвращаем количество лайков
-    res.json({ count: findReactionLike.length });
+    // res.json({ count: findReactionLike.length });
+    res.json({count: findReactionLike.length});
   } catch (error) {
     console.error("Ошибка при получении лайков:", error);
     res.status(500).json({ message: "Внутренняя ошибка сервера" });
