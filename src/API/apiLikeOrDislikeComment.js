@@ -48,16 +48,15 @@ router.post("/:id", async (req, res) => {
   }
 });
 
-
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    await Commentreacion.destroy({ where: { id } });
+    const findCommentID = await Comment.findByPk(id);
+    await Commentreacion.destroy({ where: { comment_id: findCommentID.id } });
     res.status(200).json({ message: "Реакция успешно удалена" }); // Return JSON
   } catch (error) {
     console.log(error);
   }
 });
-
 
 export default router;

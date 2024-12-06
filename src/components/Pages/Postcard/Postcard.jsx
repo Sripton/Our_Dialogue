@@ -221,25 +221,89 @@ export default function Postcard({
     }
   };
 
+  // const submitLikeComments = async (commentID, reactionType) => {
+  //   try {
+  //     const existingReaction = likesComments[commentID];
+
+  //     if (existingReaction === reactionType) {
+  //       // Если реакция уже существует и соответствует текущему типу, удаляем ее
+  //       const response = await fetch(`/api/likeordislikecomment/${commentID}`, {
+  //         method: "DELETE",
+  //         headers: { "Content-Type": "application/json" },
+  //       });
+  //       if (response.ok) {
+  //         setLikesComments((prev) => {
+  //           const updated = { ...prev };
+  //           delete updated[commentID];
+  //           return updated;
+  //         });
+  //       }
+  //     } else {
+  //       // В противном случае добавьте или обновите реакцию
+  //       const response = await fetch(`/api/likeordislikecomment/${commentID}`, {
+  //         method: "POST",
+  //         headers: { "Content-type": "application/json" },
+  //         body: JSON.stringify({ reaction_type: reactionType }),
+  //       });
+  //       if (response.ok) {
+  //         const data = await response.json();
+
+  //         // Обновляем состояние новой реакцией
+  //         setLikesComments((prev) => ({
+  //           ...prev,
+  //           [commentID]: data.reaction_type,
+  //         }));
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
+
+  // Изменение функции submitLikeComments для удаления лайков если лайк был поставлен
   const submitLikeComments = async (commentID, reactionType) => {
     try {
-      const existingReaction = likesComments[commentID];
+      // Получаем текущий тип реакции на комментарий
+      const currentReaction = likesComments[commentID];
 
-      if (existingReaction === reactionType) {
-        // Если реакция уже существует и соответствует текущему типу, удаляем ее
-        const response = await fetch(`/api/likeordislikecomment/${commentID}`, {
-          method: "DELETE",
-          headers: { "Content-Type": "application/json" },
-        });
-        if (response.ok) {
-          setLikesComments((prev) => {
-            const updated = { ...prev };
-            delete updated[commentID];
-            return updated;
-          });
+      if (currentReaction) {
+        if (currentReaction === reactionType) {
+          // Если реакция соответствует типу нажатия, удаляем ее
+          const response = await fetch(
+            `/api/likeordislikecomment/${commentID}`,
+            {
+              method: "DELETE",
+              headers: { "Content-type": "application/json" },
+            }
+          );
+          if (response.ok) {
+            setLikesComments((prev) => {
+              console.log("Previous state:", likesComments);
+              const update = { ...prev };
+              delete update[commentID];
+              console.log("Updated state after delete:", likesComments);
+              return update;
+            });
+          }
+        } else {
+          // Если реакция другая, обновите ее до нового типа
+          const response = await fetch(
+            `/api/likeordislikecomment/${commentID}`,
+            {
+              method: "POST",
+              headers: { "Content-type": "application/json" },
+              body: JSON.stringify({ reaction_type: reactionType }),
+            }
+          );
+          if (response.ok) {
+            const data = await response.json();
+            setLikesComments((prev) => ({
+              ...prev,
+              [commentID]: data.reaction_type,
+            }));
+          }
         }
       } else {
-        // В противном случае добавьте или обновите реакцию
         const response = await fetch(`/api/likeordislikecomment/${commentID}`, {
           method: "POST",
           headers: { "Content-type": "application/json" },
@@ -247,8 +311,6 @@ export default function Postcard({
         });
         if (response.ok) {
           const data = await response.json();
-
-          // Обновляем состояние новой реакцией
           setLikesComments((prev) => ({
             ...prev,
             [commentID]: data.reaction_type,
@@ -259,7 +321,6 @@ export default function Postcard({
       console.log(error);
     }
   };
-
   const deleteCommentHandler = async (id) => {
     await fetch(`/api/comments/${id}`, { method: "DELETE" })
       .then(() =>
