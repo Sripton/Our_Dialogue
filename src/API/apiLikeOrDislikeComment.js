@@ -7,15 +7,22 @@ router.post("/:id", async (req, res) => {
   const { reaction_type } = req.body;
   try {
     const userID = req.session.userID;
-    const findCommentID = await Comment.findOne({ where: { id } });
+    // Ищем комментарий под которым хотим поствить  лайк  или дизлайк
+    const findCommentID = await Comment.findByPk(id);
     // Проверка, существует ли комментарий  с данным ID
     if (!findCommentID) {
       res.status(404).json({ message: "Комментарий не найден" });
     }
+    // Допустимые типы реакций в виде объекта
+    const validReactions = {
+      like: true,
+      dislike: true,
+    };
     // Проверка, что тип реакции корректен
-    if (!["like", "dislike"].includes(reaction_type)) {
+    if (!validReactions) {
       res.status(400).json({ message: "Некорректный тип реакции" });
     }
+
     // Проверка существования взаимодействия от данного пользователя с этим комментарием
     const existingCommentReaction = await Commentreacion.findOne({
       where: {
@@ -41,36 +48,16 @@ router.post("/:id", async (req, res) => {
   }
 });
 
-router.get("/getlikecomment/:id", async (req, res) => {
-  const { id } = req.params;
-  try {
-    const findCommentID = await Comment.findByPk(id);
-    if (!findCommentID) {
-      res.status(404).json({ message: "Комментaрий не найден" });
-    }
-    const findReactionLike = await Commentreacion.findAll({
-      where: {
-        comment_id: findCommentID.id,
-        reaction_type: "like",
-      },
-    });
-    // Возвращаем количество лайков
-    // res.json({ count: findReactionLike.length });
-    res.json({count: findReactionLike.length});
-  } catch (error) {
-    console.error("Ошибка при получении лайков:", error);
-    res.status(500).json({ message: "Внутренняя ошибка сервера" });
-  }
-});
 
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
   try {
     await Commentreacion.destroy({ where: { id } });
-    res.sendStatus(200);
+    res.status(200).json({ message: "Реакция успешно удалена" }); // Return JSON
   } catch (error) {
     console.log(error);
   }
 });
+
 
 export default router;

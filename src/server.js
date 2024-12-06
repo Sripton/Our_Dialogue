@@ -61,8 +61,8 @@ app.use("/", indexRouter);
 app.use("/api/subjects", apiSubjectsRouter);
 app.use("/api/users", apiUsersRouter);
 app.use("/api/posts", apiPostRouter);
-app.use("/api/comments", apiCommentsRouter);
 app.use("/api/likeordislikepost", apiLikeOrDislikePostRouter);
+app.use("/api/comments", apiCommentsRouter);
 app.use("/api/replycomments", apiReplyCommentsRouter);
 app.use("/api/likeordislikecomment", apiLikeOrDislikeCommentRouter);
 

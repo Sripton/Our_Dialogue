@@ -221,167 +221,42 @@ export default function Postcard({
     }
   };
 
-  // const submitLikeOrDislikeComments = async (commentID, reactionType) => {
-  //   try {
-  //     // Проверяем текущий статус реакции пользователя
-  //     const isLike =
-  //       Array.isArray(likesComments[commentID]) &&
-  //       likesComments[commentID]?.includes(userIDsession);
-  //     const isDislike = Array.isArray(
-  //       disLikesComments[commentID]?.includes(userIDsession)
-  //     );
-
-  //     if (reactionType === "like" && isLike) {
-  //       // Если пользователь уже поставил лайк, удаляем его
-  //       const response = await fetch(`/api/likeordislikecomment/${commentID}`, {
-  //         method: "GET",
-  //         headers: { "Content-type": "application/json" },
-  //         body: JSON.stringify({ user_id: userIDsession }),
-  //       });
-  //       if (response.ok) {
-  //         setLikesComments((prev) => ({
-  //           ...prev,
-  //           [commentID]: prev[commentID].filter((id) => id !== userIDsession),
-  //         }));
-  //       }
-  //     } else if (reactionType === "dislike" && isDislike) {
-  //       // Если пользователь уже поставил лайк, удаляем его
-  //       const response = await fetch(`/api/likeordislikecomment/${commentID}`, {
-  //         method: "DELETE",
-  //         headers: { "Content-type": "application/json" },
-  //         body: JSON.stringify({ user_id: userIDsession }),
-  //       });
-  //       if (response.ok) {
-  //         setDislikesComments((prev) => ({
-  //           ...prev,
-  //           [commentID]: prev[commentID].filter((id) => id !== userIDsession),
-  //         }));
-  //       }
-  //     } else {
-  //       // Если реакции еще нет, добавляем лайк или дизлайк
-  //       const response = await fetch(`/api/likeordislikecomment/${commentID}`, {
-  //         method: "POST",
-  //         headers: { "Content-type": "application/json" },
-  //         body: JSON.stringify({
-  //           reaction_type: reactionType,
-  //           user_id: userIDsession,
-  //         }),
-  //       });
-  //       if (response.ok) {
-  //         const data = await response.json();
-  //         if (reactionType === "like") {
-  //           setLikesComments((prev) => ({
-  //             ...prev,
-  //             [commentID]: [...(prev[commentID] || []), data.user_id],
-  //           }));
-  //           setDislikesComments((prev) => ({
-  //             ...prev,
-  //             [commentID]:
-  //               prev[commentID]?.filter((id) => id !== userIDsession) || [],
-  //           }));
-  //         } else if (reactionType === "dislike") {
-  //           setDislikesComments((prev) => ({
-  //             ...prev,
-  //             [commentID]: [...(prev[commentID] || []), data.user_id],
-  //           }));
-  //           setLikesComments((prev) => ({
-  //             ...prev,
-  //             [commentID]:
-  //               prev[commentID]?.filter((id) => id !== userIDsession) || [],
-  //           }));
-  //         }
-  //       }
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-  const submitLikeOrDislikeComments = async (commentID, reactionType) => {
+  const submitLikeComments = async (commentID, reactionType) => {
     try {
-      // Проверяем текущий статус реакции пользователя
-      const isLiked =
-        Array.isArray(likesComments[commentID]) &&
-        likesComments[commentID].includes(userIDsession);
-      const isDisliked =
-        Array.isArray(disLikesComments[commentID]) &&
-        disLikesComments[commentID].includes(userIDsession);
+      const existingReaction = likesComments[commentID];
 
-      if (reactionType === "like" && isLiked) {
-        // Удаление лайка
+      if (existingReaction === reactionType) {
+        // Если реакция уже существует и соответствует текущему типу, удаляем ее
         const response = await fetch(`/api/likeordislikecomment/${commentID}`, {
           method: "DELETE",
-          headers: { "Content-type": "application/json" },
-          body: JSON.stringify({ user_id: userIDsession }),
+          headers: { "Content-Type": "application/json" },
         });
         if (response.ok) {
-          // setLikesComments((prev) => ({
-          //   ...prev,
-          //   [commentID]: prev[commentID].filter((id) => id !== userIDsession),
-          // }));
-          setLikesComments((prev) => ({
-            ...prev,
-            [commentID]: prev[commentID] !== userIDsession,
-          }));
-        }
-      } else if (reactionType === "dislike" && isDisliked) {
-        // Удаление дизлайка
-        const response = await fetch(`/api/likeordislikecomment/${commentID}`, {
-          method: "DELETE",
-          headers: { "Content-type": "application/json" },
-          body: JSON.stringify({ user_id: userIDsession }),
-        });
-        if (response.ok) {
-          setDislikesComments((prev) => ({
-            ...prev,
-            [commentID]: prev[commentID].filter((id) => id !== userIDsession),
-          }));
+          setLikesComments((prev) => {
+            const updated = { ...prev };
+            delete updated[commentID];
+            return updated;
+          });
         }
       } else {
-        // Добавление реакции
+        // В противном случае добавьте или обновите реакцию
         const response = await fetch(`/api/likeordislikecomment/${commentID}`, {
           method: "POST",
           headers: { "Content-type": "application/json" },
-          body: JSON.stringify({
-            reaction_type: reactionType,
-            user_id: userIDsession,
-          }),
+          body: JSON.stringify({ reaction_type: reactionType }),
         });
         if (response.ok) {
           const data = await response.json();
-          if (reactionType === "like") {
-            setLikesComments((prev) => ({
-              ...prev,
-              [commentID]: Array.isArray(prev[commentID])
-                ? [...prev[commentID], data.user_id]
-                : data.user_id,
-            }));
-            setDislikesComments((prev) => ({
-              ...prev,
-              [commentID]: Array.isArray(prev[commentID])
-                ? prev[commentID].filter((id) => id !== userIDsession)
-                : [],
-            }));
-          } else if (reactionType === "dislike") {
-            setDislikesComments((prev) => ({
-              ...prev,
-              [commentID]: Array.isArray(prev[commentID])
-                ? [...prev[(commentID, data.user_id)]]
-                : data.user_id,
-            }));
-            setLikesComments((prev) => ({
-              ...prev,
-              [commentID]: Array.isArray(prev[commentID])
-                ? prev[commentID].filter((id) => id !== userIDsession)
-                : [],
-            }));
-          }
+
+          // Обновляем состояние новой реакцией
+          setLikesComments((prev) => ({
+            ...prev,
+            [commentID]: data.reaction_type,
+          }));
         }
       }
     } catch (error) {
-      console.error(
-        "Ошибка при обработке лайков/дизлайков комментария:",
-        error
-      );
+      console.log(error);
     }
   };
 
@@ -413,40 +288,6 @@ export default function Postcard({
       .then((data) => setDislikes(data))
       .catch((err) => console.log(err));
   }, []);
-
-  const fetchCommentsReactions = async (commentID, reactionType) => {
-    try {
-      const response = await fetch(
-        `/api/likeordislikecomment/getlikecomment/${commentID}`,
-        { method: "GET" }
-      );
-
-      const data = await response.json();
-      return data.count;
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  useEffect(() => {
-    const fetchAllCommentsReactions = async () => {
-      const likes = {};
-      const dislikes = {};
-      for (const comment of comments) {
-        likes[comment.id] = await fetchCommentsReactions(comment.id, "like");
-        dislikes[comment.id] = await fetchCommentsReactions(
-          comment.id,
-          "dislike"
-        );
-      }
-      setLikesComments(likes);
-      setDislikesComments(dislikes);
-    };
-    if (comments.length > 0) {
-      fetchAllCommentsReactions();
-    }
-  }, [comments]);
-  console.log("likesComments", likesComments);
 
   return (
     <>
@@ -541,12 +382,9 @@ export default function Postcard({
                     <div className="comment-actions">
                       <button
                         className="like-btn"
-                        onClick={() =>
-                          submitLikeOrDislikeComments(comment.id, "like")
-                        }
+                        onClick={() => submitLikeComments(comment.id, "like")}
                       >
-                        <ion-icon class="thumbs"></ion-icon>
-                        {likesComments[comment.id] || 0}
+                        <ion-icon class="thumbs"></ion-icon> 0
                       </button>
                       <button className="dislike-btn">
                         <ion-icon class="thumbs"></ion-icon> 0
@@ -607,12 +445,9 @@ export default function Postcard({
                     <div className="comment-actions">
                       <button
                         className="like-btn"
-                        onClick={() =>
-                          submitLikeOrDislikeComments(comment.id, "like")
-                        }
+                        onClick={() => submitLikeComments(comment.id, "like")}
                       >
-                        <ion-icon class="thumbs"></ion-icon>
-                        {likesComments[comment.id] || 0}
+                        <ion-icon class="thumbs"></ion-icon> 0
                       </button>
                       <button className="dislike-btn">
                         <ion-icon class="thumbs"></ion-icon> 0
