@@ -47,6 +47,25 @@ router.post("/:id", async (req, res) => {
     console.log(error);
   }
 });
+router.get("/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    const findCommentID = await Comment.findByPk(id);
+    if (!findCommentID) {
+      return res.status(404).json({ message: "Комментарий не найден" });
+    }
+    const commentReactions = await Commentreacion.findAll({
+      where: {
+        comment_id: findCommentID.id,
+      },
+      attributes: ["id", "comment_id", "reaction_type", "user_id"],
+    });
+    res.status(200).json(commentReactions);
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Ошибка сервера" });
+  }
+});
 
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
