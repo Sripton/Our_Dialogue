@@ -354,8 +354,6 @@ export default function Postcard({
       .then((data) => setDislikes(data))
       .catch((err) => console.log(err));
   }, []);
-  console.log("likesComments", likesComments);
-  console.log("comments", comments);
 
   return (
     <>
@@ -454,7 +452,7 @@ export default function Postcard({
                       >
                         <ion-icon class="thumbs"></ion-icon>{" "}
                         {
-                          comment?.reactions.filter(
+                          (comment?.reactions || []).filter(
                             (reaction) =>
                               reaction.comment_id === comment.id &&
                               reaction.reaction_type === "like"
@@ -469,7 +467,7 @@ export default function Postcard({
                       >
                         <ion-icon class="thumbs"></ion-icon>
                         {
-                          comment?.reactions.filter(
+                          (comment?.reactions || []).filter(
                             (reaction) =>
                               reaction.comment_id === comment.id &&
                               reaction.reaction_type === "dislike"
@@ -536,7 +534,7 @@ export default function Postcard({
                       >
                         <ion-icon class="thumbs"></ion-icon>
                         {
-                          comment?.reactions.filter(
+                          (comment?.reactions || []).filter(
                             (reaction) =>
                               reaction.comment_id === comment.id &&
                               reaction.reaction_type === "like"
@@ -551,7 +549,7 @@ export default function Postcard({
                       >
                         <ion-icon class="thumbs"></ion-icon>
                         {
-                          comment?.reactions.filter(
+                          (comment?.reactions || []).filter(
                             (reaction) =>
                               reaction.comment_id === comment.id &&
                               reaction.reaction_type === "dislike"
