@@ -151,7 +151,12 @@ export default function Subjectlist() {
                         {" "}
                       </ion-icon>
                     </NavLink>
-                    <ion-icon class="info-icon" name="heart-outline"></ion-icon>
+                    <NavLink to={"/"}>
+                      <ion-icon
+                        class="info-icon"
+                        name="arrow-undo-outline"
+                      ></ion-icon>
+                    </NavLink>
                   </div>
                 </div>
               </div>

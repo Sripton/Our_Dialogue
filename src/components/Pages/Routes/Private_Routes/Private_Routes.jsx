@@ -29,7 +29,7 @@ export default function Private_Routes({
         <Route path="/subjects/:id" element={<Subjectlist />} />
         <Route
           path="/addposts/:id"
-          element={<Addposts setPosts={setPosts} />}
+          element={<Addposts posts={posts} setPosts={setPosts} />}
         />
         <Route
           path="/comments/:id"

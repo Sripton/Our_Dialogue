@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { useParams } from "react-router-dom";
 
 export default function Addposts({ setPosts }) {
@@ -7,6 +7,7 @@ export default function Addposts({ setPosts }) {
   const [inputs, setInputs] = useState({
     posttitle: "",
   });
+  const [postsSubjects, setPostSubjects] = useState([]);
   const { id } = useParams();
 
   const inputPostHandler = (e) => {
@@ -26,8 +27,16 @@ export default function Addposts({ setPosts }) {
       setInputs({ posttitle: "" });
     }
   };
-  // При мобильном режиме работает лучше 
+  useEffect(() => {
+    fetch(`/api/posts/${id}`, { method: "GET" })
+      .then((res) => res.json())
+      .then((data) => setPostSubjects(data))
+      .catch((err) => console.log(err));
+  }, []);
+  // При мобильном режиме работает лучше
   const commentsLink = useMemo(() => `/comments/${id}`);
+  console.log("postsSubjects", postsSubjects);
+
   return (
     <>
       <div className="post-container">
@@ -50,13 +59,15 @@ export default function Addposts({ setPosts }) {
 
           <div className="post-info">
             <p>
-              Количество ответов на ваш пост:
-              <span id="reply-count">0</span>
+              Количество постов на данную тему:
+              <span id="reply-count">
+                {postsSubjects.length !== 0 ? postsSubjects.length : 0}
+              </span>
             </p>
             {/* Использовать <a /> вместо <NavLink/>. При 
             использовании <a/> производительность лучше */}
             <a href={commentsLink} className="view-comments">
-              Посмотреть ответы на пост
+              Перейти к обсуждению
             </a>
           </div>
         </div>
