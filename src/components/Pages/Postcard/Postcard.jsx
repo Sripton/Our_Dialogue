@@ -231,7 +231,6 @@ export default function Postcard({
 
   const fetchCommentsWithReactions = async () => {
     try {
-      console.log("Fetching comments for post ID:", post.id);
       const response = await fetch(`/api/comments/${post.id}`, {
         method: "GET",
       });
@@ -239,7 +238,6 @@ export default function Postcard({
         throw new Error("Failed to fetch comments: " + response.statusText);
       }
       const commentsData = await response.json();
-      console.log("Fetched comments:", commentsData);
 
       const reactionsPromises = commentsData.map((comment) =>
         fetch(`/api/likeordislikecomment/${comment.id}`, { method: "GET" })
@@ -254,7 +252,6 @@ export default function Postcard({
       );
 
       const reactionsData = await Promise.all(reactionsPromises);
-      console.log("Fetched reactions:", reactionsData);
 
       const commentsWithReactions = commentsData.map((comment, index) => ({
         ...comment,
@@ -355,6 +352,7 @@ export default function Postcard({
       .catch((err) => console.log(err));
   }, []);
 
+  comments.forEach((comment) => console.log(comment.reactions));
   return (
     <>
       <div className={`comment-section ${isDotsActive ? "show-actions" : ""}`}>
@@ -556,7 +554,7 @@ export default function Postcard({
                           ).length
                         }
                       </button>
-                      <button className="reply-btn">reply</button>
+                      {/* <button className="reply-btn">reply</button> */}
                       <button
                         className="edit-btn"
                         onClick={() => handlerEditComments(comment)}

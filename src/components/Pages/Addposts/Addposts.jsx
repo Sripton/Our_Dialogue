@@ -1,15 +1,11 @@
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { useParams } from "react-router-dom";
 
-export default function Addposts({ setPosts }) {
-  // 1 -> const [inputs, setInputs] = useState("");
-  // 2 ->const [inputs, setInputs] = useState({posttitle: ""});
+export default function Addposts({ setPosts, posts }) {
   const [inputs, setInputs] = useState({
     posttitle: "",
   });
-  const [postsSubjects, setPostSubjects] = useState([]);
   const { id } = useParams();
-
   const inputPostHandler = (e) => {
     setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
@@ -18,24 +14,21 @@ export default function Addposts({ setPosts }) {
     const responce = await fetch(`/api/posts/${id}`, {
       method: "POST",
       headers: { "Content-type": "application/json" },
-      // 1 -> body: JSON.stringify(inputs),
       body: JSON.stringify({ posttitle: inputs.posttitle }),
     });
     if (responce.ok) {
       const data = await responce.json();
-      setPosts(data);
+      // для правильного отображения ко-ва постов обновить список
+      setPosts((prevPost) => [...prevPost, data]);
       setInputs({ posttitle: "" });
     }
   };
-  useEffect(() => {
-    fetch(`/api/posts/${id}`, { method: "GET" })
-      .then((res) => res.json())
-      .then((data) => setPostSubjects(data))
-      .catch((err) => console.log(err));
-  }, []);
-  // При мобильном режиме работает лучше
-  const commentsLink = useMemo(() => `/comments/${id}`);
-  console.log("postsSubjects", postsSubjects);
+
+  const filteredPosts = useMemo(() => {
+    if (Array.isArray(posts)) {
+      return posts.filter((post) => post.subject_id === Number(id));
+    }
+  }, [posts, id]);
 
   return (
     <>
@@ -61,7 +54,7 @@ export default function Addposts({ setPosts }) {
             <p>
               Количество постов на данную тему:
               <span id="reply-count">
-                {postsSubjects.length !== 0 ? postsSubjects.length : 0}
+                {Array.isArray(filteredPosts) ? filteredPosts.length : 0}
               </span>
             </p>
             {/* Использовать <a /> вместо <NavLink/>. При 

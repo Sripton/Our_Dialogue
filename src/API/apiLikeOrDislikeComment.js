@@ -36,6 +36,7 @@ router.post("/:id", async (req, res) => {
       await existingCommentReaction.save();
       return res.status(200).json(existingCommentReaction);
     }
+
     // Создание новой записи взаимодействия
     const newReaction = await Commentreacion.create({
       user_id: userID,
@@ -67,14 +68,36 @@ router.get("/:id", async (req, res) => {
   }
 });
 
+// router.delete("/:id", async (req, res) => {
+//   const { id } = req.params;
+//   try {
+//     const findCommentID = await Comment.findByPk(id);
+//     await Commentreacion.destroy({ where: { comment_id: findCommentID.id } });
+//     res.status(200).json({ message: "Реакция успешно удалена" }); // Return JSON
+//   } catch (error) {
+//     console.log(error);
+//   }
+// });
+
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
+  const userID = req.session.userID;
   try {
     const findCommentID = await Comment.findByPk(id);
-    await Commentreacion.destroy({ where: { comment_id: findCommentID.id } });
-    res.status(200).json({ message: "Реакция успешно удалена" }); // Return JSON
+    // Удаляем только реакцию текущего пользователя
+    const deletedReaction = await Commentreacion.destroy({
+      where: {
+        user_id: userID,
+        comment_id: findCommentID.id,
+      },
+    });
+    if (deletedReaction) {
+      return res.status(200).json({ message: "Реакция удалена" });
+    }
+    res.status(404).json({ message: "Реакция не найдена" });
   } catch (error) {
-    console.log(error);
+    console.error(error);
+    res.status(500).json({ message: "Ошибка сервера" });
   }
 });
 
