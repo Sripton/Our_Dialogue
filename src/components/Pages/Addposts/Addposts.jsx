@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { useParams } from "react-router-dom";
+import { NavLink, useParams } from "react-router-dom";
 
 export default function Addposts({ setPosts, posts }) {
   const [inputs, setInputs] = useState({
@@ -59,9 +59,9 @@ export default function Addposts({ setPosts, posts }) {
             </p>
             {/* Использовать <a /> вместо <NavLink/>. При 
             использовании <a/> производительность лучше */}
-            <a href={commentsLink} className="view-comments">
+            <NavLink to={`/comments/${id}`} className="view-comments">
               Перейти к обсуждению
-            </a>
+            </NavLink>
           </div>
         </div>
       </div>

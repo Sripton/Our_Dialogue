@@ -38,7 +38,6 @@ app.use(morgan("dev"));
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("public"));
-
 app.use(session(sessionConfig));
 app.use(async (req, res, next) => {
   try {
@@ -50,6 +49,7 @@ app.use(async (req, res, next) => {
     res.locals.allPosts = allPosts;
     res.locals.userID = req.session?.userID;
     res.locals.userName = req.session?.userName;
+    console.log("Сессия на сервере", req.session);
   } catch (error) {
     console.log(error);
   }

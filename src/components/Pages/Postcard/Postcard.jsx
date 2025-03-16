@@ -352,7 +352,7 @@ export default function Postcard({
       .catch((err) => console.log(err));
   }, []);
 
-  comments.forEach((comment) => console.log(comment.reactions));
+
   return (
     <>
       <div className={`comment-section ${isDotsActive ? "show-actions" : ""}`}>

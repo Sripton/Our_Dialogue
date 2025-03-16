@@ -24,6 +24,7 @@ export default function Contentlist({ directions, thumbnails, userIDsession }) {
     ];
     setThumbnailItems(newThumbnailItems);
   };
+  console.log('userIDsession', userIDsession);
 
   return (
     <>

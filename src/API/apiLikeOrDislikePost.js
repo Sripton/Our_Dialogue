@@ -67,7 +67,7 @@ router.get("/getDislikes/:id", async (req, res) => {
     const allPostDislikeReaction = await Postreaction.findAll({
       where: { post_id: findPostID.id, reaction_type: "dislike" },
     });
-    res.status(201).json(allPostDislikeReaction);
+    res.status(200).json(allPostDislikeReaction);
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Произошла ошибка при отправке реакций" });
@@ -78,6 +78,7 @@ router.delete("/:id", async (req, res) => {
   const { id } = req.params;
   try {
     await Postreaction.destroy({ where: { post_id: id } });
+    await Post.destroy({ where: { id } });
     res.sendStatus(200);
   } catch (error) {
     console.log(error);

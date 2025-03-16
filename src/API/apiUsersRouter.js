@@ -14,6 +14,7 @@ router.post("/signup", async (req, res) => {
     });
     req.session.userID = createUser.id;
     req.session.userName = createUser.name;
+    console.log("createUser", createUser);
     res.json({
       userID: createUser.id,
       userName: createUser.name,

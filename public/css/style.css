@@ -1,4 +1,4 @@
- @import url("https://fonts.googleapis.com/css?family=Heebo:regular,500,700,900");
+@import url("https://fonts.googleapis.com/css?family=Heebo:regular,500,700,900");
 @import url("https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&display=swap");
 
 *,
@@ -38,7 +38,6 @@ body {
 .header__logo {
   width: 40px;
   height: 40px;
-
   background-color: #d3caca;
   border-radius: 50%;
   z-index: 5;
@@ -104,6 +103,8 @@ body._touch .menu__arrow {
   border-top: 10px solid #fff;
   margin: 0px 0px 0px 5px;
   display: block;
+  width: 0;
+  height: 0;
   transition: transform 0.3s ease 0s;
 }
 body._touch .menu__list > li {
@@ -550,7 +551,7 @@ section {
   border-top-right-radius: 30px;
   border-bottom-right-radius: 30px;
 }
-.tabcontent-description {
+/* .tabcontent-description {
   position: absolute;
   left: 0;
   top: 0;
@@ -568,7 +569,7 @@ section {
   box-shadow: rgba(50, 50, 93, 0.25) 0px 50px 100px -20px,
     rgba(0, 0, 0, 0.3) 0px 30px 60px -30px,
     rgba(10, 37, 64, 0.35) 0px -2px 6px 0px inset;
-}
+} */
 .tab-content {
   position: relative;
   width: 100%;
@@ -636,7 +637,7 @@ section {
   cursor: pointer;
 }
 @media (max-width: 1050px) {
-  .main-containe {
+  .main-container {
     margin: 0px 0px;
   }
   .tab-nav-bar {
