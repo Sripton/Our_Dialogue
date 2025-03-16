@@ -1,5 +1,5 @@
 import express from "express";
-import { Subject, Post, User, Comment } from "../db/models";
+import { Subject, Post, User, Comment, Postreaction } from "../db/models";
 import checkUsersForPost from "../Middleware/userCheckForPosts";
 const router = express.Router();
 
@@ -52,6 +52,8 @@ router.delete("/:id", checkUsersForPost, async (req, res) => {
   try {
     // Удаляем связанные комментарии
     await Comment.destroy({ where: { post_id: id } });
+    // Удаляем реакции
+    await Postreaction.destroy({ where: { post_id: id } });
     // Удаляем сам пост
     await Post.destroy({ where: { id } });
     res.sendStatus(200);

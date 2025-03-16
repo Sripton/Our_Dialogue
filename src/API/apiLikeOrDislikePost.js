@@ -78,7 +78,6 @@ router.delete("/:id", async (req, res) => {
   const { id } = req.params;
   try {
     await Postreaction.destroy({ where: { post_id: id } });
-    await Post.destroy({ where: { id } });
     res.sendStatus(200);
   } catch (error) {
     console.log(error);
