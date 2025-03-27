@@ -2,7 +2,7 @@
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
   async up(queryInterface, Sequelize) {
-    await queryInterface.createTable("Commentreacions", {
+    await queryInterface.createTable("Commentreactions", {
       id: {
         allowNull: false,
         autoIncrement: true,
@@ -24,7 +24,9 @@ module.exports = {
           model: {
             tableName: "Comments",
           },
+          key: "id",
         },
+        onDelete: "CASCADE",
       },
       reaction_type: {
         type: Sequelize.ENUM("like", "dislike"),
@@ -42,6 +44,6 @@ module.exports = {
     });
   },
   async down(queryInterface, Sequelize) {
-    await queryInterface.dropTable("Commentreacions");
+    await queryInterface.dropTable("Commentreactions");
   },
 };

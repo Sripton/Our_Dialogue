@@ -29,6 +29,7 @@ module.exports = {
           },
           key: "id",
         },
+        onDelete: "CASCADE",
       },
       parent_id: {
         type: Sequelize.INTEGER,
@@ -37,6 +38,7 @@ module.exports = {
             tableName: "Comments",
           },
         },
+        onDelete: "CASCADE",
       },
       createdAt: {
         allowNull: false,

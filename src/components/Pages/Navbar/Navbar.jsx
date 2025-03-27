@@ -38,6 +38,8 @@ export default function Navbar({
     };
   });
 
+
+
   return (
     <>
       {!userIDsession ? (

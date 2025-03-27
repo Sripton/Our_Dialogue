@@ -1,5 +1,5 @@
 import express from "express";
-import { Post, Comment, User } from "../db/models";
+import { Post, Comment, User, Commentreaction } from "../db/models";
 import checkUsersForComments from "../Middleware/userCheckForComments";
 const router = express.Router();
 
@@ -33,6 +33,7 @@ router.get("/:id", async (req, res) => {
     }
     const findAllCommentForPostID = await Comment.findAll({
       where: { post_id: findPostID.id },
+      order: [["createdAt", "ASC"]],
       // include: [{ model: User, attributes: ["name"] }, { model: Post }],\
       include: [
         {
@@ -48,6 +49,10 @@ router.get("/:id", async (req, res) => {
               attributes: ["name"],
             },
           ],
+        },
+        {
+          model: Commentreaction,
+          as: "reactions",
         },
       ],
     });
@@ -106,11 +111,18 @@ router.put("/:id", checkUsersForComments, async (req, res) => {
 
 router.delete("/:id", checkUsersForComments, async (req, res) => {
   const { id } = req.params;
+  // try {
+  //   await Commentreaction.destroy({ where: { comment_id: id } });
+  //   await Comment.destroy({ where: { id } });
+  //   res.sendStatus(200);
+  // } catch (error) {
+  //   res.sendStatus(401);
+  //   console.log(`${error} Не получилось удалить комментарий`);
+  // }
   try {
     await Comment.destroy({ where: { id } });
     res.sendStatus(200);
   } catch (error) {
-    res.sendStatus(401);
     console.log(`${error} Не получилось удалить комментарий`);
   }
 });

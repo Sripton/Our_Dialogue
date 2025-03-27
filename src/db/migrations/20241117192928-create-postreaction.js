@@ -26,6 +26,7 @@ module.exports = {
           },
           key: "id",
         },
+        onDelete: "CASCADE",
       },
       reaction_type: {
         type: Sequelize.ENUM("like", "dislike"),

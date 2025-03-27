@@ -1,5 +1,5 @@
 import express from "express";
-import { Commentreacion, Comment } from "../db/models";
+import { Commentreaction, Comment } from "../db/models";
 const router = express.Router();
 
 router.post("/:id", async (req, res) => {
@@ -24,7 +24,7 @@ router.post("/:id", async (req, res) => {
     }
 
     // Проверка существования взаимодействия от данного пользователя с этим комментарием
-    const existingCommentReaction = await Commentreacion.findOne({
+    const existingCommentReaction = await Commentreaction.findOne({
       where: {
         user_id: userID,
         comment_id: findCommentID.id,
@@ -38,7 +38,7 @@ router.post("/:id", async (req, res) => {
     }
 
     // Создание новой записи взаимодействия
-    const newReaction = await Commentreacion.create({
+    const newReaction = await Commentreaction.create({
       user_id: userID,
       comment_id: findCommentID.id,
       reaction_type: reaction_type,
@@ -55,7 +55,7 @@ router.get("/:id", async (req, res) => {
     if (!findCommentID) {
       return res.status(404).json({ message: "Комментарий не найден" });
     }
-    const commentReactions = await Commentreacion.findAll({
+    const commentReactions = await Commentreaction.findAll({
       where: {
         comment_id: findCommentID.id,
       },
@@ -85,7 +85,7 @@ router.delete("/:id", async (req, res) => {
   try {
     const findCommentID = await Comment.findByPk(id);
     // Удаляем только реакцию текущего пользователя
-    const deletedReaction = await Commentreacion.destroy({
+    const deletedReaction = await Commentreaction.destroy({
       where: {
         user_id: userID,
         comment_id: findCommentID.id,

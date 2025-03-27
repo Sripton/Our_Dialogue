@@ -49,7 +49,6 @@ app.use(async (req, res, next) => {
     res.locals.allPosts = allPosts;
     res.locals.userID = req.session?.userID;
     res.locals.userName = req.session?.userName;
-    console.log("Сессия на сервере", req.session);
   } catch (error) {
     console.log(error);
   }
