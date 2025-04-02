@@ -8,38 +8,19 @@ export default function Postcard({
   userNameSession,
 }) {
   const [isDotsActive, setIsDotsActive] = useState(false);
-  const [isShowReplies, setShowReplies] = useState(false);
-  const [textArea, setTextArea] = useState({
-    commenttitle: "",
-  });
-  const [comments, setComments] = useState([]);
-  const [showComments, setShowComments] = useState(false);
-  const [isEditPostActive, setIsEditPostActive] = useState(false);
-  const [editPostText, setEditPostText] = useState({
-    posttitle: "",
-  });
-  const [editCommentID, setEditCommentID] = useState("");
-  const [editCommentText, setEditCommentText] = useState("");
-  const [likes, setLikes] = useState([]);
-  const [dislikes, setDislikes] = useState([]);
-  // Изменение состояния  likesComment и  dislikesComment
-  const [replyToCommentID, setReplyToCommentID] = useState(null); // Для отслеживания, на какой комментарий отвечают
-
-  // const [likesComments, setLikesComments] = useState({});
-  // const [disLikesComments, setDislikesComments] = useState({});
   const handleDots = () => {
     setIsDotsActive(!isDotsActive);
   };
+
+  const [isShowReplies, setShowReplies] = useState(false);
   const handleShowReplies = () => {
     setShowReplies(!isShowReplies);
   };
 
-  const handleComments = (e) => {
-    setTextArea((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  };
-  const handleShowComments = () => {
-    setShowComments(!showComments);
-  };
+  const [isEditPostActive, setIsEditPostActive] = useState(false);
+  const [editPostText, setEditPostText] = useState({
+    posttitle: "",
+  });
   const handleEditActive = () => {
     setIsEditPostActive(!isEditPostActive);
     setEditPostText(post.posttitle);
@@ -48,15 +29,32 @@ export default function Postcard({
     setEditPostText(e.target.value);
   };
 
+  const [comments, setComments] = useState([]);
+  const [inputsComments, setInputsComments] = useState({
+    commenttitle: "",
+  });
+  const handleComments = (e) => {
+    setInputsComments((prev) => ({ ...prev, [e.target.name]: e.target.value }));
+  };
+
+  const [showComments, setShowComments] = useState(false);
+  const handleShowComments = () => {
+    setShowComments(!showComments);
+  };
+
+  const [editCommentID, setEditCommentID] = useState("");
+  const [editCommentText, setEditCommentText] = useState("");
   const handlerEditComments = (comment) => {
     setEditCommentID(comment.id);
     setEditCommentText(comment.commenttitle);
   };
-
   const handlerEditCommentTextChange = (e) => {
     setEditCommentText(e.target.value);
   };
+  const [likes, setLikes] = useState([]);
+  const [dislikes, setDislikes] = useState([]);
 
+  const [replyToCommentID, setReplyToCommentID] = useState(null); // Для отслеживания, на какой комментарий отвечают
   const handleReplyCommentID = (commentID) => {
     setReplyToCommentID(commentID === replyToCommentID ? null : commentID);
   };
@@ -82,8 +80,8 @@ export default function Postcard({
   // Обновленная версия функции submitCommentsHandler
   const submitCommentsHandler = async (e, parentId = null) => {
     e.preventDefault();
-    if (!textArea.commenttitle.trim()) {
-      setTextArea({ commenttitle: "" });
+    if (!inputsComments.commenttitle.trim()) {
+      setInputsComments({ commenttitle: "" });
       setReplyToCommentID(null);
       return; // Завершаем функцию, не отправляя запроc
     }
@@ -93,19 +91,19 @@ export default function Postcard({
         method: "POST",
         headers: { "Content-type": "application/json" },
         body: JSON.stringify({
-          commenttitle: textArea.commenttitle,
-          parent_id: parentId,
+          commenttitle: inputsComments.commenttitle,
+          parent_id: parentId, // null
         }),
       });
       if (response.ok) {
         const data = await response.json();
-        // Добавляем объект User, если он не возвращается с сервера
         const formattedComment = {
           ...data,
+          // Добавляем объект User, если он не возвращается с сервера
           User: {
             name: userNameSession,
           },
-          parent_id: replyToCommentID,
+          parent_id: replyToCommentID, // ?
         };
         // Если это ответ, добавляем его в соответствующий комментарий
         if (parentId) {
@@ -124,7 +122,7 @@ export default function Postcard({
           setComments((prevComments) => [...prevComments, formattedComment]);
         }
         await fetchComments(); // // Обновляем комментарии из сервера
-        setTextArea({ commenttitle: "" });
+        setInputsComments({ commenttitle: "" });
         setReplyToCommentID(null); // Закрываем форму
         setShowReplies(false);
       }
@@ -222,6 +220,7 @@ export default function Postcard({
       }
     }
   };
+  console.log("replyToCommentID", replyToCommentID);
 
   const deleteCommentHandler = async (id) => {
     await fetch(`/api/comments/${id}`, { method: "DELETE" })
@@ -401,6 +400,8 @@ export default function Postcard({
     }
   };
 
+  console.log("comments", comments);
+
   useEffect(() => {
     fetch(`/api/comments/${post.id}`)
       .then((res) => res.json())
@@ -471,6 +472,7 @@ export default function Postcard({
               <button className="reply-btn" onClick={handleShowReplies}>
                 reply
               </button>
+              {/* Логика для отображения кнопок edit и delete если пользоваель зарегистрирован */}
               {userIDsession !== post.user_id ? (
                 ""
               ) : (
@@ -486,6 +488,7 @@ export default function Postcard({
                   </button>
                 </>
               )}
+              {/* Логика для отображения кнопок edit и delete если пользоваель зарегистрирован */}
               <small className="comment-note">
                 {post?.User?.name}, {"к теме"} ({post?.Subject?.subjectName})
               </small>
@@ -497,19 +500,23 @@ export default function Postcard({
               &#10006;
             </div>
             <div className="replies">
+              {/* Логика для отображения формы для создания комментария */}
               {isShowReplies && (
-                <form onSubmit={submitCommentsHandler}>
+                <form
+                  onSubmit={(e) => submitCommentsHandler(e, replyToCommentID)}
+                >
                   <div id="reply-form-template" className="add-comment">
                     <textarea
                       name="commenttitle"
                       placeholder="Write a reply..."
-                      value={textArea.commenttitle}
+                      value={inputsComments.commenttitle}
                       onChange={handleComments}
                     ></textarea>
                     <button type="submit">Post Comment</button>
                   </div>
                 </form>
               )}
+              {/* Логика для отображения формы для создания комментария */}
               {comments?.map((comment) =>
                 userIDsession !== comment.user_id ? (
                   <div
@@ -576,7 +583,7 @@ export default function Postcard({
                       >
                         <textarea
                           name="commenttitle"
-                          value={textArea.commenttitle}
+                          value={inputsComments.commenttitle}
                           onChange={handleComments}
                           placeholder="Write your reply..."
                         ></textarea>

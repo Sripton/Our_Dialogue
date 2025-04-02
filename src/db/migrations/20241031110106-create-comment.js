@@ -37,6 +37,7 @@ module.exports = {
           model: {
             tableName: "Comments",
           },
+          key: "id",
         },
         onDelete: "CASCADE",
       },
