@@ -51,8 +51,8 @@ export default function Postcard({
   const handlerEditCommentTextChange = (e) => {
     setEditCommentText(e.target.value);
   };
-  const [likes, setLikes] = useState([]);
-  const [dislikes, setDislikes] = useState([]);
+  const [likePosts, setLikePosts] = useState([]);
+  const [dislikePosts, setDislikePosts] = useState([]);
 
   const [replyToCommentID, setReplyToCommentID] = useState(null); // Для отслеживания, на какой комментарий отвечают
   const handleReplyCommentID = (commentID) => {
@@ -163,64 +163,138 @@ export default function Postcard({
       setEditCommentText("");
     }
   };
-  const submitLikeOrDislikePost = async (reactionType) => {
-    // Проверяем, поставил ли пользователь лайк или дизлайк
-    const isLiked = likes.some((like) => like.user_id === userIDsession);
-    const isDisliked = dislikes.some(
+  console.log("likePosts", likePosts);
+  console.log("dislikePosts", dislikePosts);
+
+  const submitReactionPost = async (post_id, reaction_type) => {
+    // проверяем есть ли реакция от пользователя на пост
+    const isLike = likePosts.some((like) => like.user_id === userIDsession);
+    const isDislike = dislikePosts.some(
       (dislike) => dislike.user_id === userIDsession
     );
 
-    if (reactionType === "like" && isLiked) {
-      // Если уже есть лайк, то снимаем лайк
-      const response = await fetch(`/api/likeordislikepost/${post.id}`, {
-        method: "DELETE",
-        headers: { "Content-type": "application/json" },
-        body: JSON.stringify({ user_id: userIDsession }),
-      });
-      if (response.ok) {
-        setLikes((prevLikes) =>
+    try {
+      // если тип реакции like и пользователь уже ставил like
+      if (reaction_type === "like" && isLike) {
+        // удаляем like локально
+        setLikePosts((prevLikes) =>
           prevLikes.filter((like) => like.user_id !== userIDsession)
         );
-      }
-    } else if (reactionType === "dislike" && isDisliked) {
-      // Если уже есть дизлайк, то снимаем  дизлайк
-      const response = await fetch(`/api/likeordislikepost/${post.id}`, {
-        method: "DELETE",
-        headers: { "Content-type": "application/json" },
-        body: JSON.stringify({ user_id: userIDsession }),
-      });
-      if (response.ok) {
-        setDislikes((prevDislikes) =>
-          prevDislikes.filter((dislike) => dislike.user_id !== userIDsession)
+        // Отправляем DELETE-запрос на сервер для удаления лайка
+        await fetch(
+          // DELETE-запрос с body НЕ поддерживается во всех браузерах!
+          // Решение 1 (надёжный способ) — передавать user_id в query-параметрах или в params
+          `/api/likeordislikepost/${post_id}?user_id=${userIDsession}`,
+          {
+            method: "DELETE",
+            // Некоторые реализации fetch просто игнорируют тело у DELETE, и на бэке оно будет undefined
+            // headers: { "Content-type": "application/json" },
+            // body: JSON.stringify({ user_id: userIDsession }),
+          }
         );
-      }
-    } else {
-      // Если лайк или дизлайк еще не поставлен
-      const response = await fetch(`/api/likeordislikepost/${post.id}`, {
-        method: "POST",
-        headers: { "Content-type": "application/json" },
-        body: JSON.stringify({
-          reaction_type: reactionType,
-          user_id: userIDsession,
-        }),
-      });
-      if (response.ok) {
-        const data = await response.json();
-        if (reactionType === "like") {
-          setLikes((prevLike) => [...prevLike, data]);
-          setDislikes((prevDislikes) =>
-            prevDislikes.filter((dislike) => dislike.user_id !== userIDsession)
-          );
-        } else if (reactionType === "dislike") {
-          setDislikes((prevDislikes) => [...prevDislikes, data]);
-          setLikes((prevLikes) =>
-            prevLikes.filter((like) => like.user_id !== userIDsession)
-          );
+      } else if (reaction_type === "dislike" && isDislike) {
+        // удаляем dislike локально
+        setDislikePosts((prevDislike) =>
+          prevDislike.filter((dislike) => dislike.user_id !== userIDsession)
+        );
+        await fetch(
+          // DELETE-запрос с body НЕ поддерживается во всех браузерах!
+          // Решение 1 (надёжный способ) — передавать user_id в query-параметрах или в params
+          `/api/likeordislikepost/${post_id}?user_id=${userIDsession}`,
+          {
+            method: "DELETE",
+            // Некоторые реализации fetch просто игнорируют тело у DELETE, и на бэке оно будет undefined
+            // headers: { "Content-type": "application/json" },
+            // body: JSON.stringify({ user_id: userIDsession }),
+          }
+        );
+      } else {
+        // Если реакции нет, добавляем её
+        const response = await fetch(`/api/likeordislikepost/${post_id}`, {
+          method: "POST",
+          headers: { "Content-type": "application/json" },
+          body: JSON.stringify({
+            reaction_type: reaction_type,
+            user_id: userIDsession,
+          }),
+        });
+        if (response.ok) {
+          const data = await response.json();
+          if (reaction_type === "like") {
+            setLikePosts((prevLike) => [...prevLike, data]);
+            setDislikePosts((prevDislike) =>
+              prevDislike.filter((dislike) => dislike.user_id !== userIDsession)
+            );
+          } else if (reaction_type === "dislike") {
+            setDislikePosts((prevDislike) => [...prevDislike, data]);
+            setLikePosts((prevLike) =>
+              prevLike.filter((like) => like.user_id !== userIDsession)
+            );
+          }
         }
       }
+    } catch (error) {
+      console.log(error);
     }
   };
-  console.log("replyToCommentID", replyToCommentID);
+
+  // const submitLikeOrDislikePost = async (reactionType) => {
+  //   // Проверяем, поставил ли пользователь лайк или дизлайк
+  //   const isLiked = likes.some((like) => like.user_id === userIDsession);
+  //   const isDisliked = dislikes.some(
+  //     (dislike) => dislike.user_id === userIDsession
+  //   );
+
+  //   if (reactionType === "like" && isLiked) {
+  //     // Если уже есть лайк, то снимаем лайк
+  //     const response = await fetch(`/api/likeordislikepost/${post.id}`, {
+  //       method: "DELETE",
+  //       headers: { "Content-type": "application/json" },
+  //       body: JSON.stringify({ user_id: userIDsession }),
+  //     });
+  //     if (response.ok) {
+  //       setLikes((prevLikes) =>
+  //         prevLikes.filter((like) => like.user_id !== userIDsession)
+  //       );
+  //     }
+  //   } else if (reactionType === "dislike" && isDisliked) {
+  //     // Если уже есть дизлайк, то снимаем  дизлайк
+  //     const response = await fetch(`/api/likeordislikepost/${post.id}`, {
+  //       method: "DELETE",
+  //       headers: { "Content-type": "application/json" },
+  //       body: JSON.stringify({ user_id: userIDsession }),
+  //     });
+  //     if (response.ok) {
+  //       setDislikes((prevDislikes) =>
+  //         prevDislikes.filter((dislike) => dislike.user_id !== userIDsession)
+  //       );
+  //     }
+  //   } else {
+  //     // Если лайк или дизлайк еще не поставлен
+  //     const response = await fetch(`/api/likeordislikepost/${post.id}`, {
+  //       method: "POST",
+  //       headers: { "Content-type": "application/json" },
+  //       body: JSON.stringify({
+  //         reaction_type: reactionType,
+  //         user_id: userIDsession,
+  //       }),
+  //     });
+  //     if (response.ok) {
+  //       const data = await response.json();
+  //       if (reactionType === "like") {
+  //         setLikes((prevLike) => [...prevLike, data]);
+  //         setDislikes((prevDislikes) =>
+  //           prevDislikes.filter((dislike) => dislike.user_id !== userIDsession)
+  //         );
+  //       } else if (reactionType === "dislike") {
+  //         setDislikes((prevDislikes) => [...prevDislikes, data]);
+  //         setLikes((prevLikes) =>
+  //           prevLikes.filter((like) => like.user_id !== userIDsession)
+  //         );
+  //       }
+  //     }
+  //   }
+  // };
 
   const deleteCommentHandler = async (id) => {
     await fetch(`/api/comments/${id}`, { method: "DELETE" })
@@ -371,7 +445,7 @@ export default function Postcard({
     }
   };
 
-  const submitLikeComments = async (commentID, reaction_type) => {
+  const submitLikeOrDislikeComments = async (commentID, reaction_type) => {
     try {
       const response = await fetch(`/api/likeordislikecomment/${commentID}`, {
         method: "POST",
@@ -400,8 +474,6 @@ export default function Postcard({
     }
   };
 
-  console.log("comments", comments);
-
   useEffect(() => {
     fetch(`/api/comments/${post.id}`)
       .then((res) => res.json())
@@ -419,14 +491,14 @@ export default function Postcard({
   useEffect(() => {
     fetch(`/api/likeordislikepost/getLikes/${post.id}`, { method: "GET" })
       .then((res) => res.json())
-      .then((data) => setLikes(data))
+      .then((data) => setLikePosts(data))
       .catch((err) => console.log(err));
   }, []);
 
   useEffect(() => {
     fetch(`/api/likeordislikepost/getDislikes/${post.id}`, { method: "GET" })
       .then((res) => res.json())
-      .then((data) => setDislikes(data))
+      .then((data) => setDislikePosts(data))
       .catch((err) => console.log(err));
   }, []);
 
@@ -457,17 +529,17 @@ export default function Postcard({
             <div className="comment-actions">
               <button
                 className="like-btn"
-                onClick={() => submitLikeOrDislikePost("like")}
+                onClick={() => submitReactionPost(post.id, "like")}
               >
                 <ion-icon class="thumbs" name="thumbs-up-outline"></ion-icon>{" "}
-                {likes.length}
+                {likePosts.length}
               </button>
               <button
                 className="dislike-btn"
-                onClick={() => submitLikeOrDislikePost("dislike")}
+                onClick={() => submitReactionPost(post.id, "dislike")}
               >
                 <ion-icon class="thumbs" name="thumbs-down-outline"></ion-icon>{" "}
-                {dislikes.length}
+                {dislikePosts.length}
               </button>
               <button className="reply-btn" onClick={handleShowReplies}>
                 reply
@@ -529,7 +601,9 @@ export default function Postcard({
                     <div className="comment-actions">
                       <button
                         className="like-btn"
-                        onClick={() => submitLikeComments(comment.id, "like")}
+                        onClick={() =>
+                          submitLikeOrDislikeComments(comment.id, "like")
+                        }
                       >
                         <ion-icon
                           class="thumbs"
@@ -546,7 +620,7 @@ export default function Postcard({
                       <button
                         className="dislike-btn"
                         onClick={() =>
-                          submitLikeComments(comment.id, "dislike")
+                          submitLikeOrDislikeComments(comment.id, "dislike")
                         }
                       >
                         <ion-icon
@@ -617,7 +691,9 @@ export default function Postcard({
                     <div className="comment-actions">
                       <button
                         className="like-btn"
-                        onClick={() => submitLikeComments(comment.id, "like")}
+                        onClick={() =>
+                          submitLikeOrDislikeComments(comment.id, "like")
+                        }
                       >
                         <ion-icon
                           class="thumbs"
@@ -634,7 +710,7 @@ export default function Postcard({
                       <button
                         className="dislike-btn"
                         onClick={() =>
-                          submitLikeComments(comment.id, "dislike")
+                          submitLikeOrDislikeComments(comment.id, "dislike")
                         }
                       >
                         <ion-icon
