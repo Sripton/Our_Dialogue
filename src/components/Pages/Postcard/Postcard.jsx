@@ -124,12 +124,12 @@ export default function Postcard({
         await fetchComments(); // // Обновляем комментарии из сервера
         setInputsComments({ commenttitle: "" });
         setReplyToCommentID(null); // Закрываем форму
-        setShowReplies(false);
       }
     } catch (error) {
       console.error("Error submitting comment:", error);
     }
   };
+  console.log('comments', comments);
 
   const submitEditPostHandler = async (e) => {
     e.preventDefault();
@@ -163,9 +163,6 @@ export default function Postcard({
       setEditCommentText("");
     }
   };
-  console.log("likePosts", likePosts);
-  console.log("dislikePosts", dislikePosts);
-
   const submitReactionPost = async (post_id, reaction_type) => {
     // проверяем есть ли реакция от пользователя на пост
     const isLike = likePosts.some((like) => like.user_id === userIDsession);
@@ -501,7 +498,7 @@ export default function Postcard({
       .then((data) => setDislikePosts(data))
       .catch((err) => console.log(err));
   }, []);
-
+console.log('isShowReplies', isShowReplies)
   return (
     <>
       <div className={`comment-section ${isDotsActive ? "show-actions" : ""}`}>

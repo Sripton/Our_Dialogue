@@ -78,9 +78,9 @@ router.delete("/:id", async (req, res) => {
   const { id } = req.params;
   // Передаем user_id как req.query потому что fetch просто игнорируют тело у DELETE
   // const { userID } = req.body;
-  const { user_id } = req.query;
+  const { userID } = req.query;
   try {
-    await Postreaction.destroy({ where: { post_id: id, user_id } });
+    await Postreaction.destroy({ where: { post_id: id, user_id: userID } });
     res.sendStatus(200);
   } catch (error) {
     console.log(error);

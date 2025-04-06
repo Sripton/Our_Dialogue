@@ -54,6 +54,10 @@ router.get("/:id", async (req, res) => {
           model: Commentreaction,
           as: "reactions",
         },
+        {
+          model: Comment,
+          as: "Replies",
+        },
       ],
     });
     res.send(findAllCommentForPostID);
