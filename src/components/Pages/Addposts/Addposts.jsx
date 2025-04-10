@@ -11,16 +11,20 @@ export default function Addposts({ setPosts, posts }) {
   };
   const submitPostHandler = async (e) => {
     e.preventDefault();
-    const responce = await fetch(`/api/posts/${id}`, {
-      method: "POST",
-      headers: { "Content-type": "application/json" },
-      body: JSON.stringify({ posttitle: inputs.posttitle }),
-    });
-    if (responce.ok) {
-      const data = await responce.json();
-      // для правильного отображения ко-ва постов обновить список
-      setPosts((prevPost) => [...prevPost, data]);
-      setInputs({ posttitle: "" });
+    try {
+      const responce = await fetch(`/api/posts/${id}`, {
+        method: "POST",
+        headers: { "Content-type": "application/json" },
+        body: JSON.stringify({ posttitle: inputs.posttitle }),
+      });
+      if (responce.ok) {
+        const data = await responce.json();
+        // для правильного отображения ко-ва постов обновить список
+        setPosts((prevPost) => [...prevPost, data]);
+        setInputs({ posttitle: "" });
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 

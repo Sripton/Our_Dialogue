@@ -42,15 +42,6 @@ export default function Postcard({
     setShowComments(!showComments);
   };
 
-  const [editCommentID, setEditCommentID] = useState("");
-  const [editCommentText, setEditCommentText] = useState("");
-  const handlerEditComments = (comment) => {
-    setEditCommentID(comment.id);
-    setEditCommentText(comment.commenttitle);
-  };
-  const handlerEditCommentTextChange = (e) => {
-    setEditCommentText(e.target.value);
-  };
   const [likePosts, setLikePosts] = useState([]);
   const [dislikePosts, setDislikePosts] = useState([]);
 
@@ -83,6 +74,7 @@ export default function Postcard({
     if (!inputsComments.commenttitle.trim()) {
       setInputsComments({ commenttitle: "" });
       setReplyToCommentID(null);
+      setShowReplies(false);
       return; // Завершаем функцию, не отправляя запроc
     }
 
@@ -129,7 +121,7 @@ export default function Postcard({
       console.error("Error submitting comment:", error);
     }
   };
-  console.log('comments', comments);
+  console.log("comments", comments);
 
   const submitEditPostHandler = async (e) => {
     e.preventDefault();
@@ -144,6 +136,16 @@ export default function Postcard({
     }
   };
 
+  const [editCommentID, setEditCommentID] = useState("");
+  const [editCommentText, setEditCommentText] = useState("");
+  const handlerEditComments = (comment) => {
+    setEditCommentID(comment.id);
+    setEditCommentText(comment.commenttitle);
+  };
+  const handlerEditCommentTextChange = (e) => {
+    setEditCommentText(e.target.value);
+  };
+  
   const submitEditCommentHandler = async (e) => {
     e.preventDefault();
     const responce = await fetch(`/api/comments/${editCommentID}`, {
@@ -498,7 +500,7 @@ export default function Postcard({
       .then((data) => setDislikePosts(data))
       .catch((err) => console.log(err));
   }, []);
-console.log('isShowReplies', isShowReplies)
+  console.log("isShowReplies", isShowReplies);
   return (
     <>
       <div className={`comment-section ${isDotsActive ? "show-actions" : ""}`}>
