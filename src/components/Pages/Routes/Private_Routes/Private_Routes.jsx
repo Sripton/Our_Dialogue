@@ -1,6 +1,6 @@
 import React from "react";
 import { Routes, Route } from "react-router-dom";
-import Addposts from "../../Addposts";
+import AddpostsWrapper from "../../AddpostsWrapper";
 import Postlist from "../../Postlist";
 import Subjectlist from "../../Subjectlist";
 import Contentlist from "../../Contentlist/Contentlist";
@@ -27,10 +27,7 @@ export default function Private_Routes({
           }
         />
         <Route path="/subjects/:id" element={<Subjectlist />} />
-        <Route
-          path="/addposts/:id"
-          element={<Addposts posts={posts} setPosts={setPosts} />}
-        />
+        <Route path="/addposts/:id" element={<AddpostsWrapper />} />
         <Route
           path="/comments/:id"
           element={

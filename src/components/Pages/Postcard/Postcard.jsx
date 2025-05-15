@@ -145,7 +145,7 @@ export default function Postcard({
   const handlerEditCommentTextChange = (e) => {
     setEditCommentText(e.target.value);
   };
-  
+
   const submitEditCommentHandler = async (e) => {
     e.preventDefault();
     const responce = await fetch(`/api/comments/${editCommentID}`, {
@@ -480,7 +480,7 @@ export default function Postcard({
         setComments(
           data.map((comment) => ({
             ...comment,
-            reactions: comment.reactions || [], // ← добавили, чтобы гарантировать наличие массива
+            reactions: comment.reactions || [], // ← добавил, чтобы гарантировать наличие массива
           }))
         )
       )
@@ -500,7 +500,7 @@ export default function Postcard({
       .then((data) => setDislikePosts(data))
       .catch((err) => console.log(err));
   }, []);
-  console.log("isShowReplies", isShowReplies);
+
   return (
     <>
       <div className={`comment-section ${isDotsActive ? "show-actions" : ""}`}>

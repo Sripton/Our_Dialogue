@@ -2,14 +2,6 @@ import express from "express";
 import { Subject, Direction } from "../db/models";
 const router = express.Router();
 
-router.get("/", async (req, res) => {
-  try {
-    const getAllSubjects = await Subject.findAll();
-    res.json(getAllSubjects);
-  } catch (error) {
-    console.log(error);
-  }
-});
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
   try {
@@ -25,8 +17,4 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-router.get('/', async (req, res) => {
-  const allSubject = await Subject.findAll();
-  res.send(allSubject)
-})
 export default router;
