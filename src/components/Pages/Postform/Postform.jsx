@@ -5,7 +5,7 @@ export default function Postform({
   inputPostHandler,
 }) {
   return (
-    <form className="form-post" onSubmit={submitPostHandler}>
+    <form className="form-post" onSubmit={(e) => submitPostHandler(e, inputs)}>
       <textarea
         name="posttitle"
         value={inputs}
