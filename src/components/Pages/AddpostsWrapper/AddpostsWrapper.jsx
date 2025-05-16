@@ -1,13 +1,13 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { NavLink, useParams } from "react-router-dom";
+import { useParams } from "react-router-dom";
 import Postform from "../Postform/Postform";
+import Postmeta from "../Postmeta";
 
 export default function AddpostsWrapper() {
   const [inputs, setInputs] = useState({ posttitle: "" });
   const [postSubjects, setPostSubjects] = useState([]);
   const { id } = useParams();
 
-  console.log("item render");
   // Первый вариант функции inputPostHandler
   // const inputPostHandler = useCallback((e) => {
   //   setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -101,21 +101,7 @@ export default function AddpostsWrapper() {
               inputPostHandler={inputPostHandler}
             />
           </div>
-
-          <div className="post-info">
-            <p>
-              Количество постов на данную тему:
-              {/* <span id="reply-count">
-                   {Array.isArray(filteredPosts) ? filteredPosts.length : 0}
-                 </span> */}
-              <span id="reply-count">{postSubjects.length}</span>
-            </p>
-            {/* Использовать <a /> вместо <NavLink/>. При 
-               использовании <a/> производительность лучше */}
-            <NavLink to={`/comments/${id}`} className="view-comments">
-              Перейти к обсуждению
-            </NavLink>
-          </div>
+          <Postmeta id={id} postSubjects={postSubjects} />
         </div>
       </div>
     </>
