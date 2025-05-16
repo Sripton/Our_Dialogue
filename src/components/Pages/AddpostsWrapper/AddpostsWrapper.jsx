@@ -1,12 +1,13 @@
 import React, { useState, useCallback, useEffect } from "react";
-import { useParams } from "react-router-dom";
-import Addposts from "../Addposts/Addposts";
+import { NavLink, useParams } from "react-router-dom";
+import Postform from "../Postform/Postform";
 
 export default function AddpostsWrapper() {
   const [inputs, setInputs] = useState({ posttitle: "" });
   const [postSubjects, setPostSubjects] = useState([]);
   const { id } = useParams();
 
+  console.log("item render");
   // Первый вариант функции inputPostHandler
   // const inputPostHandler = useCallback((e) => {
   //   setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -17,28 +18,31 @@ export default function AddpostsWrapper() {
     setInputs((prev) => ({ ...prev, [name]: value }));
   }, []);
 
-  const submitPostHandler = useCallback(async (e, posttitle) => {
-    e.preventDefault();
-    try {
-      const responce = await fetch(`/api/posts/${id}`, {
-        method: "POST",
-        headers: { "Content-type": "application/json" },
-        body: JSON.stringify({ posttitle }),
-      });
-      if (responce.ok) {
-        const data = await responce.json();
-        // для правильного отображения ко-ва постов обновить список
-        // Проблема перерендеринга вот здесь
-        setPostSubjects((prevPost) => [...prevPost, data]);
-        // Каждый раз, создаётся новый объект, и даже если он "такой же", memo это не распознает.
-        // setInputs({ posttitle: "" });
-        // Если  нужно сбросить posttitle, можно использовать:
-        setInputs({ posttitle: "" });
+  const submitPostHandler = useCallback(
+    async (e) => {
+      e.preventDefault();
+      try {
+        const responce = await fetch(`/api/posts/${id}`, {
+          method: "POST",
+          headers: { "Content-type": "application/json" },
+          body: JSON.stringify({ posttitle: inputs.posttitle }),
+        });
+        if (responce.ok) {
+          const data = await responce.json();
+          // для правильного отображения ко-ва постов обновить список
+          // Проблема перерендеринга вот здесь
+          setPostSubjects((prevPost) => [...prevPost, data]);
+          // Каждый раз, создаётся новый объект, и даже если он "такой же", memo это не распознает.
+          // setInputs({ posttitle: "" });
+          // Если  нужно сбросить posttitle, можно использовать:
+          setInputs({ posttitle: "" });
+        }
+      } catch (error) {
+        console.log(error);
       }
-    } catch (error) {
-      console.log(error);
-    }
-  }, []);
+    },
+    [inputs.posttitle]
+  );
 
   // useMemo(...) не гарантирует одинаковую ссылку, если posts каждый раз новая.
   //   const filteredPosts = useMemo(() => {
@@ -62,13 +66,34 @@ export default function AddpostsWrapper() {
   }, [id]);
 
   return (
-    <Addposts
-      id={id}
-      posttitle={inputs.posttitle}
-      inputPostHandler={inputPostHandler}
-      submitPostHandler={submitPostHandler}
-      // filteredPosts={filteredPosts}
-      postSubjects={postSubjects}
-    />
+    <>
+      <div className="post-container">
+        <div className="post-content">
+          <h1 className="post-title">Добавить пост</h1>
+          <div className="post-box">
+            <Postform
+              submitPostHandler={submitPostHandler}
+              inputs={inputs.posttitle}
+              inputPostHandler={inputPostHandler}
+            />
+          </div>
+
+          <div className="post-info">
+            <p>
+              Количество постов на данную тему:
+              {/* <span id="reply-count">
+                   {Array.isArray(filteredPosts) ? filteredPosts.length : 0}
+                 </span> */}
+              <span id="reply-count">{postSubjects.length}</span>
+            </p>
+            {/* Использовать <a /> вместо <NavLink/>. При 
+               использовании <a/> производительность лучше */}
+            <NavLink to={`/comments/${id}`} className="view-comments">
+              Перейти к обсуждению
+            </NavLink>
+          </div>
+        </div>
+      </div>
+    </>
   );
 }
