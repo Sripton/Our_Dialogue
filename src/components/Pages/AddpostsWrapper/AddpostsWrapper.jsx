@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import Postform from "../Postform/Postform";
 import Postmeta from "../Postmeta";
@@ -13,10 +13,10 @@ export default function AddpostsWrapper() {
   //   setInputs((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   // }, []);
   // Другой вариант функции inputPostHandler
-  const inputPostHandler = useCallback((e) => {
+  const inputPostHandler = (e) => {
     const { name, value } = e.target;
     setInputs((prev) => ({ ...prev, [name]: value }));
-  }, []);
+  };
 
   // const submitPostHandler = useCallback(
   //   async (e) => {
