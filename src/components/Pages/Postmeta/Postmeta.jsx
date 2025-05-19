@@ -2,7 +2,7 @@ import React, { memo } from "react";
 import { NavLink } from "react-router-dom";
 
 function Postmeta({ id, postSubjects }) {
-  console.log("item render in post meta");
+  console.log("item render");
   return (
     <div className="post-info">
       <p>

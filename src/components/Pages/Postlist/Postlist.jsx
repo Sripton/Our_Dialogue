@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useCallback } from "react";
 import { useParams } from "react-router-dom";
 import Postcard from "../Postcard";
 export default function Postlist({
@@ -17,18 +17,17 @@ export default function Postlist({
       .catch((err) => console.log(err));
   }, []);
 
-  const deletePostHandler = async (id) => {
+  const deletePostHandler = useCallback(async (id) => {
     await fetch(`/api/posts/${id}`, { method: "delete" }).then(() =>
       setPosts((prev) => prev.filter((data) => data.id !== id))
     );
-  };
+  }, []);
 
   return (
     <div className="comments-container">
       {posts?.map((post) => (
         <Postcard
           key={post.id}
-          id={post.id}
           post={post}
           setComments={setComments}
           comments={comments}
