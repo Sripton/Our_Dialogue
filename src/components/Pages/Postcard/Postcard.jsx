@@ -27,19 +27,20 @@ function Postcard({ post, userIDsession, deletePostHandler, userNameSession }) {
   const [likePosts, setLikePosts] = useState([]);
   const [dislikePosts, setDislikePosts] = useState([]);
 
+  const [allComments, setAllComments] = useState([]);
+
   const [showComments, setShowComments] = useState(false);
   const handleShowComments = () => setShowComments(!showComments);
 
   // Для добавления комментариев
-  const commentRef = useRef();
-  const handleAddComment = (newComment) => {
-    // Добавь проверку безопасности внутри handleAddComment,
-    // чтобы избежать ошибок, если commentRef.current ещё null:
-    if (commentRef.current?.addComments) {
-      commentRef.current.addComments(newComment);
-    }
-  };
-
+  // const commentRef = useRef();
+  // const handleAddComment = (newComment) => {
+  //   // Добавь проверку безопасности внутри handleAddComment,
+  //   // чтобы избежать ошибок, если commentRef.current ещё null:
+  //   if (commentRef.current?.addComments) {
+  //     commentRef.current.addComments(newComment);
+  //   }
+  // };
 
   const submitEditPostHandler = async (e) => {
     e.preventDefault();
@@ -124,6 +125,14 @@ function Postcard({ post, userIDsession, deletePostHandler, userNameSession }) {
       console.log(error);
     }
   };
+
+
+  useEffect(() => {
+    fetch(`/api/comments/${post.id}`)
+      .then((res) => res.json())
+      .then((data) => setAllComments(data))
+      .catch((err) => console.log(err));
+  }, [post.id]);
 
   useEffect(() => {
     fetch(`/api/likeordislikepost/getLikes/${post.id}`, { method: "GET" })
@@ -213,7 +222,7 @@ function Postcard({ post, userIDsession, deletePostHandler, userNameSession }) {
                 <Commentform
                   post={post}
                   setShowReplies={setShowReplies}
-                  handleAddComment={handleAddComment}
+                  setAllComments={setAllComments}
                 />
               )}
 
@@ -225,9 +234,8 @@ function Postcard({ post, userIDsession, deletePostHandler, userNameSession }) {
               </button>
               {showComments && (
                 <CommentSection
-                  post={post}
+                  allComments={allComments}
                   userIDsession={userIDsession}
-                  ref={commentRef}
                 />
               )}
             </div>

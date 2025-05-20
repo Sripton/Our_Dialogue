@@ -4,25 +4,25 @@ import React, {
   forwardRef,
   useImperativeHandle,
 } from "react";
-const CommentSection = forwardRef(({ post, userIDsession }, ref) => {
-  const [allComments, setAllComments] = useState([]);
+const CommentSection = ({ post, userIDsession,   allComments }) => {
 
-  useEffect(() => {
-    fetch(`/api/comments/${post.id}`)
-      .then((res) => res.json())
-      .then((data) => setAllComments(data))
-      .catch((err) => console.log(err));
-  }, [post.id]);
+  // useEffect(() => {
+  //   fetch(`/api/comments/${post.id}`)
+  //     .then((res) => res.json())
+  //     .then((data) => setAllComments(data))
+  //     .catch((err) => console.log(err));
+  // }, [post.id]);
 
   // Экспортируем наружу setAllComments
-  useImperativeHandle(ref, () => ({
-    addComments: (newComment) => {
-      setAllComments((prev) => [...prev, newComment]);
-    },
-    setComments: (list) => {
-      setAllComments(list);
-    },
-  }));
+  // useImperativeHandle(ref, () => ({
+  //   addComments: (newComment) => {
+  //     setAllComments((prev) => [...prev, newComment]);
+  //   },
+  //   setComments: (list) => {
+  //     setAllComments(list);
+  //   },
+  // }));
+  console.log("allComments", allComments);
   return (
     <>
       {allComments?.map((comment) => (
@@ -49,6 +49,6 @@ const CommentSection = forwardRef(({ post, userIDsession }, ref) => {
       ))}
     </>
   );
-});
+};
 
 export default CommentSection;

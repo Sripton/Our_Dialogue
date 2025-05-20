@@ -1,10 +1,6 @@
 import React, { useState } from "react";
 
-export default function Commentform({
-  post,
-  setShowReplies,
-  handleAddComment,
-}) {
+export default function Commentform({ post, setShowReplies, setAllComments }) {
   const [inputsComment, setInputsComment] = useState({
     commenttitle: "",
   });
@@ -27,7 +23,7 @@ export default function Commentform({
       });
       if (response.ok) {
         const data = await response.json();
-        handleAddComment(data);
+        setAllComments((prev) => [...prev, data]);
         setShowReplies(false);
       }
     } catch (error) {
