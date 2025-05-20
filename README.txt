@@ -146,3 +146,62 @@ Postform НЕ в memo	❌ Нет смысла
 Postform В memo, и ты сравниваешь props	✅ Да, чтобы не пересоздавалась
 
 
+
+
+Проблема с которой я столкнуля при разделении логики (создания) комментариев  (отображения, редактирвоания, удаления)
+ ✅ Лучшее решение: использовать useImperativeHandle + forwardRef
+Это стандартный, правильный способ передать внешнему компоненту контроль над внутренним состоянием.
+import React, {
+  useState,
+  useEffect,
+  forwardRef,
+  useImperativeHandle,
+} from "react";
+
+const CommentSection = forwardRef(({ post, userIDsession }, ref) => {
+  const [allComments, setAllComments] = useState([]);
+
+  useEffect(() => {
+    fetch(`/api/comments/${post.id}`)
+      .then((res) => res.json())
+      .then((data) => setAllComments(data))
+      .catch(console.log);
+  }, [post.id]);
+
+  // Экспортируем наружу setAllComments
+  useImperativeHandle(ref, () => ({
+    // Функция для добавления комментария
+    addComment: (newComment) => {
+      setAllComments((prev) => [...prev, newComment]);
+    },
+    🔹 Этот метод заменяет весь список комментариев на новый list.
+    setComments: (list) => {
+      setAllComments(list);
+    },
+    📌 Зачем это может понадобиться?
+✅ 1. Обновить все комментарии после редактирования / удаления
+// Например:
+// удалил комментарий,
+// получил новый список с сервера,
+// и хочешь сразу перезаписать весь allComments.
+// Пример
+// const updatedList = await fetchUpdatedComments();
+// commentRef.current.setComments(updatedList);
+
+✅ 3. Сброс комментариев (например, при смене поста)
+// commentRef.current.setComments([]);
+  }));
+
+  return (
+    <>
+      {allComments.map((comment) => (
+        <div key={comment.id}>{comment.commenttitle}</div>
+      ))}
+    </>
+  );
+});
+
+export default CommentSection;
+
+
+

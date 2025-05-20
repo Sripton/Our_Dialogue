@@ -3,6 +3,7 @@ export default function Postform({
   submitPostHandler,
   inputs,
   inputPostHandler,
+
 }) {
   return (
     <form className="form-post" onSubmit={(e) => submitPostHandler(e, inputs)}>

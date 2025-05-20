@@ -1,6 +1,10 @@
 import React, { useState } from "react";
 
-export default function Commentform({ post, setShowReplies }) {
+export default function Commentform({
+  post,
+  setShowReplies,
+  handleAddComment,
+}) {
   const [inputsComment, setInputsComment] = useState({
     commenttitle: "",
   });
@@ -12,6 +16,7 @@ export default function Commentform({ post, setShowReplies }) {
     e.preventDefault();
     if (!inputsComment.commenttitle.trim()) {
       setInputsComment({ commenttitle: "" });
+      return; // Завершаем функцию, не отправляя запроc
     }
 
     try {
@@ -22,6 +27,8 @@ export default function Commentform({ post, setShowReplies }) {
       });
       if (response.ok) {
         const data = await response.json();
+        handleAddComment(data);
+        setShowReplies(false);
       }
     } catch (error) {
       console.log("Ошибка при создании комментария", error);
@@ -29,7 +36,7 @@ export default function Commentform({ post, setShowReplies }) {
   };
 
   return (
-    <form>
+    <form onSubmit={submitCommentsHandler}>
       <div id="reply-form-template" className="add-comment">
         <textarea
           name="commenttitle"

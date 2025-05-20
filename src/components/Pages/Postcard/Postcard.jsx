@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo } from "react";
+import React, { useState, useEffect, memo, useRef } from "react";
 import CommentSection from "../CommentSection/CommentSection";
 import Commentform from "../Commentform";
 function Postcard({ post, userIDsession, deletePostHandler, userNameSession }) {
@@ -7,6 +7,7 @@ function Postcard({ post, userIDsession, deletePostHandler, userNameSession }) {
     setIsDotsActive(!isDotsActive);
   };
 
+  // Для отображения формы ответов на посты и комментарии
   const [isShowReplies, setShowReplies] = useState(false);
   const handleShowReplies = () => {
     setShowReplies(!isShowReplies);
@@ -23,101 +24,22 @@ function Postcard({ post, userIDsession, deletePostHandler, userNameSession }) {
   const handleEditPostText = (e) => {
     setEditPostText(e.target.value);
   };
-
-  // const [comments, setComments] = useState([]);
-  // const [inputsComments, setInputsComments] = useState({
-  //   commenttitle: "",
-  // });
-  // const handleComments = (e) => {
-  //   setInputsComments((prev) => ({ ...prev, [e.target.name]: e.target.value }));
-  // };
-
-  // const [showComments, setShowComments] = useState(false);
-  // const handleShowComments = () => {
-  //   setShowComments(!showComments);
-  // };
-
   const [likePosts, setLikePosts] = useState([]);
   const [dislikePosts, setDislikePosts] = useState([]);
 
-  // const [replyToCommentID, setReplyToCommentID] = useState(null); // Для отслеживания, на какой комментарий отвечают
-  // const handleReplyCommentID = (commentID) => {
-  //   setReplyToCommentID(commentID === replyToCommentID ? null : commentID);
-  // };
+  const [showComments, setShowComments] = useState(false);
+  const handleShowComments = () => setShowComments(!showComments);
 
-  console.log("item render postcard");
-  //Синхронизация с сервером после отправки
-  // После добавления нового комментария можно выполнить дополнительный
-  // запрос к серверу, чтобы получить актуальный список комментариев и обновить
-  //состояние comments:
-  // const fetchComments = async () => {
-  //   try {
-  //     const response = await fetch(`/api/comments/${post.id}`, {
-  //       method: "GET",
-  //     });
-  //     if (response.ok) {
-  //       const data = await response.json();
-  //       setComments(data); // Устанавливаем полную структуру комментариев из сервера
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
+  // Для добавления комментариев
+  const commentRef = useRef();
+  const handleAddComment = (newComment) => {
+    // Добавь проверку безопасности внутри handleAddComment,
+    // чтобы избежать ошибок, если commentRef.current ещё null:
+    if (commentRef.current?.addComments) {
+      commentRef.current.addComments(newComment);
+    }
+  };
 
-  // Обновленная версия функции submitCommentsHandler
-  // const submitCommentsHandler = async (e, parentId = null) => {
-  //   e.preventDefault();
-  //   if (!inputsComments.commenttitle.trim()) {
-  //     setInputsComments({ commenttitle: "" });
-  //     setReplyToCommentID(null);
-  //     setShowReplies(false);
-  //     return; // Завершаем функцию, не отправляя запроc
-  //   }
-
-  //   try {
-  //     const response = await fetch(`/api/comments/${post.id}`, {
-  //       method: "POST",
-  //       headers: { "Content-type": "application/json" },
-  //       body: JSON.stringify({
-  //         commenttitle: inputsComments.commenttitle,
-  //         parent_id: parentId, // null
-  //       }),
-  //     });
-  //     if (response.ok) {
-  //       const data = await response.json();
-  //       const formattedComment = {
-  //         ...data,
-  //         // Добавляем объект User, если он не возвращается с сервера
-  //         User: {
-  //           name: userNameSession,
-  //         },
-  //         parent_id: replyToCommentID, // ?
-  //       };
-  //       // Если это ответ, добавляем его в соответствующий комментарий
-  //       if (parentId) {
-  //         setComments((prevComments) =>
-  //           prevComments.map((comment) =>
-  //             comment.id === replyToCommentID
-  //               ? {
-  //                   ...comment,
-  //                   Replies: [...(comment.Replies || []), formattedComment],
-  //                 }
-  //               : comment
-  //           )
-  //         );
-  //       } else {
-  //         // Если это корневой комментарий, добавляем его в список
-  //         setComments((prevComments) => [...prevComments, formattedComment]);
-  //       }
-  //       await fetchComments(); // // Обновляем комментарии из сервера
-  //       setInputsComments({ commenttitle: "" });
-  //       setReplyToCommentID(null); // Закрываем форму
-  //       handleShowReplies(false);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error submitting comment:", error);
-  //   }
-  // };
 
   const submitEditPostHandler = async (e) => {
     e.preventDefault();
@@ -132,42 +54,12 @@ function Postcard({ post, userIDsession, deletePostHandler, userNameSession }) {
     }
   };
 
-  // const [editCommentID, setEditCommentID] = useState("");
-  // const [editCommentText, setEditCommentText] = useState("");
-  // const handlerEditComments = (comment) => {
-  //   setEditCommentID(comment.id);
-  //   setEditCommentText(comment.commenttitle);
-  // };
-  // const handlerEditCommentTextChange = (e) => {
-  //   setEditCommentText(e.target.value);
-  // };
-
-  // const submitEditCommentHandler = async (e) => {
-  //   e.preventDefault();
-  //   const responce = await fetch(`/api/comments/${editCommentID}`, {
-  //     method: "PUT",
-  //     headers: { "Content-type": "application/json" },
-  //     body: JSON.stringify({ commenttitle: editCommentText }),
-  //   });
-  //   if (responce.ok) {
-  //     setComments((prevComments) => {
-  //       return prevComments.map((comment) => {
-  //         return comment.id === editCommentID
-  //           ? { ...comment, commenttitle: editCommentText }
-  //           : comment;
-  //       });
-  //     });
-  //     setEditCommentID("");
-  //     setEditCommentText("");
-  //   }
-  // };
   const submitReactionPost = async (post_id, reaction_type) => {
     // проверяем есть ли реакция от пользователя на пост
     const isLike = likePosts.some((like) => like.user_id === userIDsession);
     const isDislike = dislikePosts.some(
       (dislike) => dislike.user_id === userIDsession
     );
-
     try {
       // если тип реакции like и пользователь уже ставил like
       if (reaction_type === "like" && isLike) {
@@ -232,85 +124,6 @@ function Postcard({ post, userIDsession, deletePostHandler, userNameSession }) {
       console.log(error);
     }
   };
-
-  // const deleteCommentHandler = async (id) => {
-  //   await fetch(`/api/comments/${id}`, { method: "DELETE" })
-  //     .then(() =>
-  //       setComments((prev) => prev.filter((comment) => comment.id !== id))
-  //     )
-  //     .catch((err) => console.log(err));
-  // };
-
-  // Второе решение deleteCommentHandler
-  // const deleteCommentHandler = async (id) => {
-  //   try {
-  //     const response = await fetch(`/api/comments/${id}`, { method: "DELETE" });
-  //     if (response.ok) {
-  //       await fetchComments();
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
-  // const updateReactions = (reactions, type, userID, commentID) => {
-  //   const existing = reactions.find((reaction) => reaction.user_id === userID);
-  //   if (existing) {
-  //     return reactions.map((reaction) =>
-  //       reaction.user_id === userID
-  //         ? { ...reaction, reaction_type: type }
-  //         : reaction
-  //     );
-  //   } else {
-  //     return [
-  //       ...reactions,
-  //       { user_id: userID, comment_id: commentID, reaction_type: type },
-  //     ];
-  //   }
-  // };
-
-  // const submitLikeOrDislikeComments = async (commentID, reaction_type) => {
-  //   try {
-  //     const response = await fetch(`/api/likeordislikecomment/${commentID}`, {
-  //       method: "POST",
-  //       headers: { "Content-type": "application/json" },
-  //       body: JSON.stringify({ reaction_type: reaction_type }),
-  //     });
-  //     if (response.ok) {
-  //       setComments((prev) =>
-  //         prev.map((comment) =>
-  //           comment.id === commentID
-  //             ? {
-  //                 ...comment,
-  //                 reactions: updateReactions(
-  //                   comment.reactions || [],
-  //                   reaction_type,
-  //                   userIDsession,
-  //                   commentID
-  //                 ),
-  //               }
-  //             : comment
-  //         )
-  //       );
-  //     }
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   fetch(`/api/comments/${post.id}`)
-  //     .then((res) => res.json())
-  //     .then((data) =>
-  //       setComments(
-  //         data.map((comment) => ({
-  //           ...comment,
-  //           reactions: comment.reactions || [], // ← добавил, чтобы гарантировать наличие массива
-  //         }))
-  //       )
-  //     )
-  //     .catch((err) => console.log(err));
-  // }, []);
 
   useEffect(() => {
     fetch(`/api/likeordislikepost/getLikes/${post.id}`, { method: "GET" })
@@ -395,198 +208,28 @@ function Postcard({ post, userIDsession, deletePostHandler, userNameSession }) {
             </div>
             <div className="replies">
               {/* Логика для отображения формы для создания комментария */}
-              {/* {isShowReplies && (
-                <form
-                  onSubmit={(e) => submitCommentsHandler(e, replyToCommentID)}
-                >
-                  <div id="reply-form-template" className="add-comment">
-                    <textarea
-                      name="commenttitle"
-                      placeholder="Write a reply..."
-                      value={inputsComments.commenttitle}
-                      onChange={handleComments}
-                    ></textarea>
-                    <button type="submit">Post Comment</button>
-                  </div>
-                </form>
-              )} */}
+
               {isShowReplies && (
-                <Commentform post={post} setShowReplies={setShowReplies} />
+                <Commentform
+                  post={post}
+                  setShowReplies={setShowReplies}
+                  handleAddComment={handleAddComment}
+                />
               )}
 
-              {/* <button
+              <button
                 className="toggle-comments-btn"
                 onClick={handleShowComments}
               >
-                {`${showComments ? "Скрыть" : "Комментарии"} ${
-                  comments?.length
-                }`}
-              </button> */}
-              <div>
-                {<CommentSection post={post} userIDsession={userIDsession} />}
-              </div>
-              {/* Логика для отображения формы для создания комментария */}
-              {/* {comments?.map((comment) =>
-                userIDsession !== comment.user_id ? (
-                  <div
-                    className={`comment-for-comment ${
-                      showComments ? "" : "hidden"
-                    }`}
-                    key={comment.id}
-                  >
-                    <p className="comment-text">{comment.commenttitle}</p>
-                    <div className="comment-actions">
-                      <button
-                        className="like-btn"
-                        onClick={() =>
-                          submitLikeOrDislikeComments(comment.id, "like")
-                        }
-                      >
-                        <ion-icon
-                          class="thumbs"
-                          name="thumbs-up-outline"
-                        ></ion-icon>{" "}
-                        {
-                          (comment?.reactions || []).filter(
-                            (reaction) =>
-                              reaction.comment_id === comment.id &&
-                              reaction.reaction_type === "like"
-                          ).length
-                        }
-                      </button>
-                      <button
-                        className="dislike-btn"
-                        onClick={() =>
-                          submitLikeOrDislikeComments(comment.id, "dislike")
-                        }
-                      >
-                        <ion-icon
-                          class="thumbs"
-                          name="thumbs-down-outline"
-                        ></ion-icon>
-                        {
-                          (comment?.reactions || []).filter(
-                            (reaction) =>
-                              reaction.comment_id === comment.id &&
-                              reaction.reaction_type === "dislike"
-                          ).length
-                        }
-                      </button>
-                      <button
-                        className="reply-btn"
-                        onClick={() => handleReplyCommentID(comment.id)}
-                      >
-                        reply
-                      </button>
-                      {comment.ParentComment === null ? (
-                        <small className="comment-note">
-                          {`${comment?.User?.name}, ответил ${post?.User?.name}`}
-                        </small>
-                      ) : (
-                        <small className="comment-note">
-                          {`${comment?.User?.name}, ответил ${comment.ParentComment?.User?.name}`}
-                        </small>
-                      )}
-                    </div>
-                    {replyToCommentID === comment.id && (
-                      <form
-                        onSubmit={(e) => submitCommentsHandler(e, comment.id)}
-                      >
-                        <textarea
-                          name="commenttitle"
-                          value={inputsComments.commenttitle}
-                          onChange={handleComments}
-                          placeholder="Write your reply..."
-                        ></textarea>
-                        <button type="submit">Post Reply</button>
-                      </form>
-                    )}
-                  </div>
-                ) : (
-                  <div
-                    className={`comment-for-comment ${
-                      showComments ? "" : "hidden"
-                    }`}
-                    key={comment.id}
-                  >
-                    {comment.id === editCommentID ? (
-                      <form onSubmit={submitEditCommentHandler}>
-                        <div id="reply-form-template" className="add-comment">
-                          <textarea
-                            name="commenttitle"
-                            placeholder="Edit your comment..."
-                            value={editCommentText}
-                            onChange={handlerEditCommentTextChange}
-                          ></textarea>
-                          <button type="submit">Post Comment</button>
-                        </div>
-                      </form>
-                    ) : (
-                      <p className="comment-text">{comment.commenttitle}</p>
-                    )}
-
-                    <div className="comment-actions">
-                      <button
-                        className="like-btn"
-                        onClick={() =>
-                          submitLikeOrDislikeComments(comment.id, "like")
-                        }
-                      >
-                        <ion-icon
-                          class="thumbs"
-                          name="thumbs-up-outline"
-                        ></ion-icon>
-                        {
-                          (comment?.reactions || []).filter(
-                            (reaction) =>
-                              reaction.comment_id === comment.id &&
-                              reaction.reaction_type === "like"
-                          ).length
-                        }
-                      </button>
-                      <button
-                        className="dislike-btn"
-                        onClick={() =>
-                          submitLikeOrDislikeComments(comment.id, "dislike")
-                        }
-                      >
-                        <ion-icon
-                          class="thumbs"
-                          name="thumbs-down-outline"
-                        ></ion-icon>
-                        {
-                          (comment?.reactions || []).filter(
-                            (reaction) =>
-                              reaction.comment_id === comment.id &&
-                              reaction.reaction_type === "dislike"
-                          ).length
-                        }
-                      </button>
-                      <button
-                        className="edit-btn"
-                        onClick={() => handlerEditComments(comment)}
-                      >
-                        Edit
-                      </button>
-                      <button
-                        className="delete-btn"
-                        onClick={() => deleteCommentHandler(comment.id)}
-                      >
-                        Delete
-                      </button>
-                      {comment.ParentComment === null ? (
-                        <small className="comment-note">
-                          {`${comment?.User?.name}, ответил ${post?.User?.name}`}
-                        </small>
-                      ) : (
-                        <small className="comment-note">
-                          {`${comment?.User?.name}, ответил ${comment.ParentComment?.User?.name}`}
-                        </small>
-                      )}
-                    </div>
-                  </div>
-                )
-              )} */}
+                Комментарии
+              </button>
+              {showComments && (
+                <CommentSection
+                  post={post}
+                  userIDsession={userIDsession}
+                  ref={commentRef}
+                />
+              )}
             </div>
           </div>
         </div>
@@ -594,27 +237,6 @@ function Postcard({ post, userIDsession, deletePostHandler, userNameSession }) {
     </>
   );
 }
-// function areEqual(prevProps, nextProps) {
-//   const comparison = {
-//     idEqual: prevProps.id === nextProps.id,
-//     postEqual: prevProps.post === nextProps.post,
-//     userIDsessionEqual: prevProps.userIDsession === nextProps.userIDsession,
-//     deletePostHandlerEqual:
-//       prevProps.deletePostHandler === nextProps.deletePostHandler,
-//     userNameSessionEqual:
-//       prevProps.userNameSession === nextProps.userNameSession,
-//   };
-//   console.log("🔍 areEqual comparison", comparison);
-
-//   return (
-//     comparison.idEqual &&
-//     comparison.postEqual &&
-//     comparison.userIDsessionEqual &&
-//     comparison.deletePostHandlerEqual &&
-//     comparison.userNameSessionEqual
-//   );
-// }
-
 function areEqual(prevProps, nextProps) {
   return (
     prevProps.post.id === nextProps.post.id &&
