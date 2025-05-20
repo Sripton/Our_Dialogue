@@ -1,32 +1,12 @@
-import React, {
-  useEffect,
-  useState,
-  forwardRef,
-  useImperativeHandle,
-} from "react";
-const CommentSection = ({ post, userIDsession,   allComments }) => {
-
-  // useEffect(() => {
-  //   fetch(`/api/comments/${post.id}`)
-  //     .then((res) => res.json())
-  //     .then((data) => setAllComments(data))
-  //     .catch((err) => console.log(err));
-  // }, [post.id]);
-
-  // Экспортируем наружу setAllComments
-  // useImperativeHandle(ref, () => ({
-  //   addComments: (newComment) => {
-  //     setAllComments((prev) => [...prev, newComment]);
-  //   },
-  //   setComments: (list) => {
-  //     setAllComments(list);
-  //   },
-  // }));
-  console.log("allComments", allComments);
-  return (
-    <>
-      {allComments?.map((comment) => (
-        <div className="comment-for-comment" key={comment.id}>
+import React from "react";
+import { FixedSizeList as List } from "react-window";
+const CommentSection = ({ userIDsession, allComments }) => {
+  const Row = ({ index, style }) => {
+    const comment = allComments[index];
+    console.log("comments", comment);
+    return (
+      <>
+        <div style={style} className="comment-for-comment" key={comment.id}>
           <p className="comment-text">{comment.commenttitle}</p>
           <div className="comment-actions">
             <button className="like-btn">
@@ -46,8 +26,19 @@ const CommentSection = ({ post, userIDsession,   allComments }) => {
             )}
           </div>
         </div>
-      ))}
-    </>
+      </>
+    );
+  };
+
+  return (
+    <List
+      height={400} // Высота контейнера (px)
+      itemCount={allComments.length}
+      itemSize={70} // Высота одного элемента (px)
+      width={"100%"} // или конкретное значение
+    >
+      {Row}
+    </List>
   );
 };
 

@@ -27,8 +27,15 @@ function Postcard({ post, userIDsession, deletePostHandler, userNameSession }) {
   const [likePosts, setLikePosts] = useState([]);
   const [dislikePosts, setDislikePosts] = useState([]);
 
+  // Получаем все комментарии с сервера
   const [allComments, setAllComments] = useState([]);
 
+  useEffect(() => {
+    fetch(`/api/comments/${post.id}`)
+      .then((res) => res.json())
+      .then((data) => setAllComments(data))
+      .catch((err) => console.log(err));
+  }, [post.id]);
   const [showComments, setShowComments] = useState(false);
   const handleShowComments = () => setShowComments(!showComments);
 
@@ -125,14 +132,6 @@ function Postcard({ post, userIDsession, deletePostHandler, userNameSession }) {
       console.log(error);
     }
   };
-
-
-  useEffect(() => {
-    fetch(`/api/comments/${post.id}`)
-      .then((res) => res.json())
-      .then((data) => setAllComments(data))
-      .catch((err) => console.log(err));
-  }, [post.id]);
 
   useEffect(() => {
     fetch(`/api/likeordislikepost/getLikes/${post.id}`, { method: "GET" })
