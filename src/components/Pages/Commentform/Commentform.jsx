@@ -45,8 +45,8 @@ export default function Commentform({
               comment.id === replyCommentID
                 ? {
                     ...comment,
-                    RepliesComment: [
-                      ...(comment.RepliesComment || []),
+                    Replies: [
+                      ...(comment.Replies || []),
                       formattedComment,
                     ],
                   }
