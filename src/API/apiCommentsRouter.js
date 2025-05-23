@@ -24,47 +24,102 @@ router.post("/:id", async (req, res) => {
 });
 
 //  Находим все комментарии и делаем include пользователей
+// router.get("/:id", async (req, res) => {
+//   const { id } = req.params;
+//   try {
+//     const findPostID = await Post.findOne({ where: { id } });
+//     if (!findPostID) {
+//       res.status(404).json({ message: "Пост не найден" });
+//     }
+//     const findAllCommentForPostID = await Comment.findAll({
+//       where: { post_id: findPostID.id },
+//       order: [["createdAt", "ASC"]],
+//       // include: [{ model: User, attributes: ["name"] }, { model: Post }],\
+//       include: [
+//         {
+//           model: User,
+//           attributes: ["name"],
+//         },
+//         {
+//           model: Comment,
+//           as: "ParentComment",
+//           include: [
+//             {
+//               model: User,
+//               attributes: ["name"],
+//             },
+//           ],
+//         },
+//         {
+//           model: Commentreaction,
+//           as: "reactions",
+//         },
+//         {
+//           model: Comment,
+//           as: "Replies",
+//         },
+//       ],
+//     });
+//     res.send(findAllCommentForPostID);
+//   } catch (error) {
+//     console.log(error);
+//   }
+// });
+
 router.get("/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    const findPostID = await Post.findOne({ where: { id } });
-    if (!findPostID) {
-      res.status(404).json({ message: "Пост не найден" });
-    }
-    const findAllCommentForPostID = await Comment.findAll({
+    const findPostID = await Post.findByPk(id);
+    if (!findPostID) return res.status(404).json({ message: "Пост не найден" });
+
+    // comment — это не обычный объект, а экземпляр класса Model Sequelize,
+    // внутри которого помимо  полей (id, commenttitle, user_id, ...)
+    // есть и служебные свойства и методы, такие как:
+    const allComments = await Comment.findAll({
       where: { post_id: findPostID.id },
       order: [["createdAt", "ASC"]],
-      // include: [{ model: User, attributes: ["name"] }, { model: Post }],\
-      include: [
-        {
-          model: User,
-          attributes: ["name"],
-        },
-        {
-          model: Comment,
-          as: "ParentComment",
-          include: [
-            {
-              model: User,
-              attributes: ["name"],
-            },
-          ],
-        },
-        {
-          model: Commentreaction,
-          as: "reactions",
-        },
-        {
-          model: Comment,
-          as: "Replies",
-        },
-      ],
+      include: [{ model: User, attributes: ["name"] }],
     });
-    res.send(findAllCommentForPostID);
+
+    // Преобразуем в plain объекты (без Sequelize-метаданных)
+    // подразумеваются дополнительные свойства и методы,
+    // которые Sequelize добавляет к каждому экземпляру модели,
+    // помимо обычных данных из базы.
+    const plainComments = allComments.map((comment) =>
+      // comment.get({ plain: true })
+      // Возвращает только  “бизнес”-данные
+      comment.get({ plain: true })
+    );
+
+    // Создаем map всех комментариев по ID
+    const commentMap = {};
+    plainComments.forEach((comment) => {
+      comment.Replies = [];
+      commentMap[comment.id] = comment;
+    });
+
+    // Строим иерархию
+    const rootComments = [];
+    plainComments.forEach((comment) => {
+      if (comment.parent_id) {
+        // если это true
+        const parent = commentMap[comment.parent_id];
+        if (parent) {
+          parent.Replies.push(comment);
+        }
+      } else {
+        rootComments.push(comment);
+      }
+    });
+    res.json(rootComments);
   } catch (error) {
     console.log(error);
   }
 });
+// вручную строим иерархическое дерево
+// нужно:
+// Получить все комментарии одним запросом.
+// На бэке из них вручную собрать иерархию: ответы в Replies.
 
 // router.get("/getreplies/:id", async (req, res) => {
 //   const { id } = req.params;

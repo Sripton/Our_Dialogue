@@ -1012,6 +1012,8 @@ textarea:focus {
 .comment-actions {
   display: flex;
   gap: 15px;
+  position: relative;
+  margin-bottom: 20px;
 }
 .comment-actions button {
   padding: 3px 8px;

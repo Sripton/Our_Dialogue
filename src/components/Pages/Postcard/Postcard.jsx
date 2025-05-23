@@ -29,7 +29,7 @@ function Postcard({ post, userIDsession, deletePostHandler, userNameSession }) {
 
   // Получаем все комментарии с сервера
   const [allComments, setAllComments] = useState([]);
-
+  console.log('allComments', allComments);
   useEffect(() => {
     fetch(`/api/comments/${post.id}`)
       .then((res) => res.json())
@@ -39,15 +39,12 @@ function Postcard({ post, userIDsession, deletePostHandler, userNameSession }) {
   const [showComments, setShowComments] = useState(false);
   const handleShowComments = () => setShowComments(!showComments);
 
-  // Для добавления комментариев
-  // const commentRef = useRef();
-  // const handleAddComment = (newComment) => {
-  //   // Добавь проверку безопасности внутри handleAddComment,
-  //   // чтобы избежать ошибок, если commentRef.current ещё null:
-  //   if (commentRef.current?.addComments) {
-  //     commentRef.current.addComments(newComment);
-  //   }
-  // };
+  // Хук состояния для хранения ID комментария, на который сейчас отвечают
+  const [replyCommentID, setReplyCommentID] = useState(null);
+  // Обработчик клика по кнопке "Reply" — устанавливает или сбрасывает ID родительского комментария
+  const handleReplyToCommentID = (commentID) => {
+    setReplyCommentID(commentID === replyCommentID ? null : commentID);
+  };
 
   const submitEditPostHandler = async (e) => {
     e.preventDefault();
@@ -216,12 +213,13 @@ function Postcard({ post, userIDsession, deletePostHandler, userNameSession }) {
             </div>
             <div className="replies">
               {/* Логика для отображения формы для создания комментария */}
-
               {isShowReplies && (
                 <Commentform
                   post={post}
                   setShowReplies={setShowReplies}
                   setAllComments={setAllComments}
+                  replyCommentID={replyCommentID}
+                  setReplyCommentID={setReplyCommentID}
                 />
               )}
 
@@ -229,12 +227,19 @@ function Postcard({ post, userIDsession, deletePostHandler, userNameSession }) {
                 className="toggle-comments-btn"
                 onClick={handleShowComments}
               >
-                Комментарии
+                {showComments ? `Скрыть` : `Комментарии ${allComments.length}`}
               </button>
               {showComments && (
                 <CommentSection
+                  post={post}
+                  setShowReplies={setShowReplies}
+                  setAllComments={setAllComments}
                   allComments={allComments}
                   userIDsession={userIDsession}
+                  handleShowReplies={handleShowReplies}
+                  replyCommentID={replyCommentID}
+                  setReplyCommentID={setReplyCommentID}
+                  handleReplyToCommentID={handleReplyToCommentID}
                 />
               )}
             </div>

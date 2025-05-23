@@ -1,13 +1,35 @@
 import React from "react";
-import { FixedSizeList as List } from "react-window";
-const CommentSection = ({ userIDsession, allComments }) => {
-  const Row = ({ index, style }) => {
-    const comment = allComments[index];
-    console.log("comments", comment);
-    return (
-      <>
-        <div style={style} className="comment-for-comment" key={comment.id}>
+import Commentform from "../Commentform";
+const CommentSection = ({
+  post,
+  setShowReplies,
+  setAllComments,
+  userIDsession,
+  allComments,
+  replyCommentID,
+  setReplyCommentID,
+  handleReplyToCommentID,
+}) => {
+  return (
+    <>
+      {allComments?.map((comment) => (
+        <div className="comment-for-comment" key={comment.id}>
           <p className="comment-text">{comment.commenttitle}</p>
+          {/* Вызов формы для добавления комментария к комментарию */}
+          {replyCommentID === comment.id ? (
+            <div className="replies">
+              <Commentform
+                post={post}
+                setShowReplies={setShowReplies}
+                setAllComments={setAllComments}
+                replyCommentID={replyCommentID}
+                setReplyCommentID={setReplyCommentID}
+              />{" "}
+            </div>
+          ) : (
+            ""
+          )}
+          {/* Кнопки под каждым комментарием */}
           <div className="comment-actions">
             <button className="like-btn">
               <ion-icon class="thumbs" name="thumbs-up-outline"></ion-icon>{" "}
@@ -15,7 +37,14 @@ const CommentSection = ({ userIDsession, allComments }) => {
             <button className="like-btn">
               <ion-icon class="thumbs" name="thumbs-down-outline"></ion-icon>{" "}
             </button>
-            <button className="reply-btn">reply</button>
+            <button
+              className="reply-btn"
+              onClick={() => handleReplyToCommentID(comment.id)}
+            >
+              reply
+            </button>
+            {/* Отображение комментариев кнопок если пользователь яв-ся автором
+            комментария */}
             {userIDsession === comment.user_id ? (
               <>
                 <button className="edit-btn">Edit</button>
@@ -26,19 +55,8 @@ const CommentSection = ({ userIDsession, allComments }) => {
             )}
           </div>
         </div>
-      </>
-    );
-  };
-
-  return (
-    <List
-      height={400} // Высота контейнера (px)
-      itemCount={allComments.length}
-      itemSize={70} // Высота одного элемента (px)
-      width={"100%"} // или конкретное значение
-    >
-      {Row}
-    </List>
+      ))}
+    </>
   );
 };
 
