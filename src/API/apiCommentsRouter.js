@@ -95,8 +95,12 @@ router.get("/:id", async (req, res) => {
     const commentMap = {};
     plainComments.forEach((comment) => {
       comment.Replies = [];
+      // id: ключ этого комментария. Значение сам комментарий
+      // Чтобы быстро (O(1)) находить родительский комментарий по его id, когда собираешь вложенность.
+      // Это намного эффективнее, чем каждый раз делать find() по всему массиву.
       commentMap[comment.id] = comment;
     });
+
 
     // Строим иерархию
     const rootComments = [];

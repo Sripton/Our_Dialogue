@@ -29,7 +29,7 @@ function Postcard({ post, userIDsession, deletePostHandler, userNameSession }) {
 
   // Получаем все комментарии с сервера
   const [allComments, setAllComments] = useState([]);
-  console.log('allComments', allComments);
+  console.log("allComments", allComments);
   useEffect(() => {
     fetch(`/api/comments/${post.id}`)
       .then((res) => res.json())
@@ -37,6 +37,7 @@ function Postcard({ post, userIDsession, deletePostHandler, userNameSession }) {
       .catch((err) => console.log(err));
   }, [post.id]);
   const [showComments, setShowComments] = useState(false);
+
   const handleShowComments = () => setShowComments(!showComments);
 
   // Хук состояния для хранения ID комментария, на который сейчас отвечают
@@ -44,6 +45,21 @@ function Postcard({ post, userIDsession, deletePostHandler, userNameSession }) {
   // Обработчик клика по кнопке "Reply" — устанавливает или сбрасывает ID родительского комментария
   const handleReplyToCommentID = (commentID) => {
     setReplyCommentID(commentID === replyCommentID ? null : commentID);
+  };
+
+  // Рекурсинвый подсчет вложенных комменатриев комментариев
+  const countAllComments = (comments) => {
+    let count = 0;
+    const countRecursive = (commentList) => {
+      for (let comment of commentList) {
+        count++;
+        if (comment.Replies && comment.Replies.length > 0) {
+          countRecursive(comment.Replies);
+        }
+      }
+    };
+    countRecursive(comments);
+    return count;
   };
 
   const submitEditPostHandler = async (e) => {
@@ -227,7 +243,9 @@ function Postcard({ post, userIDsession, deletePostHandler, userNameSession }) {
                 className="toggle-comments-btn"
                 onClick={handleShowComments}
               >
-                {showComments ? `Скрыть` : `Комментарии ${allComments.length}`}
+                {showComments
+                  ? `Скрыть`
+                  : `Комментарии  ${countAllComments(allComments)}`}
               </button>
               {showComments && (
                 <CommentSection

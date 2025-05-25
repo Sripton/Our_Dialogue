@@ -32,32 +32,37 @@ export default function Commentform({
         }),
       });
       if (response.ok) {
-        const data = await response.json();
-        // Создаем локальный объект комментария (связанный с тем, на который отвечают)
-        const formattedComment = {
-          ...data,
-          parentId,
-        };
+        // const data = await response.json();
+        // // Создаем локальный объект комментария (связанный с тем, на который отвечают)
+        // const formattedComment = {
+        //   ...data,
+        //   parentId,
+        // };
 
-        if (parentId) {
-          setAllComments((prevComments) =>
-            prevComments.map((comment) =>
-              comment.id === replyCommentID
-                ? {
-                    ...comment,
-                    Replies: [
-                      ...(comment.Replies || []),
-                      formattedComment,
-                    ],
-                  }
-                : comment
-            )
-          );
-          setReplyCommentID(null);
-        } else {
-          setAllComments((prevComments) => [...prevComments, formattedComment]);
-          setShowReplies(false);
-        }
+        // 💡 Вместо ручного добавления — получаем весь список заново чтобы корректно отображались комментарии с именем пользователя
+        const updatedCommentsRes = await fetch(`/api/comments/${post.id}`);
+        const updatedComments = await updatedCommentsRes.json();
+        setAllComments(updatedComments);
+        setInputsComment({ commenttitle: "" });
+        setReplyCommentID(null);
+        setShowReplies(false);
+
+        // if (parentId) {
+        //   setAllComments((prevComments) =>
+        //     prevComments.map((comment) =>
+        //       comment.id === replyCommentID
+        //         ? {
+        //             ...comment,
+        //             Replies: [...(comment.Replies || []), formattedComment],
+        //           }
+        //         : comment
+        //     )
+        //   );
+        //   setReplyCommentID(null);
+        // } else {
+        //   setAllComments((prevComments) => [...prevComments, formattedComment]);
+        //   setShowReplies(false);
+        // }
       }
     } catch (error) {
       console.log("Ошибка при создании комментария", error);

@@ -11,7 +11,6 @@ export default function Singlecomments({
   handleReplyToCommentID,
 }) {
   console.log("comment", comment);
-  console.log("post", post);
   return (
     <div className="comment-for-comment">
       <p className="comment-text">{comment.commenttitle}</p>
