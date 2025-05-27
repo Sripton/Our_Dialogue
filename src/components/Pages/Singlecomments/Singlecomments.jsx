@@ -1,7 +1,9 @@
 import React from "react";
 import Commentform from "../Commentform";
+
 export default function Singlecomments({
   comment,
+  commentMap,
   post,
   setShowReplies,
   setAllComments,
@@ -10,7 +12,14 @@ export default function Singlecomments({
   setReplyCommentID,
   handleReplyToCommentID,
 }) {
-  console.log("comment", comment);
+
+// Забираем автора комменатрия к посту непосредственно из comment
+  const author = comment?.User?.name;
+  // Забираем родителя комменатрия к которму был напиан комментарий
+  const parentAuthor =
+    comment.parent_id && commentMap[comment.parent_id]?.User?.name;
+  console.log("parentAuthor", parentAuthor);
+
   return (
     <div className="comment-for-comment">
       <p className="comment-text">{comment.commenttitle}</p>
@@ -42,7 +51,21 @@ export default function Singlecomments({
             <button className="delete-btn">Delete</button>
           </>
         )}
-        <small className="comment-note">{`${comment?.User?.name} к ответил ${post?.User?.name}`}</small>
+        {/* {comment.parent_id === null ? (
+          <small className="comment-note">{`${comment?.User?.name}  ответил ${post?.User?.name}`}</small>
+        ) : (
+          comment.Replies.map((reply) => (
+            <div key={reply.id}>
+              <small className="comment-note">{`${comment?.User?.name} ответил ${reply?.User?.name}`}</small>
+            </div>
+          )) 
+        )} */}
+
+        {comment.parent_id === null ? (
+          <small className="comment-note">{`${author}  ответил ${post?.User?.name}`}</small>
+        ) : (
+          <small className="comment-note">{`${author}  ответил ${parentAuthor}`}</small>
+        )}
       </div>
 
       {comment?.Replies && comment?.Replies?.length > 0 && (
@@ -51,6 +74,7 @@ export default function Singlecomments({
             <Singlecomments
               key={reply.id}
               comment={reply}
+              commentMap={commentMap}
               post={post}
               setShowReplies={setShowReplies}
               setAllComments={setAllComments}

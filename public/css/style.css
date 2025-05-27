@@ -1122,6 +1122,8 @@ textarea:focus {
   cursor: pointer;
   transform: translateY(2px);
   transition: background-color 0.3s ease, box-shadow 0.3s ease;
+  margin-bottom: 10px;
+  position: relative;
 }
 .edit-post-btn:hover {
   background-color: #45a049; /* Цвет при наведении */

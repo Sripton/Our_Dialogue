@@ -100,8 +100,6 @@ router.get("/:id", async (req, res) => {
       // Это намного эффективнее, чем каждый раз делать find() по всему массиву.
       commentMap[comment.id] = comment;
     });
-
-
     // Строим иерархию
     const rootComments = [];
     plainComments.forEach((comment) => {
