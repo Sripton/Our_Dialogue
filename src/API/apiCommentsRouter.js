@@ -160,11 +160,9 @@ router.put("/:id", checkUsersForComments, async (req, res) => {
   const { id } = req.params;
   const { commenttitle } = req.body;
   try {
-    const editCommentsID = await Comment.update(
-      { commenttitle },
-      { where: { id } }
-    );
-    res.json(editCommentsID);
+    await Comment.update({ commenttitle }, { where: { id } });
+    const updatedComment = await Comment.findByPk(id);
+    res.json(updatedComment);
   } catch (error) {
     console.log(error);
   }

@@ -25,6 +25,9 @@ export default function Signup({ setUserNameSession, setUserIDSession }) {
       setUserNameSession(data.userName);
       setUserIDSession(data.userID);
       navigate('/')
+    }else {
+      const errorData = await responce.json();
+      alert(errorData.error)
     }
   };
 

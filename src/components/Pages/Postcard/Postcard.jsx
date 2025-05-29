@@ -29,7 +29,7 @@ function Postcard({ post, userIDsession, deletePostHandler, userNameSession }) {
 
   // Получаем все комментарии с сервера
   const [allComments, setAllComments] = useState([]);
-  console.log("allComments", allComments);
+  console.log('allComments', allComments);
   useEffect(() => {
     fetch(`/api/comments/${post.id}`)
       .then((res) => res.json())

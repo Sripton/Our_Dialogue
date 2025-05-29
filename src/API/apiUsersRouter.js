@@ -6,12 +6,20 @@ const router = express.Router();
 router.post("/signup", async (req, res) => {
   const { login, password, name } = req.body;
   try {
+    // Проверяем, существует ли пользователь с таким логином
+    const existingUser = await User.findOne({ where: { login } });
+    if (existingUser) {
+      return res
+        .status(400)
+        .json({ error: "Пользователь с таким логином уже существует" });
+    }
     const hashPassword = await bcrypt.hash(password, 10);
     const createUser = await User.create({
       login,
       password: hashPassword,
       name,
     });
+
     req.session.userID = createUser.id;
     req.session.userName = createUser.name;
     res.json({

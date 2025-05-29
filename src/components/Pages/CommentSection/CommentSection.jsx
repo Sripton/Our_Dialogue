@@ -1,7 +1,6 @@
 import React, { useMemo } from "react";
 import Singlecomments from "../Singlecomments/Singlecomments";
 
-
 const CommentSection = ({
   post,
   setShowReplies,
@@ -12,7 +11,6 @@ const CommentSection = ({
   setReplyCommentID,
   handleReplyToCommentID,
 }) => {
-
   // для изъятия родителя комментария на которрый пишут комменатрий
   const commentMap = useMemo(() => {
     const map = {};
@@ -27,7 +25,6 @@ const CommentSection = ({
     buildMap(allComments);
     return map;
   }, [allComments]);
-
 
   return (
     // <>

@@ -1125,6 +1125,9 @@ textarea:focus {
   margin-bottom: 10px;
   position: relative;
 }
+.editHidden {
+  display: none;
+}
 .edit-post-btn:hover {
   background-color: #45a049; /* Цвет при наведении */
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2); /* Тень при наведении */
