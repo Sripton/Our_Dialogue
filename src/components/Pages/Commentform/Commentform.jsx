@@ -83,3 +83,21 @@ export default function Commentform({
     </form>
   );
 }
+
+// Проверка. Нужно ли было мемоизировтаь Commentfrom.jsx
+// useEffect(() => {
+//   console.log("🔁 Component MOUNTED");
+// }, []);
+// в консоле вышло ->  🔁 Component MOUNTED
+// Значит Commentfrom.jsx монтируется только один раз
+// function areEqualCommentForm(prevProps, nextProps) {
+//   console.log("🔍 Comparing Commentform props...");
+//   const result =
+//     prevProps.post === nextProps.post &&
+//     prevProps.setShowReplies === nextProps.setShowReplies &&
+//     prevProps.setAllComments === nextProps.setAllComments &&
+//     prevProps.replyCommentID === nextProps.replyCommentID &&
+//     prevProps.setReplyCommentID === nextProps.setReplyCommentID;
+//   console.log("Are equal:", result);
+//   return result;
+// }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect, memo, useRef } from "react";
+import React, { useState, useEffect, memo, useRef, useCallback } from "react";
 import CommentSection from "../CommentSection/CommentSection";
 import Commentform from "../Commentform";
 function Postcard({ post, userIDsession, deletePostHandler, userNameSession }) {
@@ -29,7 +29,7 @@ function Postcard({ post, userIDsession, deletePostHandler, userNameSession }) {
 
   // Получаем все комментарии с сервера
   const [allComments, setAllComments] = useState([]);
-  console.log('allComments', allComments);
+  console.log("allComments", allComments);
   useEffect(() => {
     fetch(`/api/comments/${post.id}`)
       .then((res) => res.json())
@@ -43,9 +43,9 @@ function Postcard({ post, userIDsession, deletePostHandler, userNameSession }) {
   // Хук состояния для хранения ID комментария, на который сейчас отвечают
   const [replyCommentID, setReplyCommentID] = useState(null);
   // Обработчик клика по кнопке "Reply" — устанавливает или сбрасывает ID родительского комментария
-  const handleReplyToCommentID = (commentID) => {
-    setReplyCommentID(commentID === replyCommentID ? null : commentID);
-  };
+  const handleReplyToCommentID = useCallback((commentID) => {
+    setReplyCommentID((prevID) => (prevID === commentID ? null : commentID));
+  }, []); // [] в зависимостях означает, что handleReplyToCommentID будет создан один раз, и его ссылка будет стабильной — идеально для передачи в memo-компоненты.
 
   // Рекурсинвый подсчет вложенных комменатриев комментариев
   const countAllComments = (comments) => {

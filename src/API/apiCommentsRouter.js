@@ -78,7 +78,11 @@ router.get("/:id", async (req, res) => {
     const allComments = await Comment.findAll({
       where: { post_id: findPostID.id },
       order: [["createdAt", "ASC"]],
-      include: [{ model: User, attributes: ["name"] }],
+      include: [
+        { model: User, attributes: ["name"] },
+        { model: Commentreaction, as: "reactions" },
+      ],
+      // include: [{ model: Commentreaction, as: "reactions" }],
     });
 
     // Преобразуем в plain объекты (без Sequelize-метаданных)

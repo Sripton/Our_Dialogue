@@ -6,6 +6,7 @@ router.post("/:id", async (req, res) => {
   const { id } = req.params;
   const { reaction_type } = req.body;
   try {
+    // Цепляем сессию пользователя
     const userID = req.session.userID;
     // Ищем комментарий под которым хотим поствить  лайк  или дизлайк
     const findCommentID = await Comment.findByPk(id);
@@ -19,7 +20,7 @@ router.post("/:id", async (req, res) => {
       dislike: true,
     };
     // Проверка, что тип реакции корректен
-    if (!validReactions) {
+    if (!validReactions[reaction_type]) {
       res.status(400).json({ message: "Некорректный тип реакции" });
     }
 
@@ -68,7 +69,7 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// Нету необходимости в данном route. Реакции просто обновляются 
+// Нету необходимости в данном route. Реакции просто обновляются
 // router.delete("/:id", async (req, res) => {
 //   const { id } = req.params;
 //   const userID = req.session.userID;

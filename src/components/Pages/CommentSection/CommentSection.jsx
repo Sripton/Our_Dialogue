@@ -1,7 +1,7 @@
 import React, { useMemo } from "react";
 import Singlecomments from "../Singlecomments/Singlecomments";
 
-const CommentSection = ({
+export default function CommentSection({
   post,
   setShowReplies,
   setAllComments,
@@ -10,14 +10,14 @@ const CommentSection = ({
   replyCommentID,
   setReplyCommentID,
   handleReplyToCommentID,
-}) => {
+}) {
   // для изъятия родителя комментария на которрый пишут комменатрий
   const commentMap = useMemo(() => {
     const map = {};
     const buildMap = (comments) => {
       comments.forEach((comment) => {
         map[comment.id] = comment;
-        if (comment?.Replies.length) {
+        if (comment?.Replies?.length) {
           buildMap(comment?.Replies);
         }
       });
@@ -27,52 +27,6 @@ const CommentSection = ({
   }, [allComments]);
 
   return (
-    // <>
-    //   {allComments?.map((comment) => (
-    //     <div className="comment-for-comment" key={comment.id}>
-    //       <p className="comment-text">{comment.commenttitle}</p>
-    //       {/* Вызов формы для добавления комментария к комментарию */}
-    //       {replyCommentID === comment.id ? (
-    //         <div className="replies">
-    //           <Commentform
-    //             post={post}
-    //             setShowReplies={setShowReplies}
-    //             setAllComments={setAllComments}
-    //             replyCommentID={replyCommentID}
-    //             setReplyCommentID={setReplyCommentID}
-    //           />{" "}
-    //         </div>
-    //       ) : (
-    //         ""
-    //       )}
-    //       {/* Кнопки под каждым комментарием */}
-    //       <div className="comment-actions">
-    //         <button className="like-btn">
-    //           <ion-icon class="thumbs" name="thumbs-up-outline"></ion-icon>{" "}
-    //         </button>
-    //         <button className="like-btn">
-    //           <ion-icon class="thumbs" name="thumbs-down-outline"></ion-icon>{" "}
-    //         </button>
-    //         <button
-    //           className="reply-btn"
-    //           onClick={() => handleReplyToCommentID(comment.id)}
-    //         >
-    //           reply
-    //         </button>
-    //         {/* Отображение комментариев кнопок если пользователь яв-ся автором
-    //         комментария */}
-    //         {userIDsession === comment.user_id ? (
-    //           <>
-    //             <button className="edit-btn">Edit</button>
-    //             <button className="delete-btn">Delete</button>
-    //           </>
-    //         ) : (
-    //           ""
-    //         )}
-    //       </div>
-    //     </div>
-    //   ))}
-    // </>
     <>
       {allComments?.map((comment) => (
         <Singlecomments
@@ -90,6 +44,42 @@ const CommentSection = ({
       ))}
     </>
   );
-};
+}
 
-export default CommentSection;
+// function areEqualCommentsection(prevProps, nextProps) {
+//   console.log("🔍 Comparing Commentform props...");
+//   const keys = Object.keys(prevProps);
+//   for (let key of keys) {
+//     if (prevProps[key] !== nextProps[key]) {
+//       console.log(`What the key boolean ${key}`);
+//     }
+//   }
+
+//   if (prevProps.handleReplyToCommentID !== nextProps.handleReplyToCommentID) {
+//     console.log("⛔ handleReplyToCommentID changed");
+//     console.log("Prev:", prevProps.handleReplyToCommentID);
+//     console.log("Next:", nextProps.handleReplyToCommentID);
+//   }
+//   const result =
+//     prevProps.post === nextProps.post &&
+//     prevProps.setShowReplies === nextProps.setShowReplies &&
+//     prevProps.setAllComments === nextProps.setAllComments &&
+//     prevProps.userIDsession === nextProps.userIDsession &&
+//     prevProps.allComments === nextProps.allComments &&
+//     prevProps.replyCommentID === nextProps.replyCommentID &&
+//     prevProps.setReplyCommentID === nextProps.setReplyCommentID &&
+//     prevProps.handleReplyToCommentID === nextProps.handleReplyToCommentID;
+//   console.log("Are equal:", result);
+//   return result;
+// }
+
+// 🛠 Ещё лучше — замерь внутри areEqualCommentsection:
+// js
+// Копировать
+// Редактировать
+// if (prevProps.handleReplyToCommentID !== nextProps.handleReplyToCommentID) {
+//   console.log("⛔ handleReplyToCommentID changed");
+//   console.log("Prev:", prevProps.handleReplyToCommentID);
+//   console.log("Next:", nextProps.handleReplyToCommentID);
+// }
+// Если ссылки разные — видно напрямую.
