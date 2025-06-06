@@ -32,11 +32,17 @@ router.post("/:id", async (req, res) => {
       },
     });
 
+    // 🔁 Если реакция уже существует и совпадает по типу — удаляем
     if (existingCommentReaction) {
-      // Обновление существующего взаимодействия
-      existingCommentReaction.reaction_type = reaction_type;
-      await existingCommentReaction.save();
-      return res.status(200).json({ existingCommentReaction });
+      if (existingCommentReaction.reaction_type === reaction_type) {
+        await existingCommentReaction.destroy();
+        return res.status(200).json({ message: "Реакция удалена" });
+      } else {
+        // Обновление существующего взаимодействия
+        existingCommentReaction.reaction_type = reaction_type;
+        await existingCommentReaction.save();
+        return res.status(200).json({ existingCommentReaction });
+      }
     }
 
     // Создание новой записи взаимодействия

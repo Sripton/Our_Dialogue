@@ -99,7 +99,6 @@ function Singlecomments({
   // --------------------------------------------------------------------
   // Логика для создания и получения реакций на комментарии
 
-  
   // На клиенте имеет смысл проверять, была ли уже реакция от пользователя,
   // и менять тип реакции только при необходимости. Это не просто «бонус» — это улучшает:
   // ✅ UI-логику (можно сделать toggle, показывать активное состояние, и т.д.)
@@ -107,10 +106,20 @@ function Singlecomments({
   // ✅ Производительность (меньше ненужных запросов к API)
   // ✅ Чистоту данных (согласованность клиент/сервер)
   const updatedComment = (reactions, userID, commentID, type) => {
+    // Проверка если пользователь уже оставил реакцию
     const existingCommentReaction = reactions.find(
       (reaction) => reaction.user_id === userID
     );
 
+    // Если реакция существует и совпадает по типу. Удаляем
+    if (
+      existingCommentReaction &&
+      existingCommentReaction.reaction_type === type
+    ) {
+      return reactions.filter((reaction) => reaction.id !== userID);
+    }
+
+    // Если реакция существует но не  совпадает по типу. Меняем
     if (existingCommentReaction) {
       return reactions.map((reaction) =>
         reaction.user_id === userID
@@ -118,6 +127,7 @@ function Singlecomments({
           : reaction
       );
     }
+    // Если реакции еще нет. Создаем
     return [
       ...reactions,
       { user_id: userID, comment_id: commentID, reaction_type: type },
