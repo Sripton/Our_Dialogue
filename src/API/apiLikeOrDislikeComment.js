@@ -31,11 +31,12 @@ router.post("/:id", async (req, res) => {
         comment_id: findCommentID.id,
       },
     });
+
     if (existingCommentReaction) {
       // Обновление существующего взаимодействия
       existingCommentReaction.reaction_type = reaction_type;
       await existingCommentReaction.save();
-      return res.status(200).json(existingCommentReaction);
+      return res.status(200).json({ existingCommentReaction });
     }
 
     // Создание новой записи взаимодействия
@@ -44,7 +45,7 @@ router.post("/:id", async (req, res) => {
       comment_id: findCommentID.id,
       reaction_type: reaction_type,
     });
-    res.status(201).json(newReaction);
+    res.status(200).json(newReaction);
   } catch (error) {
     console.log(error);
   }
@@ -60,6 +61,7 @@ router.get("/:id", async (req, res) => {
       where: {
         comment_id: findCommentID.id,
       },
+
       attributes: ["id", "comment_id", "reaction_type", "user_id"],
     });
     res.status(200).json(commentReactions);

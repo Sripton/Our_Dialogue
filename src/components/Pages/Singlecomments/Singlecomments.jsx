@@ -23,7 +23,7 @@ function Singlecomments({
   // --------------------------------------------------------------------
 
   // --------------------------------------------------------------------
-  // Логика для изменения комментариев
+  // Логика для изменения и удаления комментариев
   // Состояние для отслеживания по ID какой комменатрий изменяется
   const [editCommentID, setEditCommentID] = useState(null);
   // Состояние для изменения  комменатрия
@@ -84,84 +84,106 @@ function Singlecomments({
       console.log(error);
     }
   };
-  // Логика для изменения комментариев
+
+  const deleteCommentsHandler = async (id) => {
+    const response = await fetch(`/api/comments/${id}`, { method: "DELETE" });
+    if (response.ok) {
+      setAllComments((prevComments) =>
+        prevComments.filter((prevComment) => prevComment.id !== id)
+      );
+    }
+  };
+  // Логика для изменения и удаления комментариев
   // --------------------------------------------------------------------
 
   // --------------------------------------------------------------------
   // Логика для создания и получения реакций на комментарии
-  // Функция для обновления реакций если уже сущесвтует или создания новой
-  const updateReactions = (reactions, userID, commentID, type) => {
-    // На клиенте имеет смысл проверять, была ли уже реакция от пользователя,
-    // и менять тип реакции только при необходимости. Это не просто «бонус» — это улучшает:
-    // ✅ UI-логику (можно сделать toggle, показывать активное состояние, и т.д.)
-    // ✅ UX (интерфейс откликается быстрее, не нужно ждать сервер)
-    // ✅ Производительность (меньше ненужных запросов к API)
-    // ✅ Чистоту данных (согласованность клиент/сервер)
-    const existingReaction = reactions.find(
+
+  
+  // На клиенте имеет смысл проверять, была ли уже реакция от пользователя,
+  // и менять тип реакции только при необходимости. Это не просто «бонус» — это улучшает:
+  // ✅ UI-логику (можно сделать toggle, показывать активное состояние, и т.д.)
+  // ✅ UX (интерфейс откликается быстрее, не нужно ждать сервер)
+  // ✅ Производительность (меньше ненужных запросов к API)
+  // ✅ Чистоту данных (согласованность клиент/сервер)
+  const updatedComment = (reactions, userID, commentID, type) => {
+    const existingCommentReaction = reactions.find(
       (reaction) => reaction.user_id === userID
     );
-    // Проверяешь, есть ли уже реакция от пользователя.
-    // Если есть — обновляешь reaction_type.
-    // Если нет — добавляешь новую реакцию.
-    // Сохраняешь иммутабельность (не мутируешь оригинальный массив).
-    if (existingReaction) {
+
+    if (existingCommentReaction) {
       return reactions.map((reaction) =>
         reaction.user_id === userID
-          ? {
-              ...reaction,
-              reaction_type: type,
-              // Сохранение метаданных: Можно обновить updatedAt,  если  используется в UI.
-            }
+          ? { ...reaction, reaction_type: type }
           : reaction
       );
     }
-
-    // переопределяет поле reactions, заменяя его на новый массив
     return [
       ...reactions,
-      {
-        user_id: userID,
-        comment_id: commentID,
-        reaction_type: type,
-      },
+      { user_id: userID, comment_id: commentID, reaction_type: type },
     ];
   };
 
-  // Фцнкция для создания реакций
-  const reactionsCommentSubmit = async (reaction_type) => {
-    try {
-      const responce = await fetch(`/api/likeordislikecomment/${comment.id}`, {
-        method: "POST",
-        headers: { "Content-type": "application/json" },
-        body: JSON.stringify({ reaction_type }),
-      });
-
-      if (responce.ok) {
-        // 🧠 Вывод
-        // ✅ updateReactions иммутабельна — это хорошо, особенно в React.
-        // ✅ Она не мутирует исходные данные, что предотвращает баги при ререндере.
-        // ✅ Правильное применение в setAllComments.
-        setAllComments((prevComments) =>
-          prevComments.map(
-            (prevComment) =>
-              comment.id === prevComment.id
-                ? {
-                    ...prevComment, // распыляем все старые поля комментария
-                    reactions: updateReactions(
-                      prevComment.reactions || [],
-                      userIDsession,
-                      comment.id,
-                      reaction_type
-                    ),
-                  }
-                : prevComment // обязательно вернуть сам объект, а не ""
-          )
-        );
+  const updateCommentReactionsInTree = (
+    prevComments,
+    commentID,
+    userID,
+    type
+  ) => {
+    return prevComments.map((prevComment) => {
+      if (prevComment.id === commentID) {
+        return {
+          ...prevComment,
+          reactions: updatedComment(
+            prevComment.reactions || [],
+            userID,
+            commentID,
+            type
+          ),
+        };
       }
-    } catch (error) {
-      console.log(error);
+      if (prevComment.Replies.length > 0) {
+        return {
+          ...prevComment,
+          Replies: updateCommentReactionsInTree(
+            prevComment.Replies,
+            commentID,
+            userID,
+            type
+          ),
+        };
+      }
+      return prevComment;
+    });
+  };
+
+  const reactionsCommentSubmit = async (reaction_type) => {
+    const responce = await fetch(`/api/likeordislikecomment/${comment.id}`, {
+      method: "POST",
+      headers: { "Content-type": "application/json" },
+      body: JSON.stringify({ reaction_type }),
+    });
+
+    if (responce.ok) {
+      setAllComments((prevComments) =>
+        updateCommentReactionsInTree(
+          prevComments,
+          comment.id,
+          userIDsession,
+          reaction_type
+        )
+      );
     }
   };
+
+  const likeCount =
+    comment?.reactions?.filter((like) => like?.reaction_type === "like")
+      .length || 0;
+  const dislikeCount =
+    comment?.reactions?.filter(
+      (dislike) => dislike?.reaction_type === "dislike"
+    ).length || 0;
+
   // Логика для создания и получения реакций на комментарии
   // --------------------------------------------------------------------
 
@@ -198,14 +220,18 @@ function Singlecomments({
           className="like-btn"
           onClick={() => reactionsCommentSubmit("like")}
         >
-          <ion-icon class="thumbs" name="thumbs-up-outline"></ion-icon>
+          <ion-icon class="thumbs" name="thumbs-up-outline"></ion-icon>{" "}
+          {likeCount}
         </button>
+
         <button
           className="like-btn"
           onClick={() => reactionsCommentSubmit("dislike")}
         >
-          <ion-icon class="thumbs" name="thumbs-down-outline"></ion-icon>
+          <ion-icon class="thumbs" name="thumbs-down-outline"></ion-icon>{" "}
+          {dislikeCount}
         </button>
+
         <button
           className="reply-btn"
           onClick={() => handleReplyToCommentID(comment.id)}
@@ -220,7 +246,12 @@ function Singlecomments({
             >
               Edit
             </button>
-            <button className="delete-btn">Delete</button>
+            <button
+              className="delete-btn"
+              onClick={() => deleteCommentsHandler(comment.id)}
+            >
+              Delete
+            </button>
           </>
         )}
         {comment.parent_id === null ? (

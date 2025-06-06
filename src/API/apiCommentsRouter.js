@@ -80,7 +80,10 @@ router.get("/:id", async (req, res) => {
       order: [["createdAt", "ASC"]],
       include: [
         { model: User, attributes: ["name"] },
-        { model: Commentreaction, as: "reactions" },
+        {
+          model: Commentreaction,
+          as: "reactions",
+        },
       ],
       // include: [{ model: Commentreaction, as: "reactions" }],
     });
@@ -189,4 +192,5 @@ router.delete("/:id", checkUsersForComments, async (req, res) => {
     console.log(`${error} Не получилось удалить комментарий`);
   }
 });
+
 export default router;

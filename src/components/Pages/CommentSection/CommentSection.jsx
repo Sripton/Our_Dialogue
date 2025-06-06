@@ -16,8 +16,11 @@ export default function CommentSection({
     const map = {};
     const buildMap = (comments) => {
       comments.forEach((comment) => {
+        // подстраховаться
+        // CommentSection.jsx:19 Uncaught TypeError: Cannot read properties of undefined (reading 'id')
+        if (!comment || typeof comment !== "object" || !comment.id) return;
         map[comment.id] = comment;
-        if (comment?.Replies?.length) {
+        if (comment.Replies && comment?.Replies?.length) {
           buildMap(comment?.Replies);
         }
       });
@@ -26,6 +29,7 @@ export default function CommentSection({
     return map;
   }, [allComments]);
 
+  console.log("commentMap", commentMap);
   return (
     <>
       {allComments?.map((comment) => (
