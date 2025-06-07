@@ -116,7 +116,7 @@ function Singlecomments({
       existingCommentReaction &&
       existingCommentReaction.reaction_type === type
     ) {
-      return reactions.filter((reaction) => reaction.id !== userID);
+      return reactions.filter((reaction) => reaction.user_id !== userID);
     }
 
     // Если реакция существует но не  совпадает по типу. Меняем
@@ -293,76 +293,18 @@ function Singlecomments({
   );
 }
 
-// Тестирование 1
-// function areEqualSinglecomments(prevProps, nextProps) {
-//   console.log("comment", prevProps.comment === nextProps.comment); // true
-//   console.log("commentMap", prevProps.commentMap === nextProps.commentMap); // true
-//   console.log("post", prevProps.post === nextProps.post); // true
-//   console.log("setAllComments", prevProps.setAllComments === nextProps.setAllComments); // true
-//   console.log("userIDsession", prevProps.userIDsession === nextProps.userIDsession);// true
-//   console.log("replyCommentID", prevProps.replyCommentID === nextProps.replyCommentID); // false
-//   console.log("setReplyCommentID", prevProps.setReplyCommentID === nextProps.setReplyCommentID); // true
-//   console.log("handleReplyToCommentID", prevProps.handleReplyToCommentID === nextProps.handleReplyToCommentID); // true
-// }
-
-// 🔍 Что происходит?
-// Компонент Singlecomments перерисовывается, потому что изменился проп replyCommentID. Это нормально — ведь
-//  replyCommentID хранится в Postcard,
-// и при клике по кнопке reply вызыввается: handleReplyToCommentID(comment.id);
-// А значит:
-// replyCommentID в Postcard обновляется,
-// и этот replyCommentID передаётся всем Singlecomments — включая те, к которым не относится ответ.
-// ❌ Проблема
-// 💥 Все Singlecomments получают новый replyCommentID,
-// и React.memo срабатывает только по полному сравнению (!==),
-//  из-за чего перерендеривается даже тот комментарий, который не должен.
-
-// function areEqualSinglecomments(prevProps, nextProps) {
-//   console.log("prevProps.replyCommentID", prevProps.replyCommentID); // null
-//   console.log("nextProps.replyCommentID", nextProps.replyCommentID); 4
-// }
-
-// Тестирование 2
-// ✅ Решение — сравнивать точечно, влияет ли replyCommentID на данный комментарий:
-// function areEqualSinglecomments(prevProps, nextProps) {
-//   console.log("prevProps.replyCommentID", prevProps.replyCommentID);// null
-//   console.log("prevProps.comment.id", prevProps.comment.id); // 4
-//   console.log("nextProps.replyCommentID", nextProps.replyCommentID); // 4
-//   console.log("nextProps.comment.id", nextProps.comment.id); // 4
-// }
-// 🔍 Разбор логов
-// Получаем два вызова areEqualSinglecomments:
-
-// 🔁 1. Комментарий с id === 4:
-// prevProps.replyCommentID null
-// prevProps.comment.id 4
-// nextProps.replyCommentID 4
-// nextProps.comment.id 4
-// ➡️ Это тот самый комментарий, на который пользователь нажал "reply" → форма должна появиться, компонент должен перерендериться ✅
-
-// 🔁 2. Комментарий с id === 5:
-// prevProps.replyCommentID null
-// prevProps.comment.id 5
-// nextProps.replyCommentID 4
-// nextProps.comment.id 5
-// ➡️ Этот комментарий не должен быть затронут, форма под ним не появлялась и не исчезала → перерендер НЕ нужен ❌
-
-// Тестирование 3
-// 🔥 Проблема: логика areEqualSinglecomments работает для первого уровня комментариев, но вложенные Replies перерисовываются лишний раз, даже если на них не нажимали "reply".
-// function areEqualSinglecomments(prevProps, nextProps) {
-//   const isCurrentReply = prevProps.replyCommentID === prevProps.comment.id;
-//   const isNextReply = nextProps.replyCommentID === nextProps.comment.id;
-//   const replyAffectsThisComment = isCurrentReply !== isNextReply;
-
-//   return (
-//     !replyAffectsThisComment &&
-//     prevProps.comment === nextProps.comment &&
-//     prevProps.userIDsession === nextProps.userIDsession &&
-//     prevProps.setAllComments === nextProps.setAllComments
-//   );
-// }
-
 function areEqualSinglecomments(prevProps, nextProps) {
+  //  ранний выход — если ничего не изменилось, memo сразу возвращает true, экономя ресурсы.
+  if (
+    prevProps.replyCommentID === nextProps.replyCommentID &&
+    prevProps.comment === nextProps.comment &&
+    prevProps.userIDsession === nextProps.userIDsession &&
+    prevProps.setAllComments === nextProps.setAllComments
+  ) {
+    return true;
+  }
+  // Глубокая проверка replyID → вложенность
+  // Функция корректно рекурсивно ищет, затронут ли вложенные Replies данным replyCommentID.
   const isReplyTarget = (comment, replyID) => {
     if (!comment) return false;
     if (comment.id === replyID) return true;
@@ -378,7 +320,15 @@ function areEqualSinglecomments(prevProps, nextProps) {
     nextProps.comment,
     nextProps.replyCommentID
   );
+
+  // Сравнение до и после
+  // Благодаря этому компонент перерендерится только если изменился replyCommentID,
+  // связанный с данным комментарием или его потомками.
   const replyChanged = affectedBefore !== affectedAfter;
+
+  // Финальная проверка
+  // Очень чётко сформулировано условие:
+  // ререндер происходит только если затронуты действительно важные зависимости.
   return (
     !replyChanged &&
     prevProps.comment === nextProps.comment &&
@@ -386,4 +336,9 @@ function areEqualSinglecomments(prevProps, nextProps) {
     prevProps.setAllComments === nextProps.setAllComments
   );
 }
+
+// 📈 масштабируется для больших деревьев комментариев
+// 💡 Минимизирует перерендеры
+// 🔥 Работает с вложенностью любого уровня
+// 📦 Совместим с React 18+ и строгим режимом
 export default memo(Singlecomments, areEqualSinglecomments);
