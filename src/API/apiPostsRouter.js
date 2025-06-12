@@ -35,6 +35,7 @@ router.get("/:id", async (req, res) => {
       include: [
         { model: User, attributes: ["name"] },
         { model: Subject, attributes: ["subjectName"] },
+        { model: Postreaction, as: "Postreactions" },
       ],
     });
     res.send(findAllPosts);

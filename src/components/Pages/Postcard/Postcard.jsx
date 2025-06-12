@@ -1,7 +1,13 @@
-import React, { useState, useEffect, memo, useRef, useCallback } from "react";
+import React, { useState, useEffect, memo, useCallback } from "react";
 import CommentSection from "../CommentSection/CommentSection";
 import Commentform from "../Commentform";
-function Postcard({ post, userIDsession, deletePostHandler, userNameSession }) {
+function Postcard({
+  post,
+  setPosts,
+  userIDsession,
+  deletePostHandler,
+  userNameSession,
+}) {
   const [isDotsActive, setIsDotsActive] = useState(false);
   const handleDots = () => {
     setIsDotsActive(!isDotsActive);
@@ -24,24 +30,128 @@ function Postcard({ post, userIDsession, deletePostHandler, userNameSession }) {
   const handleEditPostText = (e) => {
     setEditPostText(e.target.value);
   };
-  const [likePosts, setLikePosts] = useState([]);
-  const [dislikePosts, setDislikePosts] = useState([]);
+
+  const submitEditPostHandler = async (e) => {
+    e.preventDefault();
+    const responce = await fetch(`/api/posts/${post.id}`, {
+      method: "PUT",
+      headers: { "Content-type": "application/json" },
+      body: JSON.stringify({ posttitle: editPostText }),
+    });
+    if (responce.ok) {
+      setIsEditPostActive(false);
+      post.posttitle = editPostText;
+    }
+  };
+  // const [likePosts, setLikePosts] = useState([]);
+  // const [dislikePosts, setDislikePosts] = useState([]);
+
+  // Не использовать состояние
+  // post.Postreactions инициализируются только один раз — при первом рендере.
+  //   Кликаешь "like" → отправляешь POST или DELETE на сервер,
+  // Но локальный reactionPosts не обновляется (или обновляется некорректно),
+  // Следующий вызов submitReactionPost проверяет устаревшие данные.
+  // const [reactionPosts, setReationPosts] = useState(post.Postreactions || []);
+
+  const submitReactionPost = async (reaction_type) => {
+    const isLike = post.Postreactions?.some(
+      (reaction) =>
+        reaction.user_id === userIDsession && reaction.reaction_type === "like"
+    );
+    const isDislike = post.Postreactions?.some(
+      (reaction) =>
+        reaction.user_id === userIDsession &&
+        reaction.reaction_type === "dislike"
+    );
+
+    try {
+      if (
+        (reaction_type === "like" && isLike) ||
+        (reaction_type === "dislike" && isDislike)
+      ) {
+        const responseDelete = await fetch(`/api/postreactions/${post.id}`, {
+          method: "DELETE",
+        });
+        console.log("responseDelete", responseDelete);
+        if (responseDelete.ok) {
+          setPosts((prevPosts) =>
+            prevPosts.map((prevPost) =>
+              prevPost.id === post.id
+                ? {
+                    ...prevPost,
+                    Postreactions: prevPost.Postreactions.filter(
+                      (reaction) => reaction.user_id !== userIDsession
+                    ),
+                  }
+                : prevPost
+            )
+          );
+        }
+        return;
+      }
+      const response = await fetch(`/api/postreactions/${post.id}`, {
+        method: "POST",
+        headers: { "Content-type": "application/json" },
+        body: JSON.stringify({ reaction_type }),
+      });
+      if (response.ok) {
+        // проблема реакция не обновляется а сохраняется новая реакция
+        // setPosts((prevPosts) =>
+        // prevPosts.map((prevPost) =>
+        // prevPost.id === post.id ?
+        // {...prevPost, Postreactions: [...prevPost.Postreactions, {user_id: userIDsession, post_id: post.id, reaction_type: reaction_type}]} : prevPost
+        // ))
+
+        // Решение
+        const newReaction = await response.json();
+        setPosts((prevPosts) =>
+          prevPosts.map((prevPost) =>
+            prevPost.id === post.id
+              ? {
+                  ...prevPost,
+                  Postreactions: [
+                    ...prevPost.Postreactions.filter(
+                      (reaction) => reaction.user_id !== userIDsession
+                    ),
+                    newReaction,
+                  ],
+                }
+              : prevPost
+          )
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // Для отображения количества лайков под каждым постом
+  const likesPost =
+    post.Postreactions?.filter((like) => like.reaction_type === "like")
+      .length || 0;
+
+  // Для отображения количества дизлайков под каждым постом
+  const dislikesPost =
+    post.Postreactions?.filter((dislike) => dislike.reaction_type === "dislike")
+      .length || 0;
 
   // Получаем все комментарии с сервера
   const [allComments, setAllComments] = useState([]);
-  console.log("allComments", allComments);
+
   useEffect(() => {
     fetch(`/api/comments/${post.id}`)
       .then((res) => res.json())
       .then((data) => setAllComments(data))
       .catch((err) => console.log(err));
   }, [post.id]);
+
   const [showComments, setShowComments] = useState(false);
 
   const handleShowComments = () => setShowComments(!showComments);
 
   // Хук состояния для хранения ID комментария, на который сейчас отвечают
   const [replyCommentID, setReplyCommentID] = useState(null);
+
   // Обработчик клика по кнопке "Reply" — устанавливает или сбрасывает ID родительского комментария
   const handleReplyToCommentID = useCallback((commentID) => {
     setReplyCommentID((prevID) => (prevID === commentID ? null : commentID));
@@ -62,103 +172,90 @@ function Postcard({ post, userIDsession, deletePostHandler, userNameSession }) {
     return count;
   };
 
-  const submitEditPostHandler = async (e) => {
-    e.preventDefault();
-    const responce = await fetch(`/api/posts/${post.id}`, {
-      method: "PUT",
-      headers: { "Content-type": "application/json" },
-      body: JSON.stringify({ posttitle: editPostText }),
-    });
-    if (responce.ok) {
-      setIsEditPostActive(false);
-      post.posttitle = editPostText;
-    }
-  };
+  // const submitReactionPost = async (post_id, reaction_type) => {
+  //   // проверяем есть ли реакция от пользователя на пост
+  //   const isLike = likePosts.some((like) => like.user_id === userIDsession);
+  //   const isDislike = dislikePosts.some(
+  //     (dislike) => dislike.user_id === userIDsession
+  //   );
+  //   try {
+  //     // если тип реакции like и пользователь уже ставил like
+  //     if (reaction_type === "like" && isLike) {
+  //       // удаляем like локально
+  //       setLikePosts((prevLikes) =>
+  //         prevLikes.filter((like) => like.user_id !== userIDsession)
+  //       );
+  //       // Отправляем DELETE-запрос на сервер для удаления лайка
+  //       await fetch(
+  //         // DELETE-запрос с body НЕ поддерживается во всех браузерах!
+  //         // Решение 1 (надёжный способ) — передавать user_id в query-параметрах или в params
+  //         `/api/likeordislikepost/${post_id}?user_id=${userIDsession}`,
+  //         {
+  //           method: "DELETE",
+  //           // Некоторые реализации fetch просто игнорируют тело у DELETE, и на бэке оно будет undefined
+  //           // headers: { "Content-type": "application/json" },
+  //           // body: JSON.stringify({ user_id: userIDsession }),
+  //         }
+  //       );
+  //     } else if (reaction_type === "dislike" && isDislike) {
+  //       // удаляем dislike локально
+  //       setDislikePosts((prevDislike) =>
+  //         prevDislike.filter((dislike) => dislike.user_id !== userIDsession)
+  //       );
+  //       await fetch(
+  //         // DELETE-запрос с body НЕ поддерживается во всех браузерах!
+  //         // Решение 1 (надёжный способ) — передавать user_id в query-параметрах или в params
+  //         `/api/likeordislikepost/${post_id}?user_id=${userIDsession}`,
+  //         {
+  //           method: "DELETE",
+  //           // Некоторые реализации fetch просто игнорируют тело у DELETE, и на бэке оно будет undefined
+  //           // headers: { "Content-type": "application/json" },
+  //           // body: JSON.stringify({ user_id: userIDsession }),
+  //         }
+  //       );
+  //     } else {
+  //       // Если реакции нет, добавляем её
+  //       const response = await fetch(`/api/likeordislikepost/${post_id}`, {
+  //         method: "POST",
+  //         headers: { "Content-type": "application/json" },
+  //         body: JSON.stringify({
+  //           reaction_type: reaction_type,
+  //           user_id: userIDsession,
+  //         }),
+  //       });
+  //       if (response.ok) {
+  //         const data = await response.json();
+  //         if (reaction_type === "like") {
+  //           setLikePosts((prevLike) => [...prevLike, data]);
+  //           setDislikePosts((prevDislike) =>
+  //             prevDislike.filter((dislike) => dislike.user_id !== userIDsession)
+  //           );
+  //         } else if (reaction_type === "dislike") {
+  //           setDislikePosts((prevDislike) => [...prevDislike, data]);
+  //           setLikePosts((prevLike) =>
+  //             prevLike.filter((like) => like.user_id !== userIDsession)
+  //           );
+  //         }
+  //       }
+  //     }
+  //   } catch (error) {
+  //     console.log(error);
+  //   }
+  // };
 
-  const submitReactionPost = async (post_id, reaction_type) => {
-    // проверяем есть ли реакция от пользователя на пост
-    const isLike = likePosts.some((like) => like.user_id === userIDsession);
-    const isDislike = dislikePosts.some(
-      (dislike) => dislike.user_id === userIDsession
-    );
-    try {
-      // если тип реакции like и пользователь уже ставил like
-      if (reaction_type === "like" && isLike) {
-        // удаляем like локально
-        setLikePosts((prevLikes) =>
-          prevLikes.filter((like) => like.user_id !== userIDsession)
-        );
-        // Отправляем DELETE-запрос на сервер для удаления лайка
-        await fetch(
-          // DELETE-запрос с body НЕ поддерживается во всех браузерах!
-          // Решение 1 (надёжный способ) — передавать user_id в query-параметрах или в params
-          `/api/likeordislikepost/${post_id}?user_id=${userIDsession}`,
-          {
-            method: "DELETE",
-            // Некоторые реализации fetch просто игнорируют тело у DELETE, и на бэке оно будет undefined
-            // headers: { "Content-type": "application/json" },
-            // body: JSON.stringify({ user_id: userIDsession }),
-          }
-        );
-      } else if (reaction_type === "dislike" && isDislike) {
-        // удаляем dislike локально
-        setDislikePosts((prevDislike) =>
-          prevDislike.filter((dislike) => dislike.user_id !== userIDsession)
-        );
-        await fetch(
-          // DELETE-запрос с body НЕ поддерживается во всех браузерах!
-          // Решение 1 (надёжный способ) — передавать user_id в query-параметрах или в params
-          `/api/likeordislikepost/${post_id}?user_id=${userIDsession}`,
-          {
-            method: "DELETE",
-            // Некоторые реализации fetch просто игнорируют тело у DELETE, и на бэке оно будет undefined
-            // headers: { "Content-type": "application/json" },
-            // body: JSON.stringify({ user_id: userIDsession }),
-          }
-        );
-      } else {
-        // Если реакции нет, добавляем её
-        const response = await fetch(`/api/likeordislikepost/${post_id}`, {
-          method: "POST",
-          headers: { "Content-type": "application/json" },
-          body: JSON.stringify({
-            reaction_type: reaction_type,
-            user_id: userIDsession,
-          }),
-        });
-        if (response.ok) {
-          const data = await response.json();
-          if (reaction_type === "like") {
-            setLikePosts((prevLike) => [...prevLike, data]);
-            setDislikePosts((prevDislike) =>
-              prevDislike.filter((dislike) => dislike.user_id !== userIDsession)
-            );
-          } else if (reaction_type === "dislike") {
-            setDislikePosts((prevDislike) => [...prevDislike, data]);
-            setLikePosts((prevLike) =>
-              prevLike.filter((like) => like.user_id !== userIDsession)
-            );
-          }
-        }
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+  // useEffect(() => {
+  //   fetch(`/api/likeordislikepost/getLikes/${post.id}`, { method: "GET" })
+  //     .then((res) => res.json())
+  //     .then((data) => setLikePosts(data))
+  //     .catch((err) => console.log(err));
+  // }, []);
 
-  useEffect(() => {
-    fetch(`/api/likeordislikepost/getLikes/${post.id}`, { method: "GET" })
-      .then((res) => res.json())
-      .then((data) => setLikePosts(data))
-      .catch((err) => console.log(err));
-  }, []);
-
-  useEffect(() => {
-    fetch(`/api/likeordislikepost/getDislikes/${post.id}`, { method: "GET" })
-      .then((res) => res.json())
-      .then((data) => setDislikePosts(data))
-      .catch((err) => console.log(err));
-  }, []);
+  // useEffect(() => {
+  //   fetch(`/api/likeordislikepost/getDislikes/${post.id}`, { method: "GET" })
+  //     .then((res) => res.json())
+  //     .then((data) => setDislikePosts(data))
+  //     .catch((err) => console.log(err));
+  // }, []);
 
   return (
     <>
@@ -184,17 +281,21 @@ function Postcard({ post, userIDsession, deletePostHandler, userNameSession }) {
             <div className="comment-actions">
               <button
                 className="like-btn"
-                onClick={() => submitReactionPost(post.id, "like")}
+                // onClick={() => submitReactionPost(post.id, "like")}
+                onClick={() => submitReactionPost("like")}
               >
                 <ion-icon class="thumbs" name="thumbs-up-outline"></ion-icon>{" "}
-                {likePosts.length}
+                {/* {likePosts.length} */}
+                {likesPost}
               </button>
               <button
                 className="dislike-btn"
-                onClick={() => submitReactionPost(post.id, "dislike")}
+                // onClick={() => submitReactionPost(post.id, "dislike")}
+                onClick={() => submitReactionPost("dislike")}
               >
                 <ion-icon class="thumbs" name="thumbs-down-outline"></ion-icon>{" "}
-                {dislikePosts.length}
+                {/* {dislikePosts.length} */}
+                {dislikesPost}
               </button>
               <button className="reply-btn" onClick={handleShowReplies}>
                 reply
@@ -276,4 +377,5 @@ function areEqual(prevProps, nextProps) {
     prevProps.deletePostHandler === nextProps.deletePostHandler
   );
 }
+
 export default memo(Postcard, areEqual);

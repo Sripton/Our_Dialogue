@@ -12,7 +12,13 @@ module.exports = (sequelize, DataTypes) => {
       this.belongsTo(User, { foreignKey: "user_id" });
       this.belongsTo(Subject, { foreignKey: "subject_id" });
       this.hasMany(Comment, { foreignKey: "post_id" });
-      this.hasMany(Postreaction, { foreignKey: "post_id" });
+      // Ты НЕ менял схему таблицы (не добавлял столбцы, не удалял, не переименовывал).
+      // Ты просто указал псевдоним ассоциации (as: "Postreactions").
+      // Это не требует миграций.
+      this.hasMany(Postreaction, {
+        foreignKey: "post_id",
+        as: "Postreactions",
+      });
     }
   }
   Post.init(

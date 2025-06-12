@@ -13,7 +13,6 @@ export default function Commentform({
   const inputsCommentHandler = (e) => {
     setInputsComment((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
-
   const submitCommentsHandler = async (e) => {
     e.preventDefault();
     if (!inputsComment.commenttitle.trim()) {

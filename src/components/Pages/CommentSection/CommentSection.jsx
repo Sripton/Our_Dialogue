@@ -29,7 +29,6 @@ export default function CommentSection({
     return map;
   }, [allComments]);
 
-  console.log("commentMap", commentMap);
   return (
     <>
       {allComments?.map((comment) => (

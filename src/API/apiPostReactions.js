@@ -73,13 +73,13 @@ router.get("/getDislikes/:id", async (req, res) => {
     res.status(500).json({ message: "Произошла ошибка при отправке реакций" });
   }
 });
-
 router.delete("/:id", async (req, res) => {
   const { id } = req.params;
   // Передаем user_id как req.query потому что fetch просто игнорируют тело у DELETE
   // const { userID } = req.body;
-  const { userID } = req.query;
+  // const { userID } = req.query;
   try {
+    const userID = req.session.userID;
     await Postreaction.destroy({ where: { post_id: id, user_id: userID } });
     res.sendStatus(200);
   } catch (error) {
