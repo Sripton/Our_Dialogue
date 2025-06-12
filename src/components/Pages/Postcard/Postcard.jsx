@@ -1,36 +1,44 @@
 import React, { useState, useEffect, memo, useCallback } from "react";
 import CommentSection from "../CommentSection/CommentSection";
 import Commentform from "../Commentform";
-function Postcard({
-  post,
-  setPosts,
-  userIDsession,
-  deletePostHandler,
-  userNameSession,
-}) {
+function Postcard({ post, setPosts, userIDsession, deletePostHandler }) {
+  // ---------------------------------------------------------
+  // Состояние для отображения активных кнопок реакций, ответа, удаления и изменения
   const [isDotsActive, setIsDotsActive] = useState(false);
+  // Функция для отображения или скрытия  активных кнопок
   const handleDots = () => {
     setIsDotsActive(!isDotsActive);
   };
+  // Состояние для отображения кнопок реакций, ответа, удаления и изменения
+  // ---------------------------------------------------------
 
-  // Для отображения формы ответов на посты и комментарии
+  // ---------------------------------------------------------
+  // Состояние для отображения формы ответов на посты и комментарии
   const [isShowReplies, setShowReplies] = useState(false);
+  // Функция для отображения или скрытия ответов на посты и комментарии
   const handleShowReplies = () => {
     setShowReplies(!isShowReplies);
   };
+  // ---------------------------------------------------------
 
+  // ---------------------------------------------------------
+  // Состояние для отображения кнопки edit
   const [isEditPostActive, setIsEditPostActive] = useState(false);
+  // Состояние для хранения текста текущего поста
   const [editPostText, setEditPostText] = useState({
     posttitle: "",
   });
+  // Функция для преключения Состояние для отображения кнопки edit
   const handleEditActive = () => {
     setIsEditPostActive(!isEditPostActive);
     setEditPostText(post.posttitle);
   };
+  // Фукнция для хранения состояния текузего поста
   const handleEditPostText = (e) => {
     setEditPostText(e.target.value);
   };
 
+  // Функция для изменения поста
   const submitEditPostHandler = async (e) => {
     e.preventDefault();
     const responce = await fetch(`/api/posts/${post.id}`, {
@@ -43,135 +51,13 @@ function Postcard({
       post.posttitle = editPostText;
     }
   };
+
+  // ---------------------------------------------------------
+  // Состояния для хранения реакций like или dislike для постов
   // const [likePosts, setLikePosts] = useState([]);
   // const [dislikePosts, setDislikePosts] = useState([]);
 
-  // Не использовать состояние
-  // post.Postreactions инициализируются только один раз — при первом рендере.
-  //   Кликаешь "like" → отправляешь POST или DELETE на сервер,
-  // Но локальный reactionPosts не обновляется (или обновляется некорректно),
-  // Следующий вызов submitReactionPost проверяет устаревшие данные.
-  // const [reactionPosts, setReationPosts] = useState(post.Postreactions || []);
-
-  const submitReactionPost = async (reaction_type) => {
-    const isLike = post.Postreactions?.some(
-      (reaction) =>
-        reaction.user_id === userIDsession && reaction.reaction_type === "like"
-    );
-    const isDislike = post.Postreactions?.some(
-      (reaction) =>
-        reaction.user_id === userIDsession &&
-        reaction.reaction_type === "dislike"
-    );
-
-    try {
-      if (
-        (reaction_type === "like" && isLike) ||
-        (reaction_type === "dislike" && isDislike)
-      ) {
-        const responseDelete = await fetch(`/api/postreactions/${post.id}`, {
-          method: "DELETE",
-        });
-        console.log("responseDelete", responseDelete);
-        if (responseDelete.ok) {
-          setPosts((prevPosts) =>
-            prevPosts.map((prevPost) =>
-              prevPost.id === post.id
-                ? {
-                    ...prevPost,
-                    Postreactions: prevPost.Postreactions.filter(
-                      (reaction) => reaction.user_id !== userIDsession
-                    ),
-                  }
-                : prevPost
-            )
-          );
-        }
-        return;
-      }
-      const response = await fetch(`/api/postreactions/${post.id}`, {
-        method: "POST",
-        headers: { "Content-type": "application/json" },
-        body: JSON.stringify({ reaction_type }),
-      });
-      if (response.ok) {
-        // проблема реакция не обновляется а сохраняется новая реакция
-        // setPosts((prevPosts) =>
-        // prevPosts.map((prevPost) =>
-        // prevPost.id === post.id ?
-        // {...prevPost, Postreactions: [...prevPost.Postreactions, {user_id: userIDsession, post_id: post.id, reaction_type: reaction_type}]} : prevPost
-        // ))
-
-        // Решение
-        const newReaction = await response.json();
-        setPosts((prevPosts) =>
-          prevPosts.map((prevPost) =>
-            prevPost.id === post.id
-              ? {
-                  ...prevPost,
-                  Postreactions: [
-                    ...prevPost.Postreactions.filter(
-                      (reaction) => reaction.user_id !== userIDsession
-                    ),
-                    newReaction,
-                  ],
-                }
-              : prevPost
-          )
-        );
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  // Для отображения количества лайков под каждым постом
-  const likesPost =
-    post.Postreactions?.filter((like) => like.reaction_type === "like")
-      .length || 0;
-
-  // Для отображения количества дизлайков под каждым постом
-  const dislikesPost =
-    post.Postreactions?.filter((dislike) => dislike.reaction_type === "dislike")
-      .length || 0;
-
-  // Получаем все комментарии с сервера
-  const [allComments, setAllComments] = useState([]);
-
-  useEffect(() => {
-    fetch(`/api/comments/${post.id}`)
-      .then((res) => res.json())
-      .then((data) => setAllComments(data))
-      .catch((err) => console.log(err));
-  }, [post.id]);
-
-  const [showComments, setShowComments] = useState(false);
-
-  const handleShowComments = () => setShowComments(!showComments);
-
-  // Хук состояния для хранения ID комментария, на который сейчас отвечают
-  const [replyCommentID, setReplyCommentID] = useState(null);
-
-  // Обработчик клика по кнопке "Reply" — устанавливает или сбрасывает ID родительского комментария
-  const handleReplyToCommentID = useCallback((commentID) => {
-    setReplyCommentID((prevID) => (prevID === commentID ? null : commentID));
-  }, []); // [] в зависимостях означает, что handleReplyToCommentID будет создан один раз, и его ссылка будет стабильной — идеально для передачи в memo-компоненты.
-
-  // Рекурсинвый подсчет вложенных комменатриев комментариев
-  const countAllComments = (comments) => {
-    let count = 0;
-    const countRecursive = (commentList) => {
-      for (let comment of commentList) {
-        count++;
-        if (comment.Replies && comment.Replies.length > 0) {
-          countRecursive(comment.Replies);
-        }
-      }
-    };
-    countRecursive(comments);
-    return count;
-  };
-
+  // Функция для создания реакций на посты
   // const submitReactionPost = async (post_id, reaction_type) => {
   //   // проверяем есть ли реакция от пользователя на пост
   //   const isLike = likePosts.some((like) => like.user_id === userIDsession);
@@ -242,20 +128,159 @@ function Postcard({
   //     console.log(error);
   //   }
   // };
-
+  // Поулучаем like с  сервера
   // useEffect(() => {
   //   fetch(`/api/likeordislikepost/getLikes/${post.id}`, { method: "GET" })
   //     .then((res) => res.json())
   //     .then((data) => setLikePosts(data))
   //     .catch((err) => console.log(err));
   // }, []);
-
+  // Поулучаем dislike с  сервера
   // useEffect(() => {
   //   fetch(`/api/likeordislikepost/getDislikes/${post.id}`, { method: "GET" })
   //     .then((res) => res.json())
   //     .then((data) => setDislikePosts(data))
   //     .catch((err) => console.log(err));
   // }, []);
+
+  // Не использовать состояние
+  // post.Postreactions инициализируются только один раз — при первом рендере.
+  //   Кликаешь "like" → отправляешь POST или DELETE на сервер,
+  // Но локальный reactionPosts не обновляется (или обновляется некорректно),
+  // Следующий вызов submitReactionPost проверяет устаревшие данные.
+  // const [reactionPosts, setReationPosts] = useState(post.Postreactions || []);
+  // ---------------------------------------------------------
+
+  // ---------------------------------------------------------
+  // Функция для создания реакций на посты
+  const submitReactionPost = async (reaction_type) => {
+    const isLike = post.Postreactions?.some(
+      (reaction) =>
+        reaction.user_id === userIDsession && reaction.reaction_type === "like"
+    );
+    const isDislike = post.Postreactions?.some(
+      (reaction) =>
+        reaction.user_id === userIDsession &&
+        reaction.reaction_type === "dislike"
+    );
+
+    try {
+      if (
+        (reaction_type === "like" && isLike) ||
+        (reaction_type === "dislike" && isDislike)
+      ) {
+        const responseDelete = await fetch(`/api/postreactions/${post.id}`, {
+          method: "DELETE",
+        });
+        console.log("responseDelete", responseDelete);
+        if (responseDelete.ok) {
+          setPosts((prevPosts) =>
+            prevPosts.map((prevPost) =>
+              prevPost.id === post.id
+                ? {
+                    ...prevPost,
+                    Postreactions: prevPost.Postreactions.filter(
+                      (reaction) => reaction.user_id !== userIDsession
+                    ),
+                  }
+                : prevPost
+            )
+          );
+        }
+        return;
+      }
+      const response = await fetch(`/api/postreactions/${post.id}`, {
+        method: "POST",
+        headers: { "Content-type": "application/json" },
+        body: JSON.stringify({ reaction_type }),
+      });
+      if (response.ok) {
+        // проблема реакция не обновляется а сохраняется новая реакция
+        // setPosts((prevPosts) =>
+        // prevPosts.map((prevPost) =>
+        // prevPost.id === post.id ?
+        // {...prevPost, Postreactions: [...prevPost.Postreactions, {user_id: userIDsession, post_id: post.id, reaction_type: reaction_type}]} : prevPost
+        // ))
+
+        // Решение
+        // Получает объект новой или обновленной реакции от сервера.
+        const newReaction = await response.json();
+        // Получаем обновлённый пост с актуальной реакцией в единственном экземпляре (старую убрали, новую добавили).
+        setPosts((prevPosts) =>
+          prevPosts.map((prevPost) =>
+            prevPost.id === post.id
+              ? // Обновить состояние posts, заменив старую реакцию пользователя на новую, не дублируя их.
+                {
+                  ...prevPost,
+                  // Postreactions: [...] — формируем новый массив реакций.
+                  Postreactions: [
+                    //  убираем старую реакцию текущего пользователя (если она была).
+                    ...prevPost.Postreactions.filter(
+                      (reaction) => reaction.user_id !== userIDsession
+                    ),
+                    // newReaction — добавляем новую реакцию пользователя.
+                    newReaction,
+                  ],
+                }
+              : prevPost
+          )
+        );
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // Для отображения количества лайков под каждым постом
+  const likesPost =
+    post.Postreactions?.filter((like) => like.reaction_type === "like")
+      .length || 0;
+
+  // Для отображения количества дизлайков под каждым постом
+  const dislikesPost =
+    post.Postreactions?.filter((dislike) => dislike.reaction_type === "dislike")
+      .length || 0;
+  // ---------------------------------------------------------
+
+  // ---------------------------------------------------------
+  // Получаем все комментарии с сервера
+  // Состояние для комментариев
+  const [allComments, setAllComments] = useState([]);
+  useEffect(() => {
+    fetch(`/api/comments/${post.id}`)
+      .then((res) => res.json())
+      .then((data) => setAllComments(data))
+      .catch((err) => console.log(err));
+  }, [post.id]);
+
+  // Состсояние для отображения комментариев
+  const [showComments, setShowComments] = useState(false);
+  // Фукнция переключатель для состояния отображения комментариев
+  const handleShowComments = () => setShowComments(!showComments);
+
+  // Хук состояния для хранения ID комментария, на который сейчас отвечают
+  const [replyCommentID, setReplyCommentID] = useState(null);
+
+  // Обработчик клика по кнопке "Reply" — устанавливает или сбрасывает ID родительского комментария
+  const handleReplyToCommentID = useCallback((commentID) => {
+    setReplyCommentID((prevID) => (prevID === commentID ? null : commentID));
+  }, []); // [] в зависимостях означает, что handleReplyToCommentID будет создан один раз, и его ссылка будет стабильной — идеально для передачи в memo-компоненты.
+
+  // Рекурсинвый подсчет вложенных комменатриев комментариев
+  const countAllComments = (comments) => {
+    let count = 0;
+    const countRecursive = (commentList) => {
+      for (let comment of commentList) {
+        count++;
+        if (comment.Replies && comment.Replies.length > 0) {
+          countRecursive(comment.Replies);
+        }
+      }
+    };
+    countRecursive(comments);
+    return count;
+  };
+  // ---------------------------------------------------------
 
   return (
     <>
