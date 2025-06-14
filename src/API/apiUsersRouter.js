@@ -1,5 +1,12 @@
 import express from "express";
-import { User } from "../db/models";
+import { Op } from "sequelize";
+import {
+  User,
+  Post,
+  Postreaction,
+  Comment,
+  Commentreactions,
+} from "../db/models";
 import bcrypt from "bcrypt";
 const router = express.Router();
 
@@ -56,4 +63,47 @@ router.get("/logout", (req, res) => {
   }
 });
 
+router.get("/useractivity/:id", async (req, res) => {
+  const { id } = req.params;
+  try {
+    // Получить все post_id, где user — это Эльмар
+    const userPosts = await Post.findAll({
+      where: { user_id: id },
+      attributes: ["id"],
+    });
+    const userPostsID = userPosts.map((post) => post.id);
+
+    // Получить все comment_id, которые написал Эльмар
+    const userComments = await Comment.findAll({
+      where: { user_id: id },
+      attributes: ["id"],
+    });
+    const userCommentsID = userComments.map((comment) => comment.id);
+
+    // Комментарии к его постам (первого уровня)
+    const commentOnPostCount = await Comment.count({
+      where: { post_id: { [Op.in]: userPostsID }, parent_id: null }, // 2
+    });
+
+    // Ответы на его комментарии
+    const repliesToUserCommentsCount = await Comment.count({
+      where: { parent_id: { [Op.in]: userCommentsID } },
+    });
+
+    const total = commentOnPostCount + repliesToUserCommentsCount;
+
+    // Для аналитики:
+    // 🔘 Комментарии к постам: 2
+    // 🔘 Ответы на комментарии: 5
+    // 🔘 Всего: 7
+    res.json({
+      replies: total,
+      commentOnPostCount,
+      repliesToUserCommentsCount,
+    });
+  } catch (error) {
+    console.log(error);
+  }
+});
+  
 export default router;

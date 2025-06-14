@@ -8,8 +8,10 @@ export default function Navbar({
   const [iconMenuActive, setIconMenuActive] = useState(false);
   const [isArrowActive, setIsArrowActive] = useState(false);
   const [dropActive, setDropActive] = useState(false);
+  const [replyCount, setReplyCount] = useState(null); // 👈 для количества "Ответили"
   const profileDropdownBtnRef = useRef(null);
   const profileDropdownListRef = useRef(null);
+  const cache = useRef({}); // 👈 создаем кеш
 
   const handleIconMenuActive = () => {
     setIconMenuActive(!iconMenuActive);
@@ -20,7 +22,6 @@ export default function Navbar({
   const handleDropClick = () => {
     setDropActive((prev) => !prev);
   };
-
 
   useEffect(() => {
     const handleClickOutside = (e) => {
@@ -38,7 +39,25 @@ export default function Navbar({
     };
   });
 
+  // Забираем кол-во ответов на посты и комменатрии пользователя
+  useEffect(() => {
+    if (!userIDsession) return;
 
+    if (
+      cache.current[userIDsession] &&
+      cache.current[userIDsession] !== undefined
+    ) {
+      setReplyCount(cache.current[userIDsession]); // 👈 ставим значение из кеша
+      return; // ОСТАНАВЛИВАЕМ useEffect, не делает fetch
+    }
+    fetch(`/api/users/useractivity/${userIDsession}`)
+      .then((res) => res.json())
+      .then((data) => {
+        setReplyCount(data);
+        cache.current[userIDsession] = data; // 👈 кешируем результат
+      })
+      .catch((err) => console.log(err));
+  }, [userIDsession]);
 
   return (
     <>
@@ -162,7 +181,7 @@ export default function Navbar({
                           <li className="profile__dropdown__item">
                             <a href="#">
                               <i className="fa-regular fa-envelope"> </i>
-                              Ответили
+                              Ответили {`${replyCount?.replies}`}
                             </a>
                           </li>
                           <li className="profile__dropdown__item">

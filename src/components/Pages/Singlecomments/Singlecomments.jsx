@@ -218,15 +218,15 @@ function Singlecomments({
 
       {editCommentID === comment.id && (
         <form onSubmit={editCommentsSubmitHandler}>
-          <div id="reply-form-template" className="add-comment">
-            <textarea
-              name="commenttitle"
-              value={editCommentsText.commenttitle}
-              onChange={editCommentsInputsHandler}
-              placeholder="Write a reply..."
-            />
-            <button type="submit">Post Comment</button>
-          </div>
+          <textarea
+            name="commenttitle"
+            value={editCommentsText.commenttitle}
+            onChange={editCommentsInputsHandler}
+            placeholder="Write a reply..."
+          />
+          <button className="edit-post-btn" type="submit">
+            Измененить
+          </button>
         </form>
       )}
       <div className="comment-actions">
@@ -308,7 +308,7 @@ function areEqualSinglecomments(prevProps, nextProps) {
   ) {
     return true;
   }
-  
+
   // Глубокая проверка replyID → вложенность
   // Функция корректно рекурсивно ищет, затронут ли вложенные Replies данным replyCommentID.
   const isReplyTarget = (comment, replyID) => {
