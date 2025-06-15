@@ -61,6 +61,6 @@ app.use("/api/users", apiUsersRouter);
 app.use("/api/posts", apiPostRouter);
 app.use("/api/postreactions", apiPostReactions);
 app.use("/api/comments", apiCommentsRouter);
-app.use("/api/likeordislikecomment", apiCommentReactions);
+app.use("/api/commentreactions", apiCommentReactions);
 
 app.listen(PORT, () => console.log(`***** Server start on ${PORT} port`));

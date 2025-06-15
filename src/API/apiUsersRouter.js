@@ -5,7 +5,7 @@ import {
   Post,
   Postreaction,
   Comment,
-  Commentreactions,
+  Commentreaction,
 } from "../db/models";
 import bcrypt from "bcrypt";
 const router = express.Router();
@@ -66,19 +66,21 @@ router.get("/logout", (req, res) => {
 router.get("/useractivity/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    // Получить все post_id, где user — это Эльмар
-    const userPosts = await Post.findAll({
+    // --------------------------------------------------------
+    // Логика для подсчета ко-ва ответов на посты и комментарии
+    // Получить все post_id, где user = id
+    const userPostsForComments = await Post.findAll({
       where: { user_id: id },
       attributes: ["id"],
     });
-    const userPostsID = userPosts.map((post) => post.id);
+    const userPostsID = userPostsForComments.map((post) => post.id);
 
     // Получить все comment_id, которые написал Эльмар
-    const userComments = await Comment.findAll({
+    const userCommentsForComments = await Comment.findAll({
       where: { user_id: id },
       attributes: ["id"],
     });
-    const userCommentsID = userComments.map((comment) => comment.id);
+    const userCommentsID = userCommentsForComments.map((comment) => comment.id);
 
     // Комментарии к его постам (первого уровня)
     const commentOnPostCount = await Comment.count({
@@ -89,21 +91,48 @@ router.get("/useractivity/:id", async (req, res) => {
     const repliesToUserCommentsCount = await Comment.count({
       where: { parent_id: { [Op.in]: userCommentsID } },
     });
-
-    const total = commentOnPostCount + repliesToUserCommentsCount;
+    const totalReply = commentOnPostCount + repliesToUserCommentsCount;
 
     // Для аналитики:
     // 🔘 Комментарии к постам: 2
     // 🔘 Ответы на комментарии: 5
     // 🔘 Всего: 7
+    // res.json({
+    //   replies: total,
+    //   commentOnPostCount,
+    //   repliesToUserCommentsCount,
+    // });
+    // Логика для подсчета ко-ва ответов на посты и комментарии
+    // --------------------------------------------------------
+
+    // res.json(findAllComments);
+
+    const userPostForPostreactions = await Post.findAll({
+      where: { user_id: id },
+      include: [{ model: Postreaction, as: "Postreactions" }],
+    });
+    const userPostForPostreactionsID = userPostForPostreactions.map(
+      (reaction) => reaction.Postreactions.length
+    );
+
+    const userCommentForPostreactions = await Comment.findAll({
+      where: { user_id: id },
+      include: [{ model: Commentreaction, as: "reactions" }],
+    });
+
+    const userCommentForPostreactionsID = userCommentForPostreactions.map(
+      (reaction) => reaction.reactions.length
+    );
+    const totalReactions =
+      +userPostForPostreactionsID + +userCommentForPostreactionsID;
+
     res.json({
-      replies: total,
-      commentOnPostCount,
-      repliesToUserCommentsCount,
+      replies: totalReply,
+      reactions: totalReactions,
     });
   } catch (error) {
     console.log(error);
   }
 });
-  
+
 export default router;

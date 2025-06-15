@@ -172,7 +172,7 @@ function Singlecomments({
   };
 
   const reactionsCommentSubmit = async (reaction_type) => {
-    const responce = await fetch(`/api/likeordislikecomment/${comment.id}`, {
+    const responce = await fetch(`/api/commentreactions/${comment.id}`, {
       method: "POST",
       headers: { "Content-type": "application/json" },
       body: JSON.stringify({ reaction_type }),

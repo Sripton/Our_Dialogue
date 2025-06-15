@@ -11,8 +11,8 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       this.hasMany(Post, { foreignKey: "user_id" });
       this.hasMany(Comment, { foreignKey: "user_id" });
-      this.hasMany(Postreaction, { foreignKey: "user_id" });
-      this.hasMany(Commentreaction, { foreignKey: "user_id" });
+      this.hasMany(Postreaction, { foreignKey: "user_id", as: "Postreactions" });
+      this.hasMany(Commentreaction, { foreignKey: "user_id", as: "reactions" });
     }
   }
   User.init(

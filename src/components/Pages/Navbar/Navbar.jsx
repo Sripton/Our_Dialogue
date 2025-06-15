@@ -45,7 +45,7 @@ export default function Navbar({
 
     if (
       cache.current[userIDsession] &&
-      cache.current[userIDsession] !== undefined
+      cache.current[userIDsession] !== undefined // Дополнительная страховка
     ) {
       setReplyCount(cache.current[userIDsession]); // 👈 ставим значение из кеша
       return; // ОСТАНАВЛИВАЕМ useEffect, не делает fetch
@@ -58,6 +58,9 @@ export default function Navbar({
       })
       .catch((err) => console.log(err));
   }, [userIDsession]);
+
+  console.log("cache", cache);
+  console.log("replyCount", replyCount);
 
   return (
     <>
@@ -187,7 +190,7 @@ export default function Navbar({
                           <li className="profile__dropdown__item">
                             <a href="#">
                               <i className="fa-regular fa-heart"> </i>
-                              Понравилось
+                              Реакции {`${replyCount?.reactions}`}
                             </a>
                           </li>
                           <li
