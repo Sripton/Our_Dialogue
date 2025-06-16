@@ -1,4 +1,4 @@
-import express from "express";
+import express, { raw, group } from "express";
 import { Op } from "sequelize";
 import {
   User,
@@ -6,6 +6,7 @@ import {
   Postreaction,
   Comment,
   Commentreaction,
+  sequelize,
 } from "../db/models";
 import bcrypt from "bcrypt";
 const router = express.Router();
@@ -63,69 +64,157 @@ router.get("/logout", (req, res) => {
   }
 });
 
+// router.get("/useractivity/:id", async (req, res) => {
+//   const { id } = req.params;
+//   try {
+//     // --------------------------------------------------------
+//     // Логика для подсчета ко-ва ответов на посты и комментарии
+//     // Получить все post_id, где user = id
+//     const userPostsForComments = await Post.findAll({
+//       where: { user_id: id },
+//       attributes: ["id"],
+//     });
+//     const userPostsID = userPostsForComments.map((post) => post.id);
+
+//     // Получить все comment_id, которые написал Эльмар
+//     const userCommentsForComments = await Comment.findAll({
+//       where: { user_id: id },
+//       attributes: ["id"],
+//     });
+//     const userCommentsID = userCommentsForComments.map((comment) => comment.id);
+
+//     // Комментарии к его постам (первого уровня)
+//     const commentOnPostCount = await Comment.count({
+//       where: { post_id: { [Op.in]: userPostsID }, parent_id: null }, // 2
+//     });
+
+//     // Ответы на его комментарии
+//     const repliesToUserCommentsCount = await Comment.count({
+//       where: { parent_id: { [Op.in]: userCommentsID } },
+//     });
+//     const totalReply = commentOnPostCount + repliesToUserCommentsCount;
+
+//     // Для аналитики:
+//     // 🔘 Комментарии к постам: 2
+//     // 🔘 Ответы на комментарии: 5
+//     // 🔘 Всего: 7
+//     // res.json({
+//     //   replies: total,
+//     //   commentOnPostCount,
+//     //   repliesToUserCommentsCount,
+//     // });
+//     // Логика для подсчета ко-ва ответов на посты и комментарии
+//     // --------------------------------------------------------
+
+//     // res.json(findAllComments);
+
+//     const userPostForPostreactions = await Post.findAll({
+//       where: { user_id: id },
+//       include: [{ model: Postreaction, as: "Postreactions" }],
+//     });
+//     const userPostForPostreactionsID = userPostForPostreactions.map(
+//       (reaction) => reaction.Postreactions.length
+//     );
+
+//     const userCommentForPostreactions = await Comment.findAll({
+//       where: { user_id: id },
+//       include: [{ model: Commentreaction, as: "reactions" }],
+//     });
+
+//     const userCommentForPostreactionsID = userCommentForPostreactions.map(
+//       (reaction) => reaction.reactions.length
+//     );
+//     const totalReactions =
+//       +userPostForPostreactionsID + +userCommentForPostreactionsID;
+
+//     res.json({
+//       replies: totalReply,
+//       reactions: totalReactions,
+//     });
+//   } catch (error) {
+//     console.log(error);
+//   }
+// });
+
 router.get("/useractivity/:id", async (req, res) => {
   const { id } = req.params;
   try {
-    // --------------------------------------------------------
-    // Логика для подсчета ко-ва ответов на посты и комментарии
-    // Получить все post_id, где user = id
-    const userPostsForComments = await Post.findAll({
+    // -----------------------------------------------------------------------
+    // Логика для получения ко-ва ответов на посты и комменатрии пользователя
+
+    // 🔹 Получить ID постов пользователя
+    const userPosts = await Post.findAll({
       where: { user_id: id },
       attributes: ["id"],
+      raw: true, // raw: true — убирает "обёртку" Sequelize и возвращает обычные объекты JS
     });
-    const userPostsID = userPostsForComments.map((post) => post.id);
+    const userPostsID = userPosts.map((post) => post.id);
 
-    // Получить все comment_id, которые написал Эльмар
-    const userCommentsForComments = await Comment.findAll({
+    // 🔹 Получить ID комментариев пользователя
+    const userComments = await Comment.findAll({
       where: { user_id: id },
       attributes: ["id"],
+      raw: true,
     });
-    const userCommentsID = userCommentsForComments.map((comment) => comment.id);
+    const userCommentsID = userComments.map((comment) => comment.id);
 
-    // Комментарии к его постам (первого уровня)
+    // 🔹 Кол-во комментариев к постам пользователя (первого уровня)
     const commentOnPostCount = await Comment.count({
-      where: { post_id: { [Op.in]: userPostsID }, parent_id: null }, // 2
+      where: { post_id: { [Op.in]: userPostsID }, parent_id: null },
     });
 
-    // Ответы на его комментарии
+    // 🔹 Кол-во ответов на комментарии пользователя
     const repliesToUserCommentsCount = await Comment.count({
       where: { parent_id: { [Op.in]: userCommentsID } },
     });
     const totalReply = commentOnPostCount + repliesToUserCommentsCount;
+    // Логика для получения ко-ва ответов на посты и комменатрии пользователя
+    // -----------------------------------------------------------------------
 
-    // Для аналитики:
-    // 🔘 Комментарии к постам: 2
-    // 🔘 Ответы на комментарии: 5
-    // 🔘 Всего: 7
-    // res.json({
-    //   replies: total,
-    //   commentOnPostCount,
-    //   repliesToUserCommentsCount,
-    // });
-    // Логика для подсчета ко-ва ответов на посты и комментарии
-    // --------------------------------------------------------
+    // -----------------------------------------------------------------------
+    // Логика для получения ко-ва реакций на посты и комменатрии пользователя
 
-    // res.json(findAllComments);
-
-    const userPostForPostreactions = await Post.findAll({
+    // 🔹 Получить реакции на посты пользователя (через include)
+    const userPostsWithReactions = await Post.findAll({
       where: { user_id: id },
-      include: [{ model: Postreaction, as: "Postreactions" }],
-    });
-    const userPostForPostreactionsID = userPostForPostreactions.map(
-      (reaction) => reaction.Postreactions.length
-    );
-
-    const userCommentForPostreactions = await Comment.findAll({
-      where: { user_id: id },
-      include: [{ model: Commentreaction, as: "reactions" }],
+      include: [{ model: Postreaction, as: "Postreactions", attributes: [] }],
+      attributes: [
+        "id",
+        [
+          sequelize.fn("COUNT", sequelize.col("Postreactions.id")),
+          "reactionCount",
+        ],
+      ],
+      group: ["Post.id"],
+      raw: true,
     });
 
-    const userCommentForPostreactionsID = userCommentForPostreactions.map(
-      (reaction) => reaction.reactions.length
+    const postReactionsCount = userPostsWithReactions.reduce(
+      (sum, reaction) => sum + Number(reaction.reactionCount),
+      0
     );
-    const totalReactions =
-      +userPostForPostreactionsID + +userCommentForPostreactionsID;
 
+    // 🔹 Получить реакции на комментарии пользователя
+    const userCommentsWithReactions = await Comment.findAll({
+      where: { user_id: id },
+      include: [{ model: Commentreaction, as: "reactions", attributes: [] }],
+      attributes: [
+        "id",
+        [sequelize.fn("COUNT", sequelize.col("reactions.id")), "reactions"],
+      ],
+      group: ["Comment.id"],
+      raw: true,
+    });
+
+    const commentReactionsCount = userCommentsWithReactions.reduce(
+      (sum, reaction) => sum + Number(reaction.reactions),
+      0
+    );
+
+    const totalReactions = postReactionsCount + commentReactionsCount;
+
+    // Логика для получения ко-ва реакций на посты и комменатрии пользователя
+    // -----------------------------------------------------------------------
     res.json({
       replies: totalReply,
       reactions: totalReactions,
@@ -134,5 +223,4 @@ router.get("/useractivity/:id", async (req, res) => {
     console.log(error);
   }
 });
-
 export default router;

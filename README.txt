@@ -319,3 +319,40 @@ useEffect(() => {
 }, [userIDsession]);
 ➡️ Теперь при повторных заходах в Navbar, если пользователь тот же — данные берутся из cache.current.
 
+
+
+
+🔧 Общая структура:
+sequelize.fn("COUNT", sequelize.col("Postreactions.id"))
+означает:
+❗ "Выполни SQL-функцию COUNT() по колонке Postreactions.id"
+
+📌 Подробное объяснение:
+✅ sequelize.fn(...)
+Это способ вызвать SQL-функцию (например COUNT, SUM, AVG, NOW, и т.д.) через Sequelize.
+sequelize.fn("COUNT", ...) → COUNT(...)
+✅ sequelize.col("Postreactions.id")
+Это означает:
+
+"Колонка id в связанной таблице Postreactions"
+
+Почему Postreactions.id, а не просто id?
+Потому что:
+
+Мы делаем JOIN с таблицей Postreactions через include: [{ model: Postreaction, as: "Postreactions" }];
+
+В SQL это будет что-то вроде:
+
+LEFT JOIN postreactions AS Postreactions ON Post.id = Postreactions.post_id
+Поэтому, чтобы подсчитать количество связанных реакций, нужно явно указать: COUNT(Postreactions.id)
+✅ "reactionCount" — псевдоним (alias)
+Это имя, под которым результат появится в объекте:
+
+🧠 SQL-аналог
+SELECT
+  Post.id,
+  COUNT(Postreactions.id) AS reactionCount
+FROM Post
+LEFT JOIN Postreactions ON Post.id = Postreactions.post_id
+WHERE Post.user_id = ?
+GROUP BY Post.id;
